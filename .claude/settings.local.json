@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npx vite build)",
+      "Bash(\"c:/Users/moshe/Projects/KidsQuiz/tailwind.config.js\":*)"
+    ]
+  }
+}
