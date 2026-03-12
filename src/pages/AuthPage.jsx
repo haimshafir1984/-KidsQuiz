@@ -1,10 +1,12 @@
 ﻿import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { isDesktopRuntime } from '../utils/runtime'
 
 export default function AuthPage() {
   const [params] = useSearchParams()
-  const [authTab, setAuthTab] = useState(params.get('tab') === 'register' ? 'register' : 'login')
+  const desktop = isDesktopRuntime()
+  const [authTab, setAuthTab] = useState(desktop ? 'login' : params.get('tab') === 'register' ? 'register' : 'login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,6 +23,7 @@ export default function AuthPage() {
   }
 
   function handleTabChange(tab) {
+    if (desktop && tab === 'register') return
     setAuthTab(tab)
     resetForm()
   }
@@ -32,6 +35,11 @@ export default function AuthPage() {
 
     if (!username.trim() || !password.trim()) {
       setError('יש למלא שם משתמש וסיסמה')
+      return
+    }
+
+    if (desktop && authTab === 'register') {
+      setError('בגרסת האופליין לא ניתן לפתוח משתמש חדש. יש ליצור משתמש במערכת האונליין בלבד.')
       return
     }
 
@@ -81,7 +89,7 @@ export default function AuthPage() {
             ברוכים הבאים! 👋
           </h1>
           <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            התחברו או פתחו חשבון חדש כדי להתחיל תרגול אינטראקטיבי, לצבור הישגים ולשמור על מוטיבציה גבוהה לאורך הדרך.
+            התחברו כדי להתחיל תרגול אינטראקטיבי, לצבור הישגים ולשמור על מוטיבציה גבוהה לאורך הדרך.
           </p>
         </div>
 
@@ -90,7 +98,7 @@ export default function AuthPage() {
             { emoji: '🎯', text: 'תרגול ממוקד לפי רמה' },
             { emoji: '📈', text: 'מעקב התקדמות ברור' },
             { emoji: '✨', text: 'חוויית למידה צבעונית' },
-            { emoji: '🔐', text: 'גישה מסודרת ובטוחה' },
+            { emoji: '🔐', text: desktop ? 'רישום משתמשים מתבצע רק אונליין' : 'גישה מסודרת ובטוחה' },
           ].map(item => (
             <div key={item.text} className="edu-card flex items-center gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600">
@@ -105,38 +113,48 @@ export default function AuthPage() {
       <section className="edu-card mx-auto w-full max-w-xl">
         <div className="mb-6 flex items-start gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-4xl text-amber-600">
-            {authTab === 'login' ? '🔑' : '🌟'}
+            🔑
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-extrabold text-slate-950">
-              {authTab === 'login' ? 'כניסה למערכת' : 'יצירת חשבון חדש'}
+              {desktop ? 'כניסה לגרסת האופליין' : authTab === 'login' ? 'כניסה למערכת' : 'יצירת חשבון חדש'}
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              {authTab === 'login'
-                ? 'המשיכו בדיוק מהמקום שבו עצרתם.'
-                : 'פתחו חשבון חדש והתחילו לצבור הצלחות כבר מהשאלה הראשונה.'}
+              {desktop
+                ? 'בגרסת האופליין ניתן להתחבר בלבד. פתיחת משתמש חדש מתבצעת דרך מערכת האונליין.'
+                : authTab === 'login'
+                  ? 'המשיכו בדיוק מהמקום שבו עצרתם.'
+                  : 'פתחו חשבון חדש והתחילו לצבור הצלחות כבר מהשאלה הראשונה.'}
             </p>
           </div>
         </div>
 
-        <div className="mb-6 flex border-b border-slate-200">
-          {[
-            ['login', 'כניסה'],
-            ['register', 'הרשמה'],
-          ].map(([tab, label]) => (
-            <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                authTab === tab
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:border-blue-600 hover:text-blue-600'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {!desktop && (
+          <div className="mb-6 flex border-b border-slate-200">
+            {[
+              ['login', 'כניסה'],
+              ['register', 'הרשמה'],
+            ].map(([tab, label]) => (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab)}
+                className={`-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+                  authTab === tab
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-slate-500 hover:border-blue-600 hover:text-blue-600'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {desktop && (
+          <div className="mb-6 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-right text-sm font-semibold text-amber-700">
+            פתיחת משתמש חדש אינה זמינה באופליין. יש ליצור משתמש דרך הגרסה המחוברת ואז להתחבר כאן.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -158,7 +176,7 @@ export default function AuthPage() {
               value={password}
               onChange={event => setPassword(event.target.value)}
               placeholder="הכנס סיסמה"
-              autoComplete={authTab === 'login' ? 'current-password' : 'new-password'}
+              autoComplete="current-password"
               className="input-field"
             />
           </div>
@@ -171,7 +189,7 @@ export default function AuthPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button type="submit" className="btn-primary">
-              {authTab === 'login' ? 'כניסה 🚀' : 'הרשמה ✨'}
+              כניסה 🚀
             </button>
             <button
               type="button"

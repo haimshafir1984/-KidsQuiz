@@ -1,43 +1,68 @@
-﻿import { createContext, useContext, useState, useEffect } from 'react'
+﻿import { createContext, useContext, useEffect, useState } from 'react'
 import { getCurrentUser, setCurrentUser, getQuestions, saveQuestions } from '../utils/storage'
 import {
-  seedAdmin, serverFindUser, serverGetUsers, serverSaveUser,
-  saveResult, checkSubscription,
-  getStoredMode, setStoredMode, clearStoredMode,
+  seedAdmin,
+  serverFindUser,
+  serverGetUsers,
+  serverSaveUser,
+  saveResult,
+  checkSubscription,
+  getStoredMode,
+  setStoredMode,
+  clearStoredMode,
 } from '../utils/db'
-import seedQuestions from '../data/seedQuestions.json'
+import seedQuestions from '../data/seedQuestions'
 
 const AppContext = createContext(null)
+
+function shuffleQuestions(items) {
+  return [...items].sort(() => Math.random() - 0.5)
+}
 
 export function AppProvider({ children }) {
   const [user, setUser] = useState(() => {
     seedAdmin()
-    const u = getCurrentUser()
-    if (!u) return null
-    if (!checkSubscription(u).valid) {
+    const currentUser = getCurrentUser()
+    if (!currentUser) return null
+    if (!checkSubscription(currentUser).valid) {
       setCurrentUser(null)
       clearStoredMode()
       return null
     }
-    return u
+    return currentUser
   })
 
   const [mode, setModeState] = useState(() => {
-    const u = getCurrentUser()
-    if (!u || !checkSubscription(u).valid) return null
+    const currentUser = getCurrentUser()
+    if (!currentUser || !checkSubscription(currentUser).valid) return null
     return getStoredMode()
   })
 
   const [questions, setQuestions] = useState([])
-  const [selectedAge, setSelectedAge] = useState(null)
+  const [selectedGrade, setSelectedGrade] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
+  const [selectedLevel, setSelectedLevel] = useState(null)
+  const [selectedActivity, setSelectedActivity] = useState('practice')
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizResults, setQuizResults] = useState(null)
+  const [quizSession, setQuizSession] = useState({
+    timeLimitSeconds: null,
+    startedAt: null,
+    deadlineAt: null,
+  })
 
   useEffect(() => {
     const stored = getQuestions()
 
     if (stored?.length > 0) {
+      const hasNewSchema = stored.every(question => question.grade && question.subject && question.activityType)
+
+      if (!hasNewSchema) {
+        saveQuestions(seedQuestions)
+        setQuestions(seedQuestions)
+        return
+      }
+
       const storedIds = new Set(stored.map(question => question.id))
       const missingSeedQuestions = seedQuestions.filter(question => !storedIds.has(question.id))
       const mergedQuestions = missingSeedQuestions.length > 0 ? [...stored, ...missingSeedQuestions] : stored
@@ -68,7 +93,10 @@ export function AppProvider({ children }) {
 
   function register(username, password) {
     const users = serverGetUsers()
-    if (users.find(u => u.username === username)) return { error: 'שם המשתמש כבר קיים' }
+    if (users.find(existingUser => existingUser.username === username)) {
+      return { error: 'שם המשתמש כבר קיים' }
+    }
+
     const newUser = {
       id: Date.now().toString(),
       username,
@@ -76,6 +104,7 @@ export function AppProvider({ children }) {
       role: 'student',
       subscription_date: new Date().toISOString(),
     }
+
     serverSaveUser(newUser)
     clearStoredMode()
     setModeState(null)
@@ -84,79 +113,175 @@ export function AppProvider({ children }) {
     return { success: true }
   }
 
+  function resetLearningFlow() {
+    setSelectedGrade(null)
+    setSelectedSubject(null)
+    setSelectedLevel(null)
+    setSelectedActivity('practice')
+    setQuizQuestions([])
+    setQuizResults(null)
+    setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
+  }
+
   function logout() {
     setCurrentUser(null)
     setUser(null)
     clearStoredMode()
     setModeState(null)
-    setSelectedAge(null)
+    resetLearningFlow()
+  }
+
+  function setMode(modeValue) {
+    setStoredMode(modeValue)
+    setModeState(modeValue)
+  }
+
+  function addQuestion(question) {
+    const newQuestion = { ...question, id: `custom-${Date.now()}` }
+    const updatedQuestions = [...questions, newQuestion]
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+    return newQuestion
+  }
+
+  function updateQuestion(id, data) {
+    const updatedQuestions = questions.map(question => (question.id === id ? { ...question, ...data } : question))
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+  }
+
+  function deleteQuestion(id) {
+    const updatedQuestions = questions.filter(question => question.id !== id)
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+  }
+
+  function chooseGrade(grade) {
+    setSelectedGrade(grade)
     setSelectedSubject(null)
+    setSelectedLevel(null)
+    setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
   }
 
-  function setMode(m) {
-    setStoredMode(m)
-    setModeState(m)
-  }
-
-  function addQuestion(q) {
-    const newQ = { ...q, id: Date.now().toString() }
-    const updated = [...questions, newQ]
-    setQuestions(updated)
-    saveQuestions(updated)
-    return newQ
-  }
-
-  function updateQuestion(id, data) {
-    const updated = questions.map(q => q.id === id ? { ...q, ...data } : q)
-    setQuestions(updated)
-    saveQuestions(updated)
-  }
-
-  function deleteQuestion(id) {
-    const updated = questions.filter(q => q.id !== id)
-    setQuestions(updated)
-    saveQuestions(updated)
-  }
-
-  function startQuiz(age, subject) {
-    setSelectedAge(age)
+  function chooseSubject(subject) {
     setSelectedSubject(subject)
-    const shuffled = [...questions.filter(q => q.age_group === age && q.subject === subject)]
-      .sort(() => Math.random() - 0.5)
-    setQuizQuestions(shuffled)
+    setSelectedLevel(null)
+    setSelectedActivity('practice')
+    setQuizQuestions([])
     setQuizResults(null)
-    return shuffled
   }
 
-  function finishQuiz(results) {
-    setQuizResults(results)
-    const score = results.filter(r => r.correct).length
-    saveResult({
-      id: Date.now().toString(),
-      userId: user.id,
+  function prepareQuiz({ grade, subject, level = null, activityType = 'practice' }) {
+    setSelectedGrade(grade)
+    setSelectedSubject(subject)
+    setSelectedLevel(level)
+    setSelectedActivity(activityType)
+
+    const filteredQuestions = questions.filter(question => {
+      const sameGrade = question.grade === grade
+      const sameSubject = question.subject === subject
+      const sameActivity = question.activityType === activityType
+      const sameLevel = (question.level || null) === (level || null)
+      return sameGrade && sameSubject && sameActivity && sameLevel
+    })
+
+    const preparedQuestions = shuffleQuestions(filteredQuestions)
+    setQuizQuestions(preparedQuestions)
+    setQuizResults(null)
+    setQuizSession({
+      timeLimitSeconds: activityType === 'exam' ? 180 : null,
+      startedAt: null,
+      deadlineAt: null,
+    })
+
+    return preparedQuestions
+  }
+
+  function beginExamSession() {
+    const now = Date.now()
+    setQuizSession({
+      timeLimitSeconds: 180,
+      startedAt: now,
+      deadlineAt: now + 180000,
+    })
+  }
+
+  function finishQuiz(results, meta = {}) {
+    const totalQuestions = quizQuestions.length
+    const score = results.filter(result => result.correct).length
+    const percent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
+    const summary = {
+      items: results,
+      totalQuestions,
+      answeredQuestions: results.length,
+      correctAnswers: score,
+      incorrectAnswers: results.length - score,
+      percent,
+      timedOut: Boolean(meta.timedOut),
+      secondsLeft: meta.secondsLeft ?? null,
+      activityType: selectedActivity,
       subject: selectedSubject,
-      age: selectedAge,
-      score,
-      total: results.length,
-      percent: Math.round((score / results.length) * 100),
-      date: new Date().toISOString(),
-    }, mode || 'offline')
+      grade: selectedGrade,
+      level: selectedLevel,
+      completedAt: new Date().toISOString(),
+    }
+
+    setQuizResults(summary)
+
+    if (user) {
+      saveResult({
+        id: Date.now().toString(),
+        userId: user.id,
+        subject: selectedSubject,
+        age: selectedGrade,
+        level: selectedLevel,
+        activityType: selectedActivity,
+        score,
+        total: totalQuestions,
+        answered: results.length,
+        percent,
+        date: summary.completedAt,
+      }, mode || 'offline')
+    }
   }
 
   return (
-    <AppContext.Provider value={{
-      user, login, register, logout,
-      mode, setMode,
-      questions, addQuestion, updateQuestion, deleteQuestion,
-      selectedAge, selectedSubject,
-      quizQuestions, quizResults,
-      startQuiz, finishQuiz,
-    }}>
+    <AppContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        mode,
+        setMode,
+        questions,
+        addQuestion,
+        updateQuestion,
+        deleteQuestion,
+        selectedGrade,
+        selectedSubject,
+        selectedLevel,
+        selectedActivity,
+        quizQuestions,
+        quizResults,
+        quizSession,
+        chooseGrade,
+        chooseSubject,
+        setSelectedLevel,
+        setSelectedActivity,
+        prepareQuiz,
+        beginExamSession,
+        finishQuiz,
+        resetLearningFlow,
+      }}
+    >
       {children}
     </AppContext.Provider>
   )
 }
 
-export function useApp() { return useContext(AppContext) }
+export function useApp() {
+  return useContext(AppContext)
+}

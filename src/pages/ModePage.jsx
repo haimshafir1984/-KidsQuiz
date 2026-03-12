@@ -1,6 +1,7 @@
 ﻿import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { checkSubscription, SUBSCRIPTION_DAYS } from '../utils/db'
+import { isDesktopRuntime } from '../utils/runtime'
 
 const MODES = [
   {
@@ -16,8 +17,8 @@ const MODES = [
     value: 'offline',
     emoji: '💾',
     label: 'עבודה מקומית',
-    desc: 'שמירת נתונים על המכשיר הנוכחי ללא תלות קבועה ברשת.',
-    details: 'מתאים לסביבת עבודה מקומית או לתרגול מהיר וגמיש.',
+    desc: 'עבודה מתוך אפליקציית Windows מקומית, ללא צורך בחיבור אינטרנט רציף.',
+    details: 'מתאים להתקנה על מחשב, שמירת נתונים מקומית וטעינת רישיון לפי צורך.',
     tone: 'bg-amber-50 text-amber-600',
     hover: 'hover:border-amber-300 hover:bg-amber-50/70',
   },
@@ -29,9 +30,16 @@ export default function ModePage() {
 
   const { daysLeft } = checkSubscription(user)
   const daysLeftDisplay = user?.role === 'admin' ? null : daysLeft
+  const desktop = isDesktopRuntime()
 
   function handleMode(mode) {
     setMode(mode)
+
+    if (mode === 'offline' && !desktop) {
+      navigate('/offline-download')
+      return
+    }
+
     navigate('/age')
   }
 
@@ -41,9 +49,9 @@ export default function ModePage() {
         <div className="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-slate-100">
           בחירת מצב עבודה ⚙️
         </div>
-        <h1 className="section-title">איך נרצה לשמור את ההתקדמות?</h1>
+        <h1 className="section-title">איך נרצה לעבוד עם המערכת?</h1>
         <p className="section-subtitle mt-3">
-          בחרו את אופן העבודה המתאים כדי להתאים את חוויית הלמידה לסביבה שלכם.
+          בחרו בין עבודה מחוברת מתוך האתר לבין גרסת Desktop מקומית ל-Windows, עם אותו UI קיים.
         </p>
 
         {daysLeftDisplay !== null && (
@@ -72,6 +80,11 @@ export default function ModePage() {
             <div className="mb-2 text-2xl font-extrabold text-slate-950">{mode.label}</div>
             <p className="mb-3 text-base leading-7 text-slate-600">{mode.desc}</p>
             <p className="text-sm leading-6 text-slate-600">{mode.details}</p>
+            {mode.value === 'offline' && !desktop && (
+              <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-3 text-sm font-semibold text-amber-700">
+                בחירה במצב זה תעביר אותך למסך הורדה והתקנה של גרסת Windows המקומית.
+              </div>
+            )}
           </button>
         ))}
       </section>

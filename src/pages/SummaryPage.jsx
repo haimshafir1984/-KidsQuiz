@@ -1,5 +1,6 @@
-﻿import { useNavigate } from 'react-router-dom'
+﻿import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { getActivityLabel, getGradeConfig } from '../data/learningTracks'
 
 function getGradeEmoji(percent) {
   if (percent === 100) return '💎'
@@ -9,29 +10,53 @@ function getGradeEmoji(percent) {
 }
 
 export default function SummaryPage() {
-  const { quizResults, selectedSubject, selectedAge, startQuiz } = useApp()
+  const {
+    quizResults,
+    selectedSubject,
+    selectedGrade,
+    selectedLevel,
+    selectedActivity,
+    prepareQuiz,
+  } = useApp()
   const navigate = useNavigate()
 
-  if (!quizResults || quizResults.length === 0) {
-    navigate('/age')
-    return null
+  if (!quizResults) {
+    return <Navigate to="/age" replace />
   }
 
-  const total = quizResults.length
-  const correct = quizResults.filter(result => result.correct).length
-  const incorrect = total - correct
-  const percent = Math.round((correct / total) * 100)
-  const mistakes = quizResults.filter(result => !result.correct)
+  const total = quizResults.totalQuestions
+  const answered = quizResults.answeredQuestions
+  const correct = quizResults.correctAnswers
+  const incorrect = answered - correct
+  const percent = quizResults.percent
+  const mistakes = quizResults.items.filter(result => !result.correct)
   const gradeEmoji = getGradeEmoji(percent)
+  const gradeConfig = getGradeConfig(selectedGrade)
 
   function handleRetry() {
-    const quiz = startQuiz(selectedAge, selectedSubject)
-    if (quiz.length > 0) navigate('/quiz')
-    else navigate('/subject')
+    const quiz = prepareQuiz({
+      grade: selectedGrade,
+      subject: selectedSubject,
+      level: selectedLevel,
+      activityType: selectedActivity,
+    })
+
+    if (quiz.length === 0) {
+      navigate('/track')
+      return
+    }
+
+    if (selectedActivity === 'exam') {
+      navigate('/exam-intro')
+      return
+    }
+
+    navigate('/quiz')
   }
 
   const statCards = [
     { label: 'סך הכול שאלות', value: total, tone: 'bg-slate-50 text-slate-700', emoji: '📚' },
+    { label: 'שאלות שנענו', value: answered, tone: 'bg-blue-50 text-blue-700', emoji: '🧾' },
     { label: 'תשובות נכונות', value: correct, tone: 'bg-emerald-50 text-emerald-700', emoji: '🎉' },
     { label: 'תשובות שגויות', value: incorrect, tone: 'bg-red-50 text-red-700', emoji: '📝' },
   ]
@@ -42,12 +67,15 @@ export default function SummaryPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="text-right">
             <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-700 ring-1 ring-slate-100">
-              סיכום הישגים {gradeEmoji}
+              סיכום {getActivityLabel(quizResults.activityType)} {gradeEmoji}
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 sm:text-4xl">השלמת את התרגול בהצלחה</h1>
+            <h1 className="text-3xl font-extrabold text-slate-950 sm:text-4xl">
+              {quizResults.timedOut ? 'הזמן הסתיים והפעילות הושלמה' : 'הפעילות הושלמה בהצלחה'}
+            </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              סיימת סבב תרגול בנושא {selectedSubject}. זה הזמן לחגוג את ההצלחות, להבין מה כבר חזק,
-              ולראות איפה אפשר להשתפר בפעם הבאה.
+              סיימת {getActivityLabel(quizResults.activityType)} בנושא {selectedSubject}
+              {selectedLevel ? ` | ${selectedLevel}` : ''}
+              {gradeConfig ? ` | ${gradeConfig.label}` : ''}. כאן אפשר לראות מה עבד היטב ואיפה כדאי לחזק את הצעד הבא.
             </p>
           </div>
 
@@ -59,7 +87,7 @@ export default function SummaryPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statCards.map(card => (
           <div key={card.label} className="edu-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
             <div className="mb-3 flex items-center justify-between">
@@ -78,7 +106,7 @@ export default function SummaryPage() {
           <div className="mb-5 text-right">
             <h2 className="text-2xl font-extrabold text-slate-950">שאלות לחיזוק נוסף 🧠</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              הנה המקומות שבהם כדאי לעצור לרגע, להבין טוב יותר ולחזור חזק יותר לניסיון הבא.
+              להלן המקומות שבהם כדאי לעצור, לדייק את ההבנה ולחזור לסבב נוסף מוכנים יותר.
             </p>
           </div>
 
@@ -108,10 +136,13 @@ export default function SummaryPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button onClick={handleRetry} className="btn-primary">
-          מנסים שוב 🚀
+          התחלה מחדש
         </button>
-        <button onClick={() => navigate('/subject')} className="btn-secondary">
-          בוחרים נושא חדש 📚
+        <button onClick={() => navigate('/track')} className="btn-secondary">
+          חזרה למסלול
+        </button>
+        <button onClick={() => navigate('/subject')} className="btn-muted">
+          בחירת נושא אחר
         </button>
       </div>
     </div>

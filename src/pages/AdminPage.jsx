@@ -1,274 +1,335 @@
-import { useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import AdminUsers from './AdminUsers'
+import { GRADES, getTrack, getTracksForGrade } from '../data/learningTracks'
 
 const EMPTY_QUESTION = {
   text: '',
   type: 'multiple',
   options: ['', '', '', ''],
   correct_answer: [''],
-  age_group: '1-3',
-  subject: 'תנ"ך',
+  grade: 'grade-8',
+  subject: 'ידע יהודי - תנ״ך',
+  level: null,
+  activityType: 'practice',
 }
 
-const SUBJECTS = ['תנ"ך', 'חשבון', 'הסקת מסקנות', 'לשון', 'ידע כללי']
-const AGE_GROUPS = [
-  { value: '1-3', label: 'כיתות א׳–ג׳' },
-  { value: '4-6', label: 'כיתות ד׳–ו׳' },
-]
+function QuestionForm({ initialQuestion, onSave, onCancel }) {
+  const [form, setForm] = useState(initialQuestion || EMPTY_QUESTION)
+  const availableSubjects = getTracksForGrade(form.grade)
+  const activeTrack = getTrack(form.grade, form.subject) || availableSubjects[0]
+  const availableLevels = activeTrack?.levels?.length ? activeTrack.levels : ['ללא רמה']
+  const availableActivities = activeTrack?.activities || ['practice']
 
-// טופס הוספה/עריכה של שאלה
-function QuestionForm({ initial, onSave, onCancel }) {
-  const [form, setForm] = useState(initial || { ...EMPTY_QUESTION, options: ['', '', '', ''], correct_answer: [''] })
-
-  function setField(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }))
+  function updateField(field, value) {
+    setForm(previous => ({ ...previous, [field]: value }))
   }
 
-  function setOption(i, value) {
-    const opts = [...form.options]; opts[i] = value
-    setField('options', opts)
+  function handleGradeChange(grade) {
+    const firstTrack = getTracksForGrade(grade)[0]
+    setForm(previous => ({
+      ...previous,
+      grade,
+      subject: firstTrack.subject,
+      level: firstTrack.levels[0] || null,
+      activityType: firstTrack.activities[0],
+    }))
   }
 
-  function setCorrectAnswer(i, value) {
-    const ca = [...form.correct_answer]; ca[i] = value
-    setField('correct_answer', ca)
+  function handleSubjectChange(subject) {
+    const nextTrack = getTrack(form.grade, subject)
+    setForm(previous => ({
+      ...previous,
+      subject,
+      level: nextTrack.levels[0] || null,
+      activityType: nextTrack.activities[0],
+    }))
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
+  function updateOption(index, value) {
+    const nextOptions = [...form.options]
+    nextOptions[index] = value
+    updateField('options', nextOptions)
+  }
+
+  function updateCorrectAnswer(index, value) {
+    const nextAnswers = [...form.correct_answer]
+    nextAnswers[index] = value
+    updateField('correct_answer', nextAnswers)
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
     const cleaned = {
       ...form,
-      options: form.type === 'multiple' ? form.options.filter(o => o.trim()) : [],
-      correct_answer: form.correct_answer.filter(a => a.trim()),
+      level: form.level || null,
+      options: form.type === 'multiple' ? form.options.filter(option => option.trim()) : [],
+      correct_answer: form.correct_answer.filter(answer => answer.trim()),
     }
-    if (!cleaned.text.trim()) { alert('יש להזין טקסט שאלה'); return }
-    if (cleaned.correct_answer.length === 0) { alert('יש להזין לפחות תשובה נכונה אחת'); return }
-    if (cleaned.type === 'multiple' && cleaned.options.length < 2) { alert('יש להזין לפחות 2 אפשרויות'); return }
+
+    if (!cleaned.text.trim()) {
+      alert('יש להזין נוסח שאלה.')
+      return
+    }
+
+    if (cleaned.correct_answer.length === 0) {
+      alert('יש להזין לפחות תשובה נכונה אחת.')
+      return
+    }
+
+    if (cleaned.type === 'multiple' && cleaned.options.length < 2) {
+      alert('יש להזין לפחות שתי אפשרויות תשובה.')
+      return
+    }
+
     onSave(cleaned)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card flex flex-col gap-4">
-      <h3 className="text-xl font-bold text-purple-800">
-        {initial?.id ? '✏️ עריכת שאלה' : '➕ הוספת שאלה'}
-      </h3>
-
-      {/* טקסט שאלה */}
+    <form onSubmit={handleSubmit} className="edu-card flex flex-col gap-4 text-right">
       <div>
-        <label className="block font-bold text-purple-700 mb-1">טקסט השאלה *</label>
-        <textarea value={form.text} onChange={e => setField('text', e.target.value)}
-          rows={2} className="input-field" placeholder="הכנס את השאלה..." />
+        <h3 className="text-2xl font-extrabold text-slate-950">
+          {initialQuestion?.id ? 'עריכת שאלה' : 'הוספת שאלה חדשה'}
+        </h3>
+        <p className="mt-1 text-sm text-slate-600">הוספה או עריכה של שאלות לפי כיתה, נושא, רמה וסוג פעילות.</p>
       </div>
 
-      {/* סוג / גיל / נושא */}
-      <div className="grid grid-cols-3 gap-3">
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-slate-700">נוסח השאלה</label>
+        <textarea
+          value={form.text}
+          onChange={event => updateField('text', event.target.value)}
+          rows={3}
+          className="input-field"
+          placeholder="כתבו כאן את השאלה"
+        />
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div>
-          <label className="block font-bold text-purple-700 mb-1 text-sm">סוג</label>
-          <select value={form.type} onChange={e => setField('type', e.target.value)}
-            className="input-field text-base py-2">
-            <option value="multiple">בחירה מרובה</option>
-            <option value="open">פתוחה</option>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">כיתה</label>
+          <select value={form.grade} onChange={event => handleGradeChange(event.target.value)} className="input-field">
+            {GRADES.map(grade => (
+              <option key={grade.value} value={grade.value}>{grade.label}</option>
+            ))}
           </select>
         </div>
         <div>
-          <label className="block font-bold text-purple-700 mb-1 text-sm">גיל</label>
-          <select value={form.age_group} onChange={e => setField('age_group', e.target.value)}
-            className="input-field text-base py-2">
-            {AGE_GROUPS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+          <label className="mb-1 block text-sm font-semibold text-slate-700">נושא</label>
+          <select value={form.subject} onChange={event => handleSubjectChange(event.target.value)} className="input-field">
+            {availableSubjects.map(track => (
+              <option key={track.subject} value={track.subject}>{track.subject}</option>
+            ))}
           </select>
         </div>
         <div>
-          <label className="block font-bold text-purple-700 mb-1 text-sm">נושא</label>
-          <select value={form.subject} onChange={e => setField('subject', e.target.value)}
-            className="input-field text-base py-2">
-            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+          <label className="mb-1 block text-sm font-semibold text-slate-700">רמה</label>
+          <select
+            value={form.level || 'ללא רמה'}
+            onChange={event => updateField('level', event.target.value === 'ללא רמה' ? null : event.target.value)}
+            className="input-field"
+          >
+            {availableLevels.map(level => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">סוג פעילות</label>
+          <select value={form.activityType} onChange={event => updateField('activityType', event.target.value)} className="input-field">
+            {availableActivities.map(activity => (
+              <option key={activity} value={activity}>{activity === 'exam' ? 'מבחן' : 'תרגול'}</option>
+            ))}
           </select>
         </div>
       </div>
 
-      {/* אפשרויות */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">סוג שאלה</label>
+          <select value={form.type} onChange={event => updateField('type', event.target.value)} className="input-field">
+            <option value="multiple">אמריקאית</option>
+            <option value="open">פתוחה קצרה</option>
+          </select>
+        </div>
+      </div>
+
       {form.type === 'multiple' && (
-        <div>
-          <label className="block font-bold text-purple-700 mb-2">אפשרויות תשובה</label>
-          {form.options.map((opt, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <input type="text" value={opt} onChange={e => setOption(i, e.target.value)}
-                placeholder={`אפשרות ${i + 1}`} className="input-field" />
-              <button type="button"
-                onClick={() => setField('options', form.options.filter((_, idx) => idx !== i))}
-                className="btn-danger px-3 py-2 text-sm">✕</button>
-            </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-slate-700">אפשרויות תשובה</label>
+          {form.options.map((option, index) => (
+            <input
+              key={index}
+              value={option}
+              onChange={event => updateOption(index, event.target.value)}
+              className="input-field"
+              placeholder={`אפשרות ${index + 1}`}
+            />
           ))}
-          <button type="button"
-            onClick={() => setField('options', [...form.options, ''])}
-            className="btn-success text-sm px-3 py-2">+ הוסף אפשרות</button>
         </div>
       )}
 
-      {/* תשובות נכונות */}
-      <div>
-        <label className="block font-bold text-purple-700 mb-2">תשובות נכונות</label>
-        {form.correct_answer.map((ans, i) => (
-          <div key={i} className="flex gap-2 mb-2">
-            <input type="text" value={ans} onChange={e => setCorrectAnswer(i, e.target.value)}
-              placeholder="תשובה נכונה..." className="input-field" />
-            {form.correct_answer.length > 1 && (
-              <button type="button"
-                onClick={() => setField('correct_answer', form.correct_answer.filter((_, idx) => idx !== i))}
-                className="btn-danger px-3 py-2 text-sm">✕</button>
-            )}
-          </div>
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-slate-700">תשובות נכונות</label>
+        {form.correct_answer.map((answer, index) => (
+          <input
+            key={index}
+            value={answer}
+            onChange={event => updateCorrectAnswer(index, event.target.value)}
+            className="input-field"
+            placeholder="תשובה נכונה"
+          />
         ))}
-        <button type="button"
-          onClick={() => setField('correct_answer', [...form.correct_answer, ''])}
-          className="btn-success text-sm px-3 py-2">+ הוסף תשובה נכונה</button>
       </div>
 
-      {/* כפתורי פעולה */}
-      <div className="flex gap-3 pt-2">
-        <button type="submit" className="btn-primary flex-1">
-          {initial?.id ? '💾 שמור שינויים' : '✅ הוסף שאלה'}
-        </button>
-        <button type="button" onClick={onCancel} className="btn-secondary">ביטול</button>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <button type="submit" className="btn-primary">שמירת שאלה</button>
+        <button type="button" onClick={onCancel} className="btn-muted">ביטול</button>
       </div>
     </form>
   )
 }
 
-// כרטיס שאלה בטבלת הניהול
 function QuestionRow({ question, onEdit, onDelete }) {
-  const typeLabel = question.type === 'multiple' ? '⚪ בחירה' : '✏️ פתוחה'
   return (
-    <div className="card flex gap-3 items-start">
-      <div className="flex-1">
-        <div className="flex flex-wrap gap-2 mb-1">
-          <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">
-            {question.age_group === '1-3' ? 'א׳–ג׳' : 'ד׳–ו׳'}
-          </span>
-          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">
-            {question.subject}
-          </span>
-          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-            {typeLabel}
-          </span>
-        </div>
-        <p className="font-semibold text-gray-800">{question.text}</p>
-        <p className="text-sm text-green-600 mt-1">✅ {question.correct_answer.join(' / ')}</p>
+    <article className="edu-card p-5 text-right">
+      <div className="mb-3 flex flex-wrap gap-2">
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{question.grade === 'grade-8' ? 'כיתה ח׳' : 'כיתה י״ב'}</span>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{question.subject}</span>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{question.level || 'ללא רמה'}</span>
+        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">{question.activityType === 'exam' ? 'מבחן' : 'תרגול'}</span>
       </div>
-      <div className="flex flex-col gap-2">
-        <button onClick={() => onEdit(question)} className="btn-success text-sm px-3 py-1.5">✏️ עריכה</button>
-        <button onClick={() => onDelete(question.id)} className="btn-danger text-sm px-3 py-1.5">🗑️ מחק</button>
+      <h3 className="text-lg font-bold text-slate-950">{question.text}</h3>
+      <div className="mt-2 text-sm text-slate-600">סוג: {question.type === 'multiple' ? 'אמריקאית' : 'פתוחה קצרה'}</div>
+      <div className="mt-2 text-sm text-emerald-700">תשובה נכונה: {question.correct_answer.join(' / ')}</div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <button onClick={() => onEdit(question)} className="btn-secondary">עריכה</button>
+        <button onClick={() => onDelete(question.id)} className="btn-muted">מחיקה</button>
       </div>
-    </div>
+    </article>
   )
 }
 
 export default function AdminPage() {
   const { questions, addQuestion, updateQuestion, deleteQuestion } = useApp()
-
-  // טאב פעיל: 'questions' | 'users'
   const [activeTab, setActiveTab] = useState('questions')
-  const [editing, setEditing] = useState(null)
-  const [filter, setFilter] = useState('')
-  const [ageFilter, setAgeFilter] = useState('all')
+  const [editingQuestion, setEditingQuestion] = useState(null)
+  const [gradeFilter, setGradeFilter] = useState('all')
   const [subjectFilter, setSubjectFilter] = useState('all')
+  const [activityFilter, setActivityFilter] = useState('all')
 
-  function handleSave(data) {
-    if (editing?.id) updateQuestion(editing.id, data)
-    else addQuestion(data)
-    setEditing(null)
+  const filteredQuestions = useMemo(() => {
+    return questions.filter(question => {
+      const gradeMatch = gradeFilter === 'all' || question.grade === gradeFilter
+      const subjectMatch = subjectFilter === 'all' || question.subject === subjectFilter
+      const activityMatch = activityFilter === 'all' || question.activityType === activityFilter
+      return gradeMatch && subjectMatch && activityMatch
+    })
+  }, [activityFilter, gradeFilter, questions, subjectFilter])
+
+  const allSubjects = useMemo(() => {
+    return [...new Set(questions.map(question => question.subject))]
+  }, [questions])
+
+  function handleSave(questionData) {
+    if (editingQuestion?.id) {
+      updateQuestion(editingQuestion.id, questionData)
+    } else {
+      addQuestion(questionData)
+    }
+    setEditingQuestion(null)
   }
 
   function handleDelete(id) {
-    if (window.confirm('האם אתה בטוח שברצונך למחוק שאלה זו?')) deleteQuestion(id)
+    if (window.confirm('למחוק את השאלה שנבחרה?')) {
+      deleteQuestion(id)
+    }
   }
-
-  const filtered = questions.filter(q => {
-    const matchText = q.text.includes(filter) || filter === ''
-    const matchAge = ageFilter === 'all' || q.age_group === ageFilter
-    const matchSubject = subjectFilter === 'all' || q.subject === subjectFilter
-    return matchText && matchAge && matchSubject
-  })
 
   return (
     <div className="flex flex-col gap-5">
-      {/* כותרת */}
-      <div className="card flex items-center gap-3">
-        <span className="text-4xl">⚙️</span>
-        <div>
-          <h2 className="text-2xl font-bold text-purple-800">פאנל ניהול</h2>
-          <p className="text-gray-500 text-sm">{questions.length} שאלות במאגר</p>
+      <section className="edu-card p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="text-right">
+            <h1 className="text-3xl font-extrabold text-slate-950">מסך ניהול</h1>
+            <p className="mt-2 text-sm text-slate-600">ניהול משתמשים ושאלות בהתאם למבנה החדש של כיתות, נושאים, רמות ופעילויות.</p>
+          </div>
+          {activeTab === 'questions' && (
+            <button onClick={() => setEditingQuestion({ ...EMPTY_QUESTION })} className="btn-primary self-start lg:self-auto">
+              הוספת שאלה חדשה
+            </button>
+          )}
         </div>
-        {activeTab === 'questions' && (
-          <button onClick={() => setEditing('new')} className="btn-primary mr-auto text-base px-4 py-2">
-            ➕ שאלה חדשה
-          </button>
-        )}
-      </div>
+      </section>
 
-      {/* טאבים */}
-      <div className="flex bg-indigo-50 rounded-2xl p-1 gap-1">
-        {[['questions', '📋 שאלות'], ['users', '👥 משתמשים']].map(([tab, label]) => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2 rounded-xl font-bold transition-all ${
-              activeTab === tab
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : 'text-indigo-400 hover:text-indigo-600'
-            }`}>
+      <div className="flex rounded-2xl bg-white/80 p-1 shadow-sm ring-1 ring-slate-100">
+        {[
+          ['questions', 'שאלות'],
+          ['users', 'משתמשים'],
+        ].map(([tab, label]) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+              activeTab === tab ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-50'
+            }`}
+          >
             {label}
           </button>
         ))}
       </div>
 
-      {/* תוכן טאב */}
       {activeTab === 'users' ? (
         <AdminUsers />
       ) : (
         <>
-          {/* טופס הוספה/עריכה */}
-          {editing && (
+          {editingQuestion && (
             <QuestionForm
-              initial={editing === 'new' ? null : editing}
+              initialQuestion={editingQuestion.id ? editingQuestion : null}
               onSave={handleSave}
-              onCancel={() => setEditing(null)}
+              onCancel={() => setEditingQuestion(null)}
             />
           )}
 
-          {/* סינון */}
-          <div className="card flex flex-col gap-3">
-            <h3 className="font-bold text-purple-700">🔍 סינון שאלות</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <input type="text" value={filter} onChange={e => setFilter(e.target.value)}
-                placeholder="חיפוש לפי טקסט..." className="input-field py-2" />
-              <select value={ageFilter} onChange={e => setAgeFilter(e.target.value)}
-                className="input-field py-2">
-                <option value="all">כל הגילאים</option>
-                <option value="1-3">כיתות א׳–ג׳</option>
-                <option value="4-6">כיתות ד׳–ו׳</option>
+          <section className="edu-card p-6">
+            <div className="mb-4 text-right">
+              <h2 className="text-xl font-extrabold text-slate-950">סינון מאגר השאלות</h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <select value={gradeFilter} onChange={event => setGradeFilter(event.target.value)} className="input-field">
+                <option value="all">כל הכיתות</option>
+                {GRADES.map(grade => (
+                  <option key={grade.value} value={grade.value}>{grade.label}</option>
+                ))}
               </select>
-              <select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)}
-                className="input-field py-2">
+              <select value={subjectFilter} onChange={event => setSubjectFilter(event.target.value)} className="input-field">
                 <option value="all">כל הנושאים</option>
-                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                {allSubjects.map(subject => (
+                  <option key={subject} value={subject}>{subject}</option>
+                ))}
+              </select>
+              <select value={activityFilter} onChange={event => setActivityFilter(event.target.value)} className="input-field">
+                <option value="all">כל הפעילויות</option>
+                <option value="practice">תרגול</option>
+                <option value="exam">מבחן</option>
               </select>
             </div>
-          </div>
+          </section>
 
-          {/* רשימת שאלות */}
-          <div className="flex flex-col gap-3">
-            {filtered.length === 0 ? (
-              <div className="card text-center text-gray-500">
-                <div className="text-5xl mb-2">📭</div>
-                <p>לא נמצאו שאלות</p>
-              </div>
+          <section className="grid gap-4">
+            {filteredQuestions.length === 0 ? (
+              <div className="edu-card p-8 text-center text-slate-500">לא נמצאו שאלות בהתאם לסינון שנבחר.</div>
             ) : (
-              filtered.map(q => (
-                <QuestionRow key={q.id} question={q}
-                  onEdit={setEditing} onDelete={handleDelete} />
+              filteredQuestions.map(question => (
+                <QuestionRow
+                  key={question.id}
+                  question={question}
+                  onEdit={setEditingQuestion}
+                  onDelete={handleDelete}
+                />
               ))
             )}
-          </div>
+          </section>
         </>
       )}
     </div>

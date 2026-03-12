@@ -1,80 +1,76 @@
-﻿import { useNavigate, useLocation } from 'react-router-dom'
+﻿import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-
-const SUBJECTS = [
-  { name: 'תנ"ך', emoji: '📖', subtitle: 'היכרות עם סיפורים, דמויות ומושגים מרכזיים.', tone: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-300' },
-  { name: 'חשבון', emoji: '➗', subtitle: 'תרגול חישוב, הבנה מספרית ופתרון בעיות.', tone: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-300' },
-  { name: 'הסקת מסקנות', emoji: '🧠', subtitle: 'פיתוח חשיבה, ניתוח מידע והבנת הקשרים.', tone: 'bg-violet-50 text-violet-600', hover: 'hover:border-violet-300' },
-  { name: 'לשון', emoji: '✍️', subtitle: 'דיוק בשפה, אוצר מילים והבנת הנקרא.', tone: 'bg-rose-50 text-rose-600', hover: 'hover:border-rose-300' },
-  { name: 'ידע כללי', emoji: '🌍', subtitle: 'הרחבת אופקים במגוון נושאים מהעולם שסביבנו.', tone: 'bg-emerald-50 text-emerald-600', hover: 'hover:border-emerald-300' },
-]
+import { getGradeConfig, getTracksForGrade, SUBJECT_TONES } from '../data/learningTracks'
 
 export default function SubjectSelectPage() {
-  const { state } = useLocation()
   const navigate = useNavigate()
-  const { startQuiz, questions } = useApp()
-  const age = state?.age
+  const { selectedGrade, chooseSubject, questions } = useApp()
 
-  if (!age) {
-    navigate('/age')
-    return null
+  if (!selectedGrade) {
+    return <Navigate to="/age" replace />
   }
+
+  const grade = getGradeConfig(selectedGrade)
+  const tracks = getTracksForGrade(selectedGrade)
 
   function handleSubjectSelect(subject) {
-    const quiz = startQuiz(age, subject)
-    if (quiz.length === 0) {
-      alert(`אין שאלות עדיין בנושא "${subject}" לגיל זה. נסה נושא אחר!`)
-      return
-    }
-    navigate('/quiz')
+    chooseSubject(subject)
+    navigate('/track')
   }
 
-  function countForSubject(subject) {
-    return questions.filter(question => question.age_group === age && question.subject === subject).length
+  function countForTrack(subject) {
+    return questions.filter(question => question.grade === selectedGrade && question.subject === subject).length
   }
 
   return (
     <div className="page-shell">
       <section className="page-hero">
         <div className="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-violet-700 shadow-sm ring-1 ring-slate-100">
-          מסלול {age === '1-3' ? 'כיתות א׳-ג׳ 🦖' : 'כיתות ד׳-ו׳ 🚀'}
+          {grade?.label} | בחירת נושא
         </div>
-        <h1 className="section-title">איזה תחום נרצה לתרגל עכשיו?</h1>
+        <h1 className="section-title">איזה נושא נפתח עכשיו?</h1>
         <p className="section-subtitle mt-3">
-          בחרו את תחום הלימוד שייתן היום שילוב נכון של סקרנות, אתגר והצלחה.
+          כל נושא כולל את מסלולי הפעילות שהוגדרו עבורו, יחד עם רמות קושי לפי הצורך.
         </p>
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {SUBJECTS.map(subject => {
-          const count = countForSubject(subject.name)
-          const available = count > 0
+        {tracks.map(track => {
+          const styling = SUBJECT_TONES[track.subject] || {
+            tone: 'bg-slate-100 text-slate-700',
+            hover: 'hover:border-slate-300',
+            emoji: '📚',
+          }
+          const total = countForTrack(track.subject)
+          const activityLabel = track.activities.length > 1 ? 'תרגול ומבחן' : 'תרגול'
+          const levelLabel = track.levels.length > 0 ? `${track.levels.length} רמות` : 'ללא חלוקה לרמות'
 
           return (
             <button
-              key={subject.name}
-              onClick={() => handleSubjectSelect(subject.name)}
-              disabled={!available}
-              className={`edu-card border-2 text-right transition-all duration-200 ${
-                available
-                  ? `${subject.hover} hover:-translate-y-1 hover:shadow-xl`
-                  : 'opacity-60'
-              }`}
+              key={track.subject}
+              onClick={() => handleSubjectSelect(track.subject)}
+              className={`edu-card border-2 text-right transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${styling.hover}`}
             >
               <div className="flex items-start gap-4">
-                <div className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl text-4xl ${subject.tone}`}>
-                  {subject.emoji}
+                <div className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl text-4xl ${styling.tone}`}>
+                  {styling.emoji}
                 </div>
                 <div className="flex-1">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <h2 className="text-xl font-extrabold text-slate-950">{subject.name}</h2>
+                    <h2 className="text-xl font-extrabold text-slate-950">{track.subject}</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                      {available ? `${count} שאלות` : 'בקרוב'}
+                      {total} שאלות
                     </span>
                   </div>
-                  <p className="text-sm leading-6 text-slate-600">
-                    {available ? subject.subtitle : 'התחום הזה עדיין לא כולל שאלות במסלול הנוכחי.'}
-                  </p>
+                  <p className="text-sm leading-6 text-slate-600">סוגי שאלות: {track.questionTypes}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                      {activityLabel}
+                    </span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                      {levelLabel}
+                    </span>
+                  </div>
                 </div>
               </div>
             </button>

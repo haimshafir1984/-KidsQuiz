@@ -1,4 +1,4 @@
-node_modules/
+﻿node_modules/
 dist/
 build/
 .env
@@ -6,3 +6,5 @@ build/
 *.log
 .vscode/
 .DS_Store
+release/
+public/downloads/*.exe
