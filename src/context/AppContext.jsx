@@ -20,6 +20,7 @@ import {
 } from '../utils/db'
 import seedQuestions from '../data/seedQuestions'
 import { GRADES } from '../data/learningTracks'
+import { normalizeSubjectName } from '../data/subjectCatalog'
 
 const AppContext = createContext(null)
 const HOLLAND_SUBJECT = 'שאלון הולנד'
@@ -109,6 +110,19 @@ function mergeTrackCollections(baseTracks = [], questionTracks = []) {
   })
 
   return [...merged.values()].sort((first, second) => first.subject.localeCompare(second.subject, 'he'))
+}
+
+function normalizeQuestionSubjects(items) {
+  let changed = false
+
+  const normalized = items.map(question => {
+    const normalizedSubject = normalizeSubjectName(question.subject)
+    if (normalizedSubject === question.subject) return question
+    changed = true
+    return { ...question, subject: normalizedSubject }
+  })
+
+  return { normalized, changed }
 }
 
 function cloneQuestionForTarget(question, target, existingQuestions) {
@@ -226,7 +240,8 @@ export function AppProvider({ children }) {
       const hasNewSchema = stored.every(question => question.grade && question.subject && question.activityType)
 
       if (!hasNewSchema) {
-        const { normalized } = ensureQuestionPositions(seedQuestions)
+        const normalizedSeedQuestions = normalizeQuestionSubjects(seedQuestions).normalized
+        const { normalized } = ensureQuestionPositions(normalizedSeedQuestions)
         saveQuestions(normalized)
         setQuestions(normalized)
         return
@@ -236,9 +251,10 @@ export function AppProvider({ children }) {
       const storedIds = new Set(withoutLegacyQuestions.map(question => question.id))
       const missingSeedQuestions = seedQuestions.filter(question => !storedIds.has(question.id))
       const mergedQuestions = missingSeedQuestions.length > 0 ? [...withoutLegacyQuestions, ...missingSeedQuestions] : withoutLegacyQuestions
-      const { normalized, changed } = ensureQuestionPositions(mergedQuestions)
+      const { normalized: subjectNormalizedQuestions, changed: subjectNamesChanged } = normalizeQuestionSubjects(mergedQuestions)
+      const { normalized, changed } = ensureQuestionPositions(subjectNormalizedQuestions)
 
-      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || changed) {
+      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || subjectNamesChanged || changed) {
         saveQuestions(normalized)
       }
 
@@ -246,7 +262,8 @@ export function AppProvider({ children }) {
       return
     }
 
-    const { normalized } = ensureQuestionPositions(seedQuestions)
+    const normalizedSeedQuestions = normalizeQuestionSubjects(seedQuestions).normalized
+    const { normalized } = ensureQuestionPositions(normalizedSeedQuestions)
     saveQuestions(normalized)
     setQuestions(normalized)
   }, [])

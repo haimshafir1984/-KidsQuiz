@@ -1,8 +1,8 @@
 const importedDemoQuestions = [
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מי-היה-בכור-השבטים-0",
+    "id": "imported--תנך-grade-8-no-level-מי-היה-בכור-השבטים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -18,9 +18,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-היה-האות-שה-עשה-לנח-כהבטחה-שלא-יבוא-מבול-לעולם-0",
+    "id": "imported--תנך-grade-8-no-level-מה-היה-האות-שה-עשה-לנח-כהבטחה-שלא-יבוא-מבול-לעולם-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -36,9 +36,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מי-היו-שני-המרגלים-שדיברו-טוב-על-ארץ-ישראל-0",
+    "id": "imported--תנך-grade-8-no-level-מי-היו-שני-המרגלים-שדיברו-טוב-על-ארץ-ישראל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -54,9 +54,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-היכן-נקברה-שרה-אמנו-0",
+    "id": "imported--תנך-grade-8-no-level-היכן-נקברה-שרה-אמנו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -72,9 +72,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מי-הייתה-אימם-של-אפרים-ומנשה-0",
+    "id": "imported--תנך-grade-8-no-level-מי-הייתה-אימם-של-אפרים-ומנשה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -90,9 +90,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-שמו-של-ההר-שעליו-עלה-משה-רבנו-לפני-מותו-כדי-לראות-את-ארץ-ישראל-0",
+    "id": "imported--תנך-grade-8-no-level-מה-שמו-של-ההר-שעליו-עלה-משה-רבנו-לפני-מותו-כדי-לראות-את-ארץ-ישראל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -108,9 +108,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מי-היה-השדכן-הראשון-בהיסטוריה-0",
+    "id": "imported--תנך-grade-8-no-level-מי-היה-השדכן-הראשון-בהיסטוריה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -121,9 +121,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מי-נקרא-צפנת-פענח-0",
+    "id": "imported--תנך-grade-8-no-level-מי-נקרא-צפנת-פענח-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -134,9 +134,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-קפץ-ראשון-לים-סוף-0",
+    "id": "imported--תנך-grade-8-no-level-קפץ-ראשון-לים-סוף-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -147,9 +147,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-רק-שפתיה-נעות-וקולה-לא-ישמע-0",
+    "id": "imported--תנך-grade-8-no-level-רק-שפתיה-נעות-וקולה-לא-ישמע-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -160,9 +160,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-הרג-בלחי-חמור-1000-איש-0",
+    "id": "imported--תנך-grade-8-no-level-הרג-בלחי-חמור-1000-איש-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -173,9 +173,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-אהרן-צפורה-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-אהרן-צפורה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -186,9 +186,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-אפרים-שׂרח-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-אפרים-שׂרח-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -199,9 +199,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-דוד-ישי-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-דוד-ישי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -212,9 +212,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-חגלה-תרצה-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-חגלה-תרצה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -225,9 +225,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-נדב-אביהוא-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-נדב-אביהוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -238,9 +238,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-מרדכי-אסתר-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-מרדכי-אסתר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -251,9 +251,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-נעמה-יפת-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-נעמה-יפת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -264,9 +264,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-רות-נעמי-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-רות-נעמי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -277,9 +277,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-שרה-יסכה-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-שרה-יסכה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -290,9 +290,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-תרח-יצחק-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-תרח-יצחק-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -303,9 +303,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-זרש-ויזתא-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-זרש-ויזתא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -316,9 +316,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-מרדכי-שמעי-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-מרדכי-שמעי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -329,9 +329,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מה-הקשר-בין-מחלון-אלימלך-0",
+    "id": "imported--תנך-grade-8-no-level-מה-הקשר-בין-מחלון-אלימלך-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -342,9 +342,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הפקודים-0",
+    "id": "imported--תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הפקודים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -355,9 +355,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הישר-0",
+    "id": "imported--תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הישר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -368,9 +368,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזה-חומש-נקרא-משנה-תורה-0",
+    "id": "imported--תנך-grade-8-no-level-איזה-חומש-נקרא-משנה-תורה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -381,9 +381,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הגאולה-0",
+    "id": "imported--תנך-grade-8-no-level-איזה-חומש-נקרא-ספר-הגאולה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -394,9 +394,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזה-חומש-נקרא-תורת-כהנים-0",
+    "id": "imported--תנך-grade-8-no-level-איזה-חומש-נקרא-תורת-כהנים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -407,9 +407,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איפה-כתוב-עוז-והדר-ואיפה-הוד-והדר-0",
+    "id": "imported--תנך-grade-8-no-level-איפה-כתוב-עוז-והדר-ואיפה-הוד-והדר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -420,9 +420,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-לאיזה-שבט-היו-עשרה-בנים-0",
+    "id": "imported--תנך-grade-8-no-level-לאיזה-שבט-היו-עשרה-בנים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -433,9 +433,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-זלפה-הייתה-שפחתה-של-0",
+    "id": "imported--תנך-grade-8-no-level-זלפה-הייתה-שפחתה-של-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -446,9 +446,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-מהם-שמות-אבני-החושן-בשורה-האחרונה-0",
+    "id": "imported--תנך-grade-8-no-level-מהם-שמות-אבני-החושן-בשורה-האחרונה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -459,9 +459,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-איזו-מגילה-נגמרת-במילים-סוף-דבר-הכול-נשמע-0",
+    "id": "imported--תנך-grade-8-no-level-איזו-מגילה-נגמרת-במילים-סוף-דבר-הכול-נשמע-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -472,9 +472,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תנך-grade-8-no-level-אילו-שני-בני-דודים-נקראו-בשמות-אלעזר-ואליעזר-0",
+    "id": "imported--תנך-grade-8-no-level-אילו-שני-בני-דודים-נקראו-בשמות-אלעזר-ואליעזר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תנ\"ך",
+    "subject": "    - תנ\"ך",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -485,9 +485,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-פרקי-אבות-grade-8-no-level-מי-אמר-אם-אין-אני-לי-מי-וכשאני-לעצמי-מה-אני-0",
+    "id": "imported--פרקי-אבות-grade-8-no-level-מי-אמר-אם-אין-אני-לי-מי-וכשאני-לעצמי-מה-אני-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - פרקי אבות",
+    "subject": "    - פרקי אבות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -503,9 +503,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-פרקי-אבות-grade-8-no-level-בן-חמש-למקרא-בן-עשר-ל-0",
+    "id": "imported--פרקי-אבות-grade-8-no-level-בן-חמש-למקרא-בן-עשר-ל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - פרקי אבות",
+    "subject": "    - פרקי אבות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -521,9 +521,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-פרקי-אבות-grade-8-no-level-לפי-רבי-חנינא-סגן-הכהנים-מה-יש-לעשות-עבור-המלכות-0",
+    "id": "imported--פרקי-אבות-grade-8-no-level-לפי-רבי-חנינא-סגן-הכהנים-מה-יש-לעשות-עבור-המלכות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - פרקי אבות",
+    "subject": "    - פרקי אבות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -539,9 +539,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-פרקי-אבות-grade-8-no-level-כל-שמעשיו-מרובים-מחוכמתו-חוכמתו-0",
+    "id": "imported--פרקי-אבות-grade-8-no-level-כל-שמעשיו-מרובים-מחוכמתו-חוכמתו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - פרקי אבות",
+    "subject": "    - פרקי אבות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -557,9 +557,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-באיזה-חודש-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-באיזה-חודש-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -570,9 +570,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-קוראים-פרשת-פרה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-קוראים-פרשת-פרה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -583,9 +583,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-חל-פסח-שני-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-חל-פסח-שני-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -596,9 +596,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-חל-זאת-חנוכה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-חל-זאת-חנוכה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -609,9 +609,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-נפטרה-רחל-אמנו-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-נפטרה-רחל-אמנו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -622,9 +622,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-נפטר-משה-רבנו-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-נפטר-משה-רבנו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -635,9 +635,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-היו-מרקדין-עם-אבוקות-של-אור-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-היו-מרקדין-עם-אבוקות-של-אור-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -648,9 +648,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-כל-החודש-לא-אומרים-תחנון-ולא-מספידים-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-כל-החודש-לא-אומרים-תחנון-ולא-מספידים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -661,9 +661,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-תורגמה-התורה-ליוונית-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-תורגמה-התורה-ליוונית-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -674,9 +674,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-חל-פורים-קטן-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-חל-פורים-קטן-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -687,9 +687,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-ראש-השנה-למלכים-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-ראש-השנה-למלכים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -700,9 +700,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-ראש-השנה-לאילנות-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-ראש-השנה-לאילנות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -713,9 +713,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-ראש-השנה-לכל-באי-עולם-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-ראש-השנה-לכל-באי-עולם-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -726,9 +726,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-בין-כסה-לעשור-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-בין-כסה-לעשור-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -739,9 +739,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-תענית-בהב-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-תענית-בהב-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -752,9 +752,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-ירחי-כלה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-ירחי-כלה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -765,9 +765,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-לא-היו-ימים-טובים-לישראל-כמו-טו-בחודש-זה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-לא-היו-ימים-טובים-לישראל-כמו-טו-בחודש-זה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -778,9 +778,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-תשליך-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-תשליך-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -791,9 +791,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-של-איזה-חודש-המזלות-האלה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-של-איזה-חודש-המזלות-האלה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -804,9 +804,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-קשת-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-קשת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -817,9 +817,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-דגים-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-דגים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -830,9 +830,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-טלה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-טלה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -843,9 +843,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-שור-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-שור-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -856,9 +856,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-תאומים-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-תאומים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -869,9 +869,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-סרטן-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-סרטן-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -882,9 +882,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-מאזניים-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-מאזניים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -895,9 +895,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-בתולה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-בתולה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -908,9 +908,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-דלי-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-דלי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -921,9 +921,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-עקרב-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-עקרב-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -934,9 +934,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-אריה-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-אריה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -947,9 +947,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מעגל-השנה-grade-8-no-level-גדי-0",
+    "id": "imported--מעגל-השנה-grade-8-no-level-גדי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מעגל השנה",
+    "subject": "    - מעגל השנה",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -960,9 +960,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-המשיכי-את-הציטוט-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-המשיכי-את-הציטוט-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -973,9 +973,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-מי-שטרח-בערב-שבת-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-מי-שטרח-בערב-שבת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -986,9 +986,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-אם-אתם-משמרים-נרות-של-שבת-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-אם-אתם-משמרים-נרות-של-שבת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -999,9 +999,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-שינה-בשבת-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-שינה-בשבת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1012,9 +1012,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-יונה-מצאה-בו-מנוח-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-יונה-מצאה-בו-מנוח-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1025,9 +1025,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-מחל-מלאכה-בו-סופו-להכרית-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-מחל-מלאכה-בו-סופו-להכרית-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1038,9 +1038,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-שבת-grade-8-no-level-המשיכי-את-הציטוט-אלוקים-תן-במדבר-הר-0",
+    "id": "imported--שבת-grade-8-no-level-המשיכי-את-הציטוט-אלוקים-תן-במדבר-הר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - שבת",
+    "subject": "    - שבת",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1051,9 +1051,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-מי-התפלל-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-מי-התפלל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1064,9 +1064,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-שלא-תתקבל-תפילתם-של-עוברי-דרכים-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-שלא-תתקבל-תפילתם-של-עוברי-דרכים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1077,9 +1077,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-תפילת-שמונה-עשרה-בלחש-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-תפילת-שמונה-עשרה-בלחש-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1090,9 +1090,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-לזכות-להינשא-לקטן-ולא-לגדול-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-לזכות-להינשא-לקטן-ולא-לגדול-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1103,9 +1103,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-מאיזו-תפילה-נלקח-הציטוט-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-מאיזו-תפילה-נלקח-הציטוט-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1116,9 +1116,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-וכל-באי-עולם-יעברון-לפניך-כבני-מרון-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-וכל-באי-עולם-יעברון-לפניך-כבני-מרון-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1129,9 +1129,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-וברצונך-הניח-לנו-ה-אלוקינו-שלא-תהא-צרה-ויגון-ואנחה-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-וברצונך-הניח-לנו-ה-אלוקינו-שלא-תהא-צרה-ויגון-ואנחה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1142,9 +1142,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-ותתן-לנו-חיים-ארוכים-חיים-של-שלום-חיים-של-טובה-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-ותתן-לנו-חיים-ארוכים-חיים-של-שלום-חיים-של-טובה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1155,9 +1155,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-אדיר-במרום-שוכן-בגבורה-אתה-שלום-ושמך-שלום-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-אדיר-במרום-שוכן-בגבורה-אתה-שלום-ושמך-שלום-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1168,9 +1168,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-שאתה-הוא-ה-אלקינו-ואלקי-אבותינו-יוצרנו-יוצר-בראשית-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-שאתה-הוא-ה-אלקינו-ואלקי-אבותינו-יוצרנו-יוצר-בראשית-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1181,9 +1181,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-ואתה-ברחמיך-הרבים-הפרת-את-עצתו-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-ואתה-ברחמיך-הרבים-הפרת-את-עצתו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1194,9 +1194,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-לברכה-ולא-לקללה-לשובע-ולא-לרזון-לחיים-ולא-למוות-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-לברכה-ולא-לקללה-לשובע-ולא-לרזון-לחיים-ולא-למוות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1207,9 +1207,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-מקדש-מלך-עיר-מלוכה-קומי-צאי-מתוך-ההפכה-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-מקדש-מלך-עיר-מלוכה-קומי-צאי-מתוך-ההפכה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1220,9 +1220,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-על-כן-איברים-שפלגת-בנו-ורוח-ונשמה-שנפחת-באפנו-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-על-כן-איברים-שפלגת-בנו-ורוח-ונשמה-שנפחת-באפנו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1233,9 +1233,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-קדמון-לכל-דבר-אשר-נברא-ראשון-ואין-ראשית-לראשיתו-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-קדמון-לכל-דבר-אשר-נברא-ראשון-ואין-ראשית-לראשיתו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1246,9 +1246,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-תפילה-וברכות-grade-8-no-level-ואל-יבהלוני-רעיוני-וחלומות-רעים-והרהורים-רעים-0",
+    "id": "imported--תפילה-וברכות-grade-8-no-level-ואל-יבהלוני-רעיוני-וחלומות-רעים-והרהורים-רעים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - תפילה וברכות",
+    "subject": "    - תפילה וברכות",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1259,9 +1259,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-על-מה-מברכים-קודם-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-על-מה-מברכים-קודם-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1272,9 +1272,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-ביסלי-תמר-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-ביסלי-תמר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1285,9 +1285,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-חצי-תפוח-תפוח-שלם-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-חצי-תפוח-תפוח-שלם-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1298,9 +1298,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-חצי-תמר-מלפפון-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-חצי-תמר-מלפפון-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1311,9 +1311,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-גרעיני-רימון-זית-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-גרעיני-רימון-זית-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1324,9 +1324,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-שקדים-עוגיות-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-שקדים-עוגיות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1337,9 +1337,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-דינים-grade-8-no-level-על-מה-מברכים-קודם-מצה-תפוחי-אדמה-0",
+    "id": "imported--דינים-grade-8-no-level-על-מה-מברכים-קודם-מצה-תפוחי-אדמה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - דינים",
+    "subject": "    - דינים",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1350,9 +1350,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מי-חיבר-את-הספרים-האלה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מי-חיבר-את-הספרים-האלה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1363,9 +1363,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-היד-החזקה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-היד-החזקה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1376,9 +1376,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-שערי-תשובה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-שערי-תשובה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1389,9 +1389,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מסילת-ישרים-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מסילת-ישרים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1402,9 +1402,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-משנה-ברורה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-משנה-ברורה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1415,9 +1415,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-אמונה-וביטחון-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-אמונה-וביטחון-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1428,9 +1428,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-אבי-עזרי-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-אבי-עזרי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1441,9 +1441,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-שערים-בתפילה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-שערים-בתפילה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1454,9 +1454,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-שולחן-ערוך-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-שולחן-ערוך-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1467,9 +1467,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-מכתב-מאליהו-לב-אליהו-חובות-הלבבות-מסילת-ישרים-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-מכתב-מאליהו-לב-אליהו-חובות-הלבבות-מסילת-ישרים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1480,9 +1480,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-משנה-ברורה-חפץ-חיים-שמירת-הלשון-שמירת-שבת-כהלכתה-וזאת-הברכה-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-משנה-ברורה-חפץ-חיים-שמירת-הלשון-שמירת-שבת-כהלכתה-וזאת-הברכה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1493,9 +1493,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-התניא-ליקוטי-מוהרן-בני-יששכר-קדושת-הלוי-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-התניא-ליקוטי-מוהרן-בני-יששכר-קדושת-הלוי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1506,9 +1506,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-תנחומא-מדרש-רבה-ילקוט-שמעוני-מכילתא-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-תנחומא-מדרש-רבה-ילקוט-שמעוני-מכילתא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1519,9 +1519,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-זוהר-ספר-יצירה-רזיאל-המלאך-0",
+    "id": "imported--אינטליגנציה-יהודית-grade-8-no-level-מה-משותף-לקבוצה-זוהר-ספר-יצירה-רזיאל-המלאך-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה יהודית",
+    "subject": "    - אינטליגנציה יהודית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -1532,9 +1532,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-המילה-שרעף-היא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-המילה-שרעף-היא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1550,9 +1550,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-המילה-שרעף-היא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-המילה-שרעף-היא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1568,9 +1568,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-פירוש-המילה-נאלם-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-פירוש-המילה-נאלם-הוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1586,9 +1586,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-פירוש-המילה-נאלם-הוא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-פירוש-המילה-נאלם-הוא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1604,9 +1604,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-לגדוד-הוא-שם-פעולת-הקטיף-של-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-לגדוד-הוא-שם-פעולת-הקטיף-של-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1622,9 +1622,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-לגדוד-הוא-שם-פעולת-הקטיף-של-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-לגדוד-הוא-שם-פעולת-הקטיף-של-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1640,9 +1640,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-המילה-לַיש-פירושה-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-המילה-לַיש-פירושה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1658,9 +1658,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-המילה-לַיש-פירושה-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-המילה-לַיש-פירושה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1676,9 +1676,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-ההפך-משתוי-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-ההפך-משתוי-הוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1694,9 +1694,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-משתוי-הוא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-משתוי-הוא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1712,9 +1712,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-פירוש-המילה-דופי-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-פירוש-המילה-דופי-הוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1730,9 +1730,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-פירוש-המילה-דופי-הוא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-פירוש-המילה-דופי-הוא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1748,9 +1748,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-מחמצת-היא-תחליף-ל-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-מחמצת-היא-תחליף-ל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1766,9 +1766,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-מחמצת-היא-תחליף-ל-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-מחמצת-היא-תחליף-ל-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1784,9 +1784,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-נאקה-היא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-נאקה-היא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1802,9 +1802,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-נאקה-היא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-נאקה-היא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1820,9 +1820,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-ההפך-מלהירדם-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-ההפך-מלהירדם-הוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1838,9 +1838,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-מלהירדם-הוא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-מלהירדם-הוא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1856,9 +1856,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-ההפך-משכיח-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-ההפך-משכיח-הוא-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1874,9 +1874,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-משכיח-הוא-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-ההפך-משכיח-הוא-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1892,9 +1892,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-8-no-level-מים-אקונומיקה-יין-שמן-דלק-הם-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-8-no-level-מים-אקונומיקה-יין-שמן-דלק-הם-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -1910,9 +1910,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-1-מים-אקונומיקה-יין-שמן-דלק-הם-1",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-1-מים-אקונומיקה-יין-שמן-דלק-הם-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -1928,9 +1928,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-כְּסָיָה-היא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-כְּסָיָה-היא-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -1946,9 +1946,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מִכְמַנִּים-הם-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מִכְמַנִּים-הם-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -1964,9 +1964,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מַחלְָפוֹת-הן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מַחלְָפוֹת-הן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -1982,9 +1982,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-חֵמֶת-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-חֵמֶת-הוא-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -2000,9 +2000,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-חָח-הוא-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-חָח-הוא-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2018,9 +2018,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-לְבָרֵא-פירושו-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-לְבָרֵא-פירושו-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2036,9 +2036,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-כּוּמָז-פירושו-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-כּוּמָז-פירושו-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2054,9 +2054,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -2072,9 +2072,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -2090,9 +2090,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -2108,9 +2108,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-2-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -2126,9 +2126,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2144,9 +2144,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2162,9 +2162,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
+    "id": "imported--מילולי-אוצר-מילים-grade-12-רמה-3-מה-יוצא-דופן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: אוצר מילים",
+    "subject": "    - מילולי: אוצר מילים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -2180,9 +2180,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מה-הייתה-המטרה-העיקרית-של-בניית-החומה-הגדולה-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מה-הייתה-המטרה-העיקרית-של-בניית-החומה-הגדולה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2198,9 +2198,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מה-הייתה-המטרה-העיקרית-של-בניית-החומה-הגדולה-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מה-הייתה-המטרה-העיקרית-של-בניית-החומה-הגדולה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2216,9 +2216,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מדוע-החומה-אינה-נראית-היום-בדיוק-כפי-שנראתה-בעבר-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מדוע-החומה-אינה-נראית-היום-בדיוק-כפי-שנראתה-בעבר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2234,9 +2234,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מדוע-החומה-אינה-נראית-היום-בדיוק-כפי-שנראתה-בעבר-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-1-החומה-הגדולה-של-סין-החומה-הגדולה-של-סין-היא-אחד-המבנים-המרשימים-ביותר-שנבנו-אי-פעם-על-ידי-בני-אדם-בנייתה-החלה-לפני-יותר-מאלפיים-שנה-והיא-נמשכה-לאורך-שושלות-רבות-במטרה-להגן-על-האימפריה-הסינית-מפני-פלישות-של-שבטים-מצפון-החומה-אינה-רצף-אחד-של-אבן-אלא-מערכת-של-חומות-מגדלי-שמירה-ומצודות-במהלך-השנים-חלקים-מהחומה-נהרסו-בשל-פגעי-הטבע-או-משום-שאנשים-מקומיים-לקחו-אבנים-לבניית-בתיהם-עם-זאת-במאה-ה-20-החלה-ממשלת-סין-לשקם-חלקים-נרחבים-מהחומה-כדי-לשמר-אותה-כאתר-מורשת-היסטורי-כיום-החומה-הגדולה-היא-יעד-תיירותי-פופולרי-מאוד-ומיליוני-אנשים-מכל-העולם-מבקרים-בה-בכל-שנה-שאלה-מדוע-החומה-אינה-נראית-היום-בדיוק-כפי-שנראתה-בעבר-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2252,9 +2252,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מהי-החשיבות-העיקרית-של-הדבורים-לפי-הקטע-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מהי-החשיבות-העיקרית-של-הדבורים-לפי-הקטע-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2270,9 +2270,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מהי-החשיבות-העיקרית-של-הדבורים-לפי-הקטע-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מהי-החשיבות-העיקרית-של-הדבורים-לפי-הקטע-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2288,9 +2288,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מדוע-מספר-הדבורים-בעולם-פוחת-בשנים-האחרונות-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מדוע-מספר-הדבורים-בעולם-פוחת-בשנים-האחרונות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2306,9 +2306,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מדוע-מספר-הדבורים-בעולם-פוחת-בשנים-האחרונות-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-2-דבורי-הדבש-וחשיבותן-לטבע-דבורי-הדבש-ממלאות-תפקיד-קריטי-במערכת-האקולוגית-של-כדור-הארץ-מעבר-לייצור-דבש-הדבורים-אחראיות-על-האבקה-של-פרחים-וצמחים-רבים-בתהליך-זה-הן-מעבירות-אבקה-מפרח-לפרח-מה-שמאפשר-לצמחים-להתרבות-ולהצמיח-פירות-וירקות-למעשה-כשליש-מהמזון-שאנו-אוכלים-תלוי-בפעילות-האבקה-של-הדבורים-בשנים-האחרונות-נצפתה-ירידה-מדאיגה-במספר-הדבורים-בעולם-תופעה-זו-נובעת-ממספר-סיבות-ביניהן-שימוש-בחומרי-הדברה-בחקלאות-שינויי-אקלים-וצמצום-שטחי-המחיה-הטבעיים-שלהן-ללא-דבורים-ייצור-המזון-העולמי-עלול-להיפגע-בצורה-קשה-ולכן-מדענים-וארגוני-סביבה-פועלים-למציאת-דרכים-להגנה-עליהן-כמו-צמצום-חומרי-הדברה-רעילים-ונטיעת-צמחים-המושכים-דבורים-שאלה-מדוע-מספר-הדבורים-בעולם-פוחת-בשנים-האחרונות-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2324,9 +2324,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-כיצד-גילה-אלכסנדר-פלמינג-את-הפניצילין-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-כיצד-גילה-אלכסנדר-פלמינג-את-הפניצילין-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2342,9 +2342,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-כיצד-גילה-אלכסנדר-פלמינג-את-הפניצילין-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-כיצד-גילה-אלכסנדר-פלמינג-את-הפניצילין-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2360,9 +2360,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-8-no-level-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-מהי-הסכנה-העיקרית-בשימוש-מופרז-באנטיביוטיקה-0",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-8-no-level-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-מהי-הסכנה-העיקרית-בשימוש-מופרז-באנטיביוטיקה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2377,9 +2377,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-מהי-הסכנה-העיקרית-בשימוש-מופרז-באנטיביוטיקה-1",
+    "id": "imported--מילולי-הבנת-הנקרא-grade-12-רמה-1-קטע-3-גילוי-הפניצילין-עד-תחילת-המאה-ה-20-מחלות-זיהומיות-רבות-נחשבו-לקטלניות-ולא-היה-להן-מרפא-הכל-השתנה-בשנת-1928-כאשר-המדען-אלכסנדר-פלמינג-גילה-את-הפניצילין-פלמינג-הבחין-שפטרייה-מסוימת-שהתפתחה-בטעות-באחת-מצלוחיות-המעבדה-שלו-הצליחה-להרוג-חיידקים-מסביבה-גילוי-זה-הוביל-לפיתוח-האנטיביוטיקה-הראשונה-בעולם-השימוש-בפניצילין-הפך-לנפוץ-במיוחד-במהלך-מלחמת-העולם-השנייה-שם-הציל-את-חייהם-של-אלפי-חיילים-שנפצעו-בקרב-כיום-האנטיביוטיקה-היא-כלי-מרכזי-ברפואה-המודרנית-אך-רופאים-מזהירים-מפני-שימוש-מופרז-בה-שימוש-לא-מבוקר-עלול-לגרום-לחיידקים-לפתח-עמידות-לתרופה-מה-שיהפוך-אותה-לפחות-יעילה-בעתיד-שאלה-מהי-הסכנה-העיקרית-בשימוש-מופרז-באנטיביוטיקה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הבנת הנקרא",
+    "subject": "    - מילולי: הבנת הנקרא",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2394,9 +2394,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-8-no-level-יעל-משקיעה-זמן-רב-בלימודים-הציונים-שלה-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-8-no-level-יעל-משקיעה-זמן-רב-בלימודים-הציונים-שלה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": null,
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2412,9 +2412,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-1-יעל-משקיעה-זמן-רב-בלימודים-הציונים-שלה-1",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-1-יעל-משקיעה-זמן-רב-בלימודים-הציונים-שלה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2430,9 +2430,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-8-no-level-זמן-קצר-לאחר-ההמראה-המטוס-לנחות-חזרה-בשדה-התעופה-עקב-בדלק-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-8-no-level-זמן-קצר-לאחר-ההמראה-המטוס-לנחות-חזרה-בשדה-התעופה-עקב-בדלק-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": null,
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2448,9 +2448,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-1-זמן-קצר-לאחר-ההמראה-המטוס-לנחות-חזרה-בשדה-התעופה-עקב-בדלק-1",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-1-זמן-קצר-לאחר-ההמראה-המטוס-לנחות-חזרה-בשדה-התעופה-עקב-בדלק-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2466,9 +2466,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-8-no-level-עקב-חמור-בדירות-למגורים-מנהל-מקרקעי-ישראל-מנסה-קרקע-לבנייה-של-קומות-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-8-no-level-עקב-חמור-בדירות-למגורים-מנהל-מקרקעי-ישראל-מנסה-קרקע-לבנייה-של-קומות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": null,
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2484,9 +2484,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-1-עקב-חמור-בדירות-למגורים-מנהל-מקרקעי-ישראל-מנסה-קרקע-לבנייה-של-קומות-1",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-1-עקב-חמור-בדירות-למגורים-מנהל-מקרקעי-ישראל-מנסה-קרקע-לבנייה-של-קומות-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2502,9 +2502,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-2-הטענה-כי-החקיקה-תפגע-בזכויות-הפרט-היא-שכן-החוק-מעגן-דווקא-את-אותן-זכויות-ומעניק-להן-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-2-הטענה-כי-החקיקה-תפגע-בזכויות-הפרט-היא-שכן-החוק-מעגן-דווקא-את-אותן-זכויות-ומעניק-להן-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2520,9 +2520,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-2-לו-הייתה-התחזית-הכלכלית-מלכתחילה-ייתכן-שהיינו-את-המשבר-הנוכחי-ולא-נקלעים-אליו-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-2-לו-הייתה-התחזית-הכלכלית-מלכתחילה-ייתכן-שהיינו-את-המשבר-הנוכחי-ולא-נקלעים-אליו-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2538,9 +2538,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-2-ככל-שהטכנולוגיה-הופכת-ל-יותר-כך-עולה-הצורך-ב-המשתמשים-כדי-למנוע-כשלים-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-2-ככל-שהטכנולוגיה-הופכת-ל-יותר-כך-עולה-הצורך-ב-המשתמשים-כדי-למנוע-כשלים-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2556,9 +2556,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-3-הניסוי-לא-נכשל-הוא-פשוט-הוכיח-שהשערה-מסוימת-הייתה-מה-שמאפשר-לנו-להתמקד-בדרך-יותר-להמשך-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-3-הניסוי-לא-נכשל-הוא-פשוט-הוכיח-שהשערה-מסוימת-הייתה-מה-שמאפשר-לנו-להתמקד-בדרך-יותר-להמשך-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2574,9 +2574,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-3-המטרה-אינה-לבטל-את-הניגודים-אלא-למצוא-את-ה-שמאפשר-לחיות-לצד-השוני-בלי-את-הזהות-העצמית-של-כל-צד-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-3-המטרה-אינה-לבטל-את-הניגודים-אלא-למצוא-את-ה-שמאפשר-לחיות-לצד-השוני-בלי-את-הזהות-העצמית-של-כל-צד-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2592,9 +2592,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-השלמת-משפטים-grade-12-רמה-3-למרות-הנתונים-שהראו-ירידה-החברה-החליטה-את-התקציב-לשיווק-מתוך-תקווה-שזה-יעזור-לה-את-המגמה-0",
+    "id": "imported--מילולי-השלמת-משפטים-grade-12-רמה-3-למרות-הנתונים-שהראו-ירידה-החברה-החליטה-את-התקציב-לשיווק-מתוך-תקווה-שזה-יעזור-לה-את-המגמה-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: השלמת משפטים",
+    "subject": "    - מילולי: השלמת משפטים",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "sentence_completion",
@@ -2610,9 +2610,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-8-no-level-כל-הסוסים-ירוקים-0",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-8-no-level-כל-הסוסים-ירוקים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2628,9 +2628,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-12-רמה-1-כל-הסוסים-ירוקים-1",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-12-רמה-1-כל-הסוסים-ירוקים-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2646,9 +2646,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-8-no-level-כל-הרוסים-אוהבים-לישון-0",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-8-no-level-כל-הרוסים-אוהבים-לישון-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2664,9 +2664,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-12-רמה-1-כל-הרוסים-אוהבים-לישון-1",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-12-רמה-1-כל-הרוסים-אוהבים-לישון-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2682,9 +2682,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-8-no-level-רק-פעמונים-הם-סגולים-0",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-8-no-level-רק-פעמונים-הם-סגולים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -2699,9 +2699,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מילולי-הסקת-מסקנות-grade-12-רמה-1-רק-פעמונים-הם-סגולים-1",
+    "id": "imported--מילולי-הסקת-מסקנות-grade-12-רמה-1-רק-פעמונים-הם-סגולים-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מילולי: הסקת מסקנות",
+    "subject": "    - מילולי: הסקת מסקנות",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -2716,9 +2716,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-מה-משותף-ל-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-מה-משותף-ל-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2729,9 +2729,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-מה-משותף-ל-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-מה-משותף-ל-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2742,9 +2742,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-נפוליאון-מגדל-אייפל-שער-הניצחון-השאנז-אליזה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-נפוליאון-מגדל-אייפל-שער-הניצחון-השאנז-אליזה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2755,9 +2755,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-נפוליאון-מגדל-אייפל-שער-הניצחון-השאנז-אליזה-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-נפוליאון-מגדל-אייפל-שער-הניצחון-השאנז-אליזה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2768,9 +2768,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אתונה-ספארטה-יופי-וחיצוניות-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אתונה-ספארטה-יופי-וחיצוניות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2781,9 +2781,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אתונה-ספארטה-יופי-וחיצוניות-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אתונה-ספארטה-יופי-וחיצוניות-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2794,9 +2794,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-שפעת-סארס-קורונה-הרפס-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-שפעת-סארס-קורונה-הרפס-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2807,9 +2807,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-שפעת-סארס-קורונה-הרפס-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-שפעת-סארס-קורונה-הרפס-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2820,9 +2820,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-c-e-a-b12-d-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-c-e-a-b12-d-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2833,9 +2833,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-c-e-a-b12-d-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-c-e-a-b12-d-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2846,9 +2846,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אורנוס-פלוטו-צדק-מאדים-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אורנוס-פלוטו-צדק-מאדים-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2859,9 +2859,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אורנוס-פלוטו-צדק-מאדים-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אורנוס-פלוטו-צדק-מאדים-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2872,9 +2872,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-לבה-וזוב-אטנה-וולקני-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-לבה-וזוב-אטנה-וולקני-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2885,9 +2885,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-לבה-וזוב-אטנה-וולקני-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-לבה-וזוב-אטנה-וולקני-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2898,9 +2898,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-בורי-אמנון-טונה-כסיף-דניס-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-בורי-אמנון-טונה-כסיף-דניס-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2911,9 +2911,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-בורי-אמנון-טונה-כסיף-דניס-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-בורי-אמנון-טונה-כסיף-דניס-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2924,9 +2924,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אבץ-בדיל-גפרית-הליום-אשלגן-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אבץ-בדיל-גפרית-הליום-אשלגן-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2937,9 +2937,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אבץ-בדיל-גפרית-הליום-אשלגן-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אבץ-בדיל-גפרית-הליום-אשלגן-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2950,9 +2950,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-רנד-פרנק-אירו-דינר-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-רנד-פרנק-אירו-דינר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2963,9 +2963,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-רנד-פרנק-אירו-דינר-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-רנד-פרנק-אירו-דינר-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -2976,9 +2976,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-רנו-קרייזלר-טסלה-פזו-קיה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-רנו-קרייזלר-טסלה-פזו-קיה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -2989,9 +2989,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-רנו-קרייזלר-טסלה-פזו-קיה-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-רנו-קרייזלר-טסלה-פזו-קיה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3002,9 +3002,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ניבים-בינה-חותכות-טוחנות-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ניבים-בינה-חותכות-טוחנות-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3015,9 +3015,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ניבים-בינה-חותכות-טוחנות-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ניבים-בינה-חותכות-טוחנות-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3028,9 +3028,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-כמון-אגוז-מוסקט-פפריקה-כורכום-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-כמון-אגוז-מוסקט-פפריקה-כורכום-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3041,9 +3041,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-כמון-אגוז-מוסקט-פפריקה-כורכום-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-כמון-אגוז-מוסקט-פפריקה-כורכום-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3054,9 +3054,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אילסר-מקדמיה-פקאן-מלך-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-אילסר-מקדמיה-פקאן-מלך-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3067,9 +3067,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אילסר-מקדמיה-פקאן-מלך-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-אילסר-מקדמיה-פקאן-מלך-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3080,9 +3080,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-נורופן-אופטלגין-מוקיספן-ריטלין-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-נורופן-אופטלגין-מוקיספן-ריטלין-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3093,9 +3093,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-נורופן-אופטלגין-מוקיספן-ריטלין-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-נורופן-אופטלגין-מוקיספן-ריטלין-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3106,9 +3106,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-שקמה-אורן-אלה-ברוש-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-שקמה-אורן-אלה-ברוש-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3119,9 +3119,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-שקמה-אורן-אלה-ברוש-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-שקמה-אורן-אלה-ברוש-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3132,9 +3132,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-סעודיה-איחוד-האמירויות-כווית-קטר-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-סעודיה-איחוד-האמירויות-כווית-קטר-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3145,9 +3145,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-סעודיה-איחוד-האמירויות-כווית-קטר-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-סעודיה-איחוד-האמירויות-כווית-קטר-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3158,9 +3158,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-מון-בלאן-תבור-אררט-הימלאיה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-מון-בלאן-תבור-אררט-הימלאיה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3171,9 +3171,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-מון-בלאן-תבור-אררט-הימלאיה-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-מון-בלאן-תבור-אררט-הימלאיה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3184,9 +3184,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-תריסריון-ושט-מעי-דק-קיבה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-תריסריון-ושט-מעי-דק-קיבה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3197,9 +3197,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-תריסריון-ושט-מעי-דק-קיבה-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-תריסריון-ושט-מעי-דק-קיבה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3210,9 +3210,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-יפו-חיפה-נתניה-אשדוד-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-יפו-חיפה-נתניה-אשדוד-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3223,9 +3223,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-יפו-חיפה-נתניה-אשדוד-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-יפו-חיפה-נתניה-אשדוד-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3236,9 +3236,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-טל-מטר-שלג-ברד-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-טל-מטר-שלג-ברד-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3249,9 +3249,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-טל-מטר-שלג-ברד-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-טל-מטר-שלג-ברד-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3262,9 +3262,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ירושלים-חברון-צפת-טבריה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ירושלים-חברון-צפת-טבריה-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3275,9 +3275,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ירושלים-חברון-צפת-טבריה-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ירושלים-חברון-צפת-טבריה-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3288,9 +3288,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-פירה-לטקעס-ציפס-ניוקי-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-פירה-לטקעס-ציפס-ניוקי-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3301,9 +3301,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-פירה-לטקעס-ציפס-ניוקי-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-פירה-לטקעס-ציפס-ניוקי-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3314,9 +3314,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-סוס-מט-טורא-רץ-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-סוס-מט-טורא-רץ-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3327,9 +3327,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-סוס-מט-טורא-רץ-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-סוס-מט-טורא-רץ-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3340,9 +3340,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-פרסה-אמה-טפח-זרת-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-פרסה-אמה-טפח-זרת-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3353,9 +3353,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-פרסה-אמה-טפח-זרת-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-פרסה-אמה-טפח-זרת-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3366,9 +3366,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ברזיל-ארגנטינה-צילה-פרו-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-ברזיל-ארגנטינה-צילה-פרו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3379,9 +3379,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ברזיל-ארגנטינה-צילה-פרו-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-ברזיל-ארגנטינה-צילה-פרו-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3392,9 +3392,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-דבש-משי-צמר-חלב-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-דבש-משי-צמר-חלב-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3405,9 +3405,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-דבש-משי-צמר-חלב-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-דבש-משי-צמר-חלב-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3418,9 +3418,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-כינור-נבל-גיטרה-צלו-0",
+    "id": "imported--אינטליגנציה-כללית-grade-8-no-level-מה-משותף-ל-כינור-נבל-גיטרה-צלו-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": null,
     "activityType": "practice",
     "type": "open",
@@ -3431,9 +3431,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-כינור-נבל-גיטרה-צלו-1",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-1-מה-משותף-ל-כינור-נבל-גיטרה-צלו-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "open",
@@ -3444,9 +3444,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-היכן-נמצא-מטה-הארגון-הבינלאומי-האומות-המאוחדות-האום-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-היכן-נמצא-מטה-הארגון-הבינלאומי-האומות-המאוחדות-האום-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3462,9 +3462,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-מהי-המדינה-הגדולה-ביותר-בעולם-מבחינת-שטח-יבשתי-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-מהי-המדינה-הגדולה-ביותר-בעולם-מבחינת-שטח-יבשתי-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3480,9 +3480,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-מה-המונח-המתאר-עלייה-מתמשכת-וכללית-ברמת-המחירים-במשק-הגורמת-לירידה-בכוח-הקנייה-של-הכסף-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-מה-המונח-המתאר-עלייה-מתמשכת-וכללית-ברמת-המחירים-במשק-הגורמת-לירידה-בכוח-הקנייה-של-הכסף-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3498,9 +3498,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-לפי-הלוח-העברי-כיצד-נקבע-אורכו-של-חודש-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-לפי-הלוח-העברי-כיצד-נקבע-אורכו-של-חודש-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3516,9 +3516,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-איזה-יונק-הוא-היחיד-שמסוגל-לעוף-באופן-פעיל-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-איזה-יונק-הוא-היחיד-שמסוגל-לעוף-באופן-פעיל-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3534,9 +3534,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-2-מי-המציא-את-נורת-החשמל-הראשונה-שהייתה-ניתנת-לשימוש-ביתי-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-2-מי-המציא-את-נורת-החשמל-הראשונה-שהייתה-ניתנת-לשימוש-ביתי-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3552,9 +3552,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-3-איזו-חברת-תרופות-היא-הראשונה-שפיתחה-חיסון-נגד-נגיף-הקורונה-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-3-איזו-חברת-תרופות-היא-הראשונה-שפיתחה-חיסון-נגד-נגיף-הקורונה-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -3570,9 +3570,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-אינטליגנציה-כללית-grade-12-רמה-3-מהו-הרכס-ההררי-הארוך-ביותר-בעולם-שנמצא-מעל-פני-הים-0",
+    "id": "imported--אינטליגנציה-כללית-grade-12-רמה-3-מהו-הרכס-ההררי-הארוך-ביותר-בעולם-שנמצא-מעל-פני-הים-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - אינטליגנציה כללית",
+    "subject": "    - אינטליגנציה כללית",
     "level": "רמה 3",
     "activityType": "practice",
     "type": "multiple",
@@ -3588,9 +3588,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-8-no-level-1-3-7-15-31-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-8-no-level-1-3-7-15-31-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -3606,9 +3606,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-1-1-3-7-15-31-1",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-1-1-3-7-15-31-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -3624,9 +3624,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-8-no-level-4-9-16-25-36-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-8-no-level-4-9-16-25-36-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -3642,9 +3642,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-1-4-9-16-25-36-1",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-1-4-9-16-25-36-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -3660,9 +3660,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-8-no-level-3-6-11-18-27-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-8-no-level-3-6-11-18-27-0",
     "grade": "grade-8",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": null,
     "activityType": "practice",
     "type": "multiple",
@@ -3678,9 +3678,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-1-3-6-11-18-27-1",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-1-3-6-11-18-27-1",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 1",
     "activityType": "practice",
     "type": "multiple",
@@ -3696,9 +3696,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-2-2-5-11-23-47-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-2-2-5-11-23-47-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3714,9 +3714,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-2-2-3-5-8-13-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-2-2-3-5-8-13-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",
@@ -3732,9 +3732,9 @@ const importedDemoQuestions = [
     ]
   },
   {
-    "id": "imported-נושא-חדש-מתמטיקה-סדרות-מספרים-grade-12-רמה-2-10-12-11-13-12-14-0",
+    "id": "imported--מתמטיקה-סדרות-מספרים-grade-12-רמה-2-10-12-11-13-12-14-0",
     "grade": "grade-12",
-    "subject": "נושא חדש - מתמטיקה: סדרות מספרים",
+    "subject": "    - מתמטיקה: סדרות מספרים",
     "level": "רמה 2",
     "activityType": "practice",
     "type": "multiple",

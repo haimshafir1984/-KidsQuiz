@@ -21,6 +21,39 @@ function createQuestionDraft(trackCatalog, grade, subject) {
   }
 }
 
+function SectionToggle({ title, subtitle, count, open, onToggle, tone = 'slate' }) {
+  const tones = {
+    slate: 'bg-white/90 ring-slate-100',
+    blue: 'bg-blue-50/80 ring-blue-100',
+    amber: 'bg-amber-50/80 ring-amber-100',
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`w-full rounded-3xl p-5 text-right shadow-sm ring-1 transition-all duration-200 hover:-translate-y-0.5 ${tones[tone]}`}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-right">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {typeof count === 'number' && (
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                {count}
+              </span>
+            )}
+            <h2 className="text-xl font-extrabold text-slate-950">{title}</h2>
+          </div>
+          {subtitle && <p className="mt-2 text-sm text-slate-600">{subtitle}</p>}
+        </div>
+        <div className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm">
+          {open ? 'סגירה ▲' : 'פתיחה ▼'}
+        </div>
+      </div>
+    </button>
+  )
+}
+
 function TopicForm({ onSave, onCancel }) {
   const [form, setForm] = useState({
     grade: GRADES[0]?.value || 'grade-8',
@@ -51,7 +84,7 @@ function TopicForm({ onSave, onCancel }) {
     <form onSubmit={handleSubmit} className="edu-card flex flex-col gap-4 text-right">
       <div>
         <h3 className="text-2xl font-extrabold text-slate-950">הוספת נושא חדש</h3>
-        <p className="mt-1 text-sm text-slate-600">אפשר להוסיף נושא לכל אחת מהקטגוריות, כולל אתגר מחשבתי.</p>
+        <p className="mt-1 text-sm text-slate-600">הפאנל הזה מיועד ליצירת נושא חדש בלבד, בלי להעמיס על רשימת השאלות.</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -131,12 +164,12 @@ function TopicManager({ trackCatalog, onRename, onDelete, onAddQuestion }) {
 
   return (
     <section className="edu-card p-6">
-      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="text-right">
-          <h2 className="text-xl font-extrabold text-slate-950">ניהול נושאים</h2>
-          <p className="mt-1 text-sm text-slate-600">אפשר לשנות שם נושא, למחוק נושא שלם, או להוסיף שאלה ישירות אל תוך נושא קיים.</p>
+          <h3 className="text-2xl font-extrabold text-slate-950">עריכת נושאים</h3>
+          <p className="mt-1 text-sm text-slate-600">שינוי שם, מחיקה, או הוספת שאלה ישירות לנושא קיים.</p>
         </div>
-        <div className="w-full md:max-w-xs">
+        <div className="w-full lg:max-w-xs">
           <label className="mb-1 block text-sm font-semibold text-slate-700">קטגוריה</label>
           <select value={grade} onChange={event => setGrade(event.target.value)} className="input-field">
             {GRADES.map(item => (
@@ -154,7 +187,7 @@ function TopicManager({ trackCatalog, onRename, onDelete, onAddQuestion }) {
         ) : (
           topics.map(topic => (
             <div key={`${grade}-${topic.subject}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto]">
+              <div className="grid gap-3 xl:grid-cols-[1fr_auto_auto_auto]">
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-sm font-semibold text-slate-700">שם נוכחי</label>
@@ -218,7 +251,7 @@ function LinkQuestionForm({ question, trackCatalog, onLink }) {
     <section className="rounded-2xl border border-dashed border-slate-300 p-4">
       <div className="text-right">
         <h4 className="text-lg font-extrabold text-slate-950">שיוך לקטגוריות נוספות</h4>
-        <p className="mt-1 text-sm text-slate-600">הפעולה יוצרת עותק של אותה שאלה תחת קטגוריה או נושא נוסף.</p>
+        <p className="mt-1 text-sm text-slate-600">נוצר עותק של אותה שאלה בקטגוריה או בנושא נוספים.</p>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-4">
@@ -266,7 +299,7 @@ function LinkQuestionForm({ question, trackCatalog, onLink }) {
   )
 }
 
-function QuestionForm({ initialQuestion, onSave, onCancel, trackCatalog, onLinkQuestion }) {
+function QuestionForm({ initialQuestion, onSave, onCancel, trackCatalog, onLinkQuestion, compact = false }) {
   const [form, setForm] = useState(initialQuestion)
   const availableSubjects = trackCatalog[form.grade] || []
   const activeTrack = availableSubjects.find(track => track.subject === form.subject) || availableSubjects[0]
@@ -344,12 +377,14 @@ function QuestionForm({ initialQuestion, onSave, onCancel, trackCatalog, onLinkQ
   }
 
   return (
-    <form onSubmit={handleSubmit} className="edu-card flex flex-col gap-4 text-right">
+    <form onSubmit={handleSubmit} className={`edu-card flex flex-col gap-4 text-right ${compact ? 'border-2 border-blue-100 bg-blue-50/40' : ''}`}>
       <div>
         <h3 className="text-2xl font-extrabold text-slate-950">
           {initialQuestion?.id ? 'עריכת שאלה' : 'הוספת שאלה חדשה'}
         </h3>
-        <p className="mt-1 text-sm text-slate-600">אפשר לקבוע כאן גם סוג שאלה וגם מיקום בתוך הנושא.</p>
+        <p className="mt-1 text-sm text-slate-600">
+          {initialQuestion?.id ? 'הטופס נפתח ליד השאלה שבחרת כדי שלא תאבדו את ההקשר.' : 'טופס מרוכז ליצירת שאלה חדשה.'}
+        </p>
       </div>
 
       <div>
@@ -503,7 +538,10 @@ export default function AdminPage() {
   } = useApp()
   const [activeTab, setActiveTab] = useState('questions')
   const [editingQuestion, setEditingQuestion] = useState(null)
+  const [newQuestionDraft, setNewQuestionDraft] = useState(null)
+  const [showTopicManager, setShowTopicManager] = useState(false)
   const [showTopicForm, setShowTopicForm] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   const [gradeFilter, setGradeFilter] = useState('all')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [activityFilter, setActivityFilter] = useState('all')
@@ -538,13 +576,20 @@ export default function AdminPage() {
       })
   }, [activityFilter, gradeFilter, questions, subjectFilter])
 
+  function closeEditors() {
+    setEditingQuestion(null)
+    setNewQuestionDraft(null)
+  }
+
   function handleSave(questionData) {
     if (editingQuestion?.id) {
       updateQuestion(editingQuestion.id, questionData)
-    } else {
-      addQuestion(questionData)
+      setEditingQuestion(null)
+      return
     }
-    setEditingQuestion(null)
+
+    addQuestion(questionData)
+    setNewQuestionDraft(null)
   }
 
   function handleLinkQuestion(target) {
@@ -586,7 +631,18 @@ export default function AdminPage() {
   }
 
   function handleAddQuestionToTopic(grade, subject) {
-    setEditingQuestion(createQuestionDraft(trackCatalog, grade, subject))
+    setNewQuestionDraft(createQuestionDraft(trackCatalog, grade, subject))
+    setEditingQuestion(null)
+  }
+
+  function handleOpenNewQuestion() {
+    setNewQuestionDraft(createQuestionDraft(trackCatalog))
+    setEditingQuestion(null)
+  }
+
+  function handleEditQuestion(question) {
+    setEditingQuestion(question)
+    setNewQuestionDraft(null)
   }
 
   return (
@@ -595,14 +651,14 @@ export default function AdminPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="text-right">
             <h1 className="text-3xl font-extrabold text-slate-950">מסך ניהול</h1>
-            <p className="mt-2 text-sm text-slate-600">כאן אפשר לשלוט בקטגוריות, בנושאים, בשאלות ובשיוך של שאלה ליותר ממקום אחד.</p>
+            <p className="mt-2 text-sm text-slate-600">ניהול שוטף של נושאים, שאלות ושיוכים, במבנה קומפקטי שקל להתמצא בו.</p>
           </div>
           {activeTab === 'questions' && (
             <div className="flex flex-col gap-3 sm:flex-row">
               <button onClick={() => setShowTopicForm(previous => !previous)} className="btn-secondary">
-                הוספת נושא
+                {showTopicForm ? 'סגירת הוספת נושא' : 'הוספת נושא'}
               </button>
-              <button onClick={() => setEditingQuestion(createQuestionDraft(trackCatalog))} className="btn-primary">
+              <button onClick={handleOpenNewQuestion} className="btn-primary">
                 הוספת שאלה חדשה
               </button>
             </div>
@@ -631,12 +687,23 @@ export default function AdminPage() {
         <AdminUsers />
       ) : (
         <>
-          <TopicManager
-            trackCatalog={trackCatalog}
-            onRename={handleRenameTopic}
-            onDelete={handleDeleteTopic}
-            onAddQuestion={handleAddQuestionToTopic}
+          <SectionToggle
+            title="עריכת נושאים"
+            subtitle="פאנל נסגר כדי לשמור את אזור השאלות זמין בלי גלילה ארוכה."
+            count={Object.values(trackCatalog).flatMap(items => items).length}
+            open={showTopicManager}
+            onToggle={() => setShowTopicManager(previous => !previous)}
+            tone="amber"
           />
+
+          {showTopicManager && (
+            <TopicManager
+              trackCatalog={trackCatalog}
+              onRename={handleRenameTopic}
+              onDelete={handleDeleteTopic}
+              onAddQuestion={handleAddQuestionToTopic}
+            />
+          )}
 
           {showTopicForm && (
             <TopicForm
@@ -645,58 +712,84 @@ export default function AdminPage() {
             />
           )}
 
-          {editingQuestion && (
+          {newQuestionDraft && (
             <QuestionForm
-              initialQuestion={editingQuestion}
+              initialQuestion={newQuestionDraft}
               onSave={handleSave}
-              onCancel={() => setEditingQuestion(null)}
+              onCancel={() => setNewQuestionDraft(null)}
               trackCatalog={trackCatalog}
-              onLinkQuestion={handleLinkQuestion}
+              onLinkQuestion={() => {}}
             />
           )}
 
-          <section className="edu-card p-6">
-            <div className="mb-4 text-right">
-              <h2 className="text-xl font-extrabold text-slate-950">סינון מאגר השאלות</h2>
-              <p className="mt-1 text-sm text-slate-600">בחירת קטגוריה מצמצמת גם את רשימת הנושאים לאותה קטגוריה בלבד.</p>
-            </div>
-            <div className="grid gap-3 md:grid-cols-3">
-              <select value={gradeFilter} onChange={event => setGradeFilter(event.target.value)} className="input-field">
-                <option value="all">כל הקטגוריות</option>
-                {GRADES.map(grade => (
-                  <option key={grade.value} value={grade.value}>{grade.label}</option>
-                ))}
-              </select>
-              <select value={subjectFilter} onChange={event => setSubjectFilter(event.target.value)} className="input-field">
-                <option value="all">כל הנושאים</option>
-                {availableSubjects.map(subject => (
-                  <option key={subject} value={subject}>{subject}</option>
-                ))}
-              </select>
-              <select value={activityFilter} onChange={event => setActivityFilter(event.target.value)} className="input-field">
-                <option value="all">כל הפעילויות</option>
-                <option value="practice">תרגול</option>
-                <option value="exam">מבחן</option>
-              </select>
-            </div>
-          </section>
+          <SectionToggle
+            title="סינון מאגר השאלות"
+            subtitle="בחירת קטגוריה מצמצמת גם את רשימת הנושאים לאותה קטגוריה בלבד."
+            open={showFilters}
+            onToggle={() => setShowFilters(previous => !previous)}
+            tone="blue"
+          />
+
+          {showFilters && (
+            <section className="edu-card p-6">
+              <div className="grid gap-3 md:grid-cols-3">
+                <select value={gradeFilter} onChange={event => setGradeFilter(event.target.value)} className="input-field">
+                  <option value="all">כל הקטגוריות</option>
+                  {GRADES.map(grade => (
+                    <option key={grade.value} value={grade.value}>{grade.label}</option>
+                  ))}
+                </select>
+                <select value={subjectFilter} onChange={event => setSubjectFilter(event.target.value)} className="input-field">
+                  <option value="all">כל הנושאים</option>
+                  {availableSubjects.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+                <select value={activityFilter} onChange={event => setActivityFilter(event.target.value)} className="input-field">
+                  <option value="all">כל הפעילויות</option>
+                  <option value="practice">תרגול</option>
+                  <option value="exam">מבחן</option>
+                </select>
+              </div>
+            </section>
+          )}
 
           <section className="grid gap-4">
             {filteredQuestions.length === 0 ? (
               <div className="edu-card p-8 text-center text-slate-500">לא נמצאו שאלות בהתאם לסינון שנבחר.</div>
             ) : (
               filteredQuestions.map(question => (
-                <QuestionRow
-                  key={question.id}
-                  question={question}
-                  onEdit={setEditingQuestion}
-                  onDelete={handleDeleteQuestion}
-                  onMoveUp={() => moveQuestion(question.id, 'up')}
-                  onMoveDown={() => moveQuestion(question.id, 'down')}
-                />
+                <div key={question.id} className="grid gap-3">
+                  <QuestionRow
+                    question={question}
+                    onEdit={handleEditQuestion}
+                    onDelete={handleDeleteQuestion}
+                    onMoveUp={() => moveQuestion(question.id, 'up')}
+                    onMoveDown={() => moveQuestion(question.id, 'down')}
+                  />
+
+                  {editingQuestion?.id === question.id && (
+                    <QuestionForm
+                      initialQuestion={editingQuestion}
+                      onSave={handleSave}
+                      onCancel={() => setEditingQuestion(null)}
+                      trackCatalog={trackCatalog}
+                      onLinkQuestion={handleLinkQuestion}
+                      compact
+                    />
+                  )}
+                </div>
               ))
             )}
           </section>
+
+          {(editingQuestion || newQuestionDraft) && (
+            <div className="flex justify-center">
+              <button onClick={closeEditors} className="btn-muted">
+                סגירת טפסי עריכה
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
