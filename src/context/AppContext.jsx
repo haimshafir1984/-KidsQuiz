@@ -19,7 +19,7 @@ import {
   clearStoredMode,
 } from '../utils/db'
 import seedQuestions from '../data/seedQuestions'
-import { GRADES } from '../data/learningTracks'
+import { BASE_VISIBLE_TRACKS, GRADES } from '../data/learningTracks'
 import { normalizeSubjectName } from '../data/subjectCatalog'
 
 const AppContext = createContext(null)
@@ -225,7 +225,7 @@ export function AppProvider({ children }) {
         return [
           grade,
           mergeTrackCollections(
-            [...(customTracks[grade] || []), ...extraTracks],
+            [...(BASE_VISIBLE_TRACKS[grade] || []), ...(customTracks[grade] || []), ...extraTracks],
             questionTracks[grade],
           ),
         ]
