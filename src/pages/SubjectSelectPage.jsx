@@ -1,24 +1,50 @@
-﻿import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { getGradeConfig, getTracksForGrade, SUBJECT_TONES } from '../data/learningTracks'
+import { getGradeConfig, SUBJECT_TONES } from '../data/learningTracks'
+import { HOLLAND_QUESTIONS } from '../data/hollandQuestionnaire'
 
 export default function SubjectSelectPage() {
   const navigate = useNavigate()
-  const { selectedGrade, chooseSubject, questions } = useApp()
+  const { selectedGrade, chooseSubject, questions, trackCatalog, prepareQuiz } = useApp()
 
   if (!selectedGrade) {
     return <Navigate to="/age" replace />
   }
 
   const grade = getGradeConfig(selectedGrade)
-  const tracks = getTracksForGrade(selectedGrade)
+  const tracks = trackCatalog[selectedGrade] || []
 
-  function handleSubjectSelect(subject) {
-    chooseSubject(subject)
+  function handleSubjectSelect(track) {
+    chooseSubject(track.subject)
+
+    const hasLevels = track.levels.length > 0
+    const hasOnlyPractice = track.activities.length === 1 && track.activities[0] === 'practice'
+
+    if (track.subject !== 'שאלון הולנד' && !hasLevels && hasOnlyPractice) {
+      const prepared = prepareQuiz({
+        grade: selectedGrade,
+        subject: track.subject,
+        level: null,
+        activityType: 'practice',
+      })
+
+      if (prepared.length === 0) {
+        alert('עדיין אין שאלות זמינות עבור הנושא הזה.')
+        return
+      }
+
+      navigate('/quiz')
+      return
+    }
+
     navigate('/track')
   }
 
   function countForTrack(subject) {
+    if (subject === 'שאלון הולנד') {
+      return HOLLAND_QUESTIONS.length
+    }
+
     return questions.filter(question => question.grade === selectedGrade && question.subject === subject).length
   }
 
@@ -48,7 +74,7 @@ export default function SubjectSelectPage() {
           return (
             <button
               key={track.subject}
-              onClick={() => handleSubjectSelect(track.subject)}
+              onClick={() => handleSubjectSelect(track)}
               className={`edu-card border-2 text-right transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${styling.hover}`}
             >
               <div className="flex items-start gap-4">
@@ -59,7 +85,7 @@ export default function SubjectSelectPage() {
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <h2 className="text-xl font-extrabold text-slate-950">{track.subject}</h2>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                      {total} שאלות
+                      {total} פריטים
                     </span>
                   </div>
                   <p className="text-sm leading-6 text-slate-600">סוגי שאלות: {track.questionTypes}</p>

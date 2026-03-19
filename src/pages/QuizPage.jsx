@@ -8,6 +8,8 @@ const LETTER_BADGES = [
   'bg-emerald-50 text-emerald-600',
   'bg-amber-50 text-amber-600',
   'bg-indigo-50 text-indigo-600',
+  'bg-rose-50 text-rose-600',
+  'bg-cyan-50 text-cyan-600',
 ]
 
 function formatTime(secondsLeft) {
@@ -40,7 +42,7 @@ function MultipleChoice({ options, onAnswer, answered, selectedAnswer, isCorrect
             className={`quiz-option flex items-center gap-4 text-lg font-semibold ${stateClass}`}
           >
             <span className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${LETTER_BADGES[index]}`}>
-              {['א', 'ב', 'ג', 'ד'][index]}
+              {['א', 'ב', 'ג', 'ד', 'ה', 'ו'][index]}
             </span>
             <span className="flex-1 text-right">{option}</span>
           </button>
@@ -161,6 +163,7 @@ export default function QuizPage() {
 
   const question = quizQuestions[currentIdx]
   const progress = ((currentIdx + 1) / quizQuestions.length) * 100
+  const isOptionQuestion = question.type === 'multiple' || question.type === 'sentence_completion'
   const correctAnswer = Array.isArray(question.correct_answer)
     ? question.correct_answer[0]
     : question.correct_answer
@@ -169,7 +172,7 @@ export default function QuizPage() {
   function handleAnswer(userAnswer) {
     let correct = false
 
-    if (question.type === 'multiple') {
+    if (isOptionQuestion) {
       correct = question.correct_answer.includes(userAnswer)
     } else {
       correct = fuzzyMatch(userAnswer, question.correct_answer)
@@ -258,7 +261,7 @@ export default function QuizPage() {
           </button>
         </div>
 
-        {question.type === 'multiple' ? (
+        {isOptionQuestion ? (
           <MultipleChoice
             key={question.id}
             options={question.options}

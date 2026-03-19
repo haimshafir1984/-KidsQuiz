@@ -1,9 +1,22 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getOfflinePackageInfo, isDesktopRuntime } from '../utils/runtime'
 import { useApp } from '../context/AppContext'
 
-const DOWNLOAD_URL = import.meta.env.VITE_OFFLINE_DOWNLOAD_URL || './downloads/KidsQuiz-Offline-Setup.exe'
+const DEFAULT_FILE_NAME = 'KidsQuizOfflineSetup.exe'
+const DOWNLOAD_URL = import.meta.env.VITE_OFFLINE_DOWNLOAD_URL || ''
+
+function getDownloadFileName(url) {
+  if (!url) return DEFAULT_FILE_NAME
+
+  try {
+    const normalizedUrl = new URL(url, window.location.href)
+    const pathnameParts = normalizedUrl.pathname.split('/').filter(Boolean)
+    return pathnameParts[pathnameParts.length - 1] || DEFAULT_FILE_NAME
+  } catch {
+    return DEFAULT_FILE_NAME
+  }
+}
 
 export default function OfflineDownloadPage() {
   const navigate = useNavigate()
@@ -11,6 +24,7 @@ export default function OfflineDownloadPage() {
   const [packageInfo, setPackageInfo] = useState({ productName: 'KidsQuiz Offline', outputDirectory: 'release' })
   const [downloadStarted, setDownloadStarted] = useState(false)
   const desktop = isDesktopRuntime()
+  const downloadFileName = useMemo(() => getDownloadFileName(DOWNLOAD_URL), [])
 
   useEffect(() => {
     getOfflinePackageInfo().then(setPackageInfo).catch(() => {})
@@ -22,7 +36,7 @@ export default function OfflineDownloadPage() {
     const timer = window.setTimeout(() => {
       const link = document.createElement('a')
       link.href = DOWNLOAD_URL
-      link.download = 'KidsQuiz-Offline-Setup.exe'
+      link.download = downloadFileName
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -30,7 +44,7 @@ export default function OfflineDownloadPage() {
     }, 250)
 
     return () => window.clearTimeout(timer)
-  }, [desktop, downloadStarted])
+  }, [desktop, downloadFileName, downloadStarted])
 
   function handleContinueOnline() {
     setMode('online')
@@ -38,9 +52,11 @@ export default function OfflineDownloadPage() {
   }
 
   function handleDownloadAgain() {
+    if (!DOWNLOAD_URL) return
+
     const link = document.createElement('a')
     link.href = DOWNLOAD_URL
-    link.download = 'KidsQuiz-Offline-Setup.exe'
+    link.download = downloadFileName
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -91,7 +107,7 @@ export default function OfflineDownloadPage() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : DOWNLOAD_URL ? (
             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
               <div className="text-lg font-bold text-blue-700">ההורדה התחילה</div>
               <p className="mt-2 text-sm leading-6 text-blue-700">
@@ -107,6 +123,18 @@ export default function OfflineDownloadPage() {
                 </button>
               </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+              <div className="text-lg font-bold text-red-700">קישור ההורדה לא הוגדר</div>
+              <p className="mt-2 text-sm leading-6 text-red-700">
+                כדי להפעיל הורדת אופליין, יש להגדיר ב-Render את המשתנה VITE_OFFLINE_DOWNLOAD_URL לקובץ בשם {DEFAULT_FILE_NAME}.
+              </p>
+              <div className="mt-4">
+                <button onClick={handleContinueOnline} className="btn-muted">
+                  להמשיך כרגע באונליין
+                </button>
+              </div>
+            </div>
           )}
         </div>
 
@@ -115,14 +143,15 @@ export default function OfflineDownloadPage() {
           <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
             <li>1. ללחוץ על כפתור האופליין.</li>
             <li>2. להמתין שהקובץ ירד לתיקיית ההורדות במחשב.</li>
-            <li>3. לפתוח את `KidsQuiz-Offline-Setup.exe` ולהתקין.</li>
+            <li>3. לפתוח את `{downloadFileName}` ולהתקין.</li>
             <li>4. להפעיל את האפליקציה מהמחשב ולעבוד מקומית, גם בלי אינטרנט.</li>
           </ol>
 
           <div className="mt-5 rounded-2xl border-2 border-slate-100 bg-slate-50 p-4">
-            <div className="text-sm font-semibold text-slate-500">קובץ התקנה</div>
-            <div className="mt-2 break-all font-mono text-sm text-slate-800">{DOWNLOAD_URL}</div>
-            <div className="mt-3 text-xs text-slate-500">פלט build מקומי: {packageInfo.outputDirectory}</div>
+            <div className="text-sm font-semibold text-slate-500">קישור התקנה פעיל</div>
+            <div className="mt-2 break-all font-mono text-sm text-slate-800">{DOWNLOAD_URL || 'לא הוגדר עדיין'}</div>
+            <div className="mt-3 text-xs text-slate-500">שם קובץ צפוי: {DEFAULT_FILE_NAME}</div>
+            <div className="mt-1 text-xs text-slate-500">פלט build מקומי: {packageInfo.outputDirectory}</div>
           </div>
         </aside>
       </section>

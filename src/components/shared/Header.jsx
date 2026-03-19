@@ -38,7 +38,7 @@ export default function Header() {
 
   const links = [
     { label: 'בחירת כיתה 📚', path: '/age' },
-    { label: 'ניהול 👤', path: '/admin', adminOnly: true },
+    { label: 'ניהול 👤', path: '/admin' },
   ]
 
   const showBackButton = !['/welcome', '/age'].includes(location.pathname)
@@ -72,9 +72,7 @@ export default function Header() {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <nav className="hidden items-center gap-2 md:flex">
-              {links
-                .filter(link => !link.adminOnly || user?.role === 'admin')
-                .map(link => (
+              {links.map(link => (
                   <button
                     key={link.path}
                     onClick={() => navigate(link.path)}

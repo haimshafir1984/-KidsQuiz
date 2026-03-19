@@ -1,5 +1,12 @@
-﻿import { createContext, useContext, useEffect, useState } from 'react'
-import { getCurrentUser, setCurrentUser, getQuestions, saveQuestions } from '../utils/storage'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  getCurrentUser,
+  setCurrentUser,
+  getQuestions,
+  saveQuestions,
+  getCustomTracks,
+  saveCustomTracks,
+} from '../utils/storage'
 import {
   seedAdmin,
   serverFindUser,
@@ -12,14 +19,124 @@ import {
   clearStoredMode,
 } from '../utils/db'
 import seedQuestions from '../data/seedQuestions'
+import { GRADES } from '../data/learningTracks'
 
 const AppContext = createContext(null)
+const HOLLAND_SUBJECT = 'שאלון הולנד'
+const LEGACY_SUBJECTS = new Set([
+  'ידע יהודי - תנ״ך',
+  'תפילה וברכות',
+  'שבת',
+  'מעגל השנה',
+  'אינטליגנציה יהודית',
+  'אנלוגיות',
+  'לשון',
+  'הבעה והבנה',
+  'אוצר מילים',
+  'הסקת מסקנות',
+  'השלמת צורות',
+  'מתמטיקה - היגיון',
+  'סדרות מספרים',
+  'אנגלית',
+  'ראייה מרחבית',
+  'אינטליגנציה כללית',
+  'שאלון אישי',
+  'פרקי אבות',
+  'מטריצות',
+  'ידע כמותי',
+  'גיאומטריה',
+])
 
-function shuffleQuestions(items) {
-  return [...items].sort(() => Math.random() - 0.5)
+function getQuestionGroupKey(question) {
+  return [question.grade, question.subject, question.level || 'no-level', question.activityType].join('::')
+}
+
+function ensureQuestionPositions(items) {
+  const counters = new Map()
+  let changed = false
+
+  const normalized = items.map(question => {
+    const groupKey = getQuestionGroupKey(question)
+    const currentCount = counters.get(groupKey) || 0
+    const nextPosition = currentCount + 1
+    counters.set(groupKey, nextPosition)
+
+    if (typeof question.position === 'number') {
+      counters.set(groupKey, Math.max(nextPosition, question.position))
+      return question
+    }
+
+    changed = true
+    return { ...question, position: nextPosition }
+  })
+
+  return { normalized, changed }
+}
+
+function sortQuestionsByPosition(items) {
+  return [...items].sort((first, second) => {
+    const positionDiff = (first.position || 0) - (second.position || 0)
+    if (positionDiff !== 0) return positionDiff
+    return first.id.localeCompare(second.id)
+  })
+}
+
+function getQuestionTypesLabel(types) {
+  if (types.has('sentence_completion')) return 'השלמת משפטים'
+  if (types.has('multiple') && types.has('open')) return 'פתוחות וסגורות'
+  if (types.has('multiple')) return 'סגורות'
+  if (types.has('open')) return 'פתוחות'
+  return 'מותאם אישית'
+}
+
+function mergeTrackCollections(baseTracks = [], questionTracks = []) {
+  const merged = new Map()
+
+  baseTracks.forEach(track => {
+    merged.set(track.subject, {
+      ...track,
+      levels: [...(track.levels || [])],
+      activities: [...(track.activities || ['practice'])],
+    })
+  })
+
+  questionTracks.forEach(track => {
+    merged.set(track.subject, {
+      ...track,
+      levels: [...(track.levels || [])],
+      activities: [...(track.activities || ['practice'])],
+    })
+  })
+
+  return [...merged.values()].sort((first, second) => first.subject.localeCompare(second.subject, 'he'))
+}
+
+function cloneQuestionForTarget(question, target, existingQuestions) {
+  const relatedQuestions = existingQuestions.filter(existing => {
+    return existing.grade === target.grade
+      && existing.subject === target.subject
+      && (existing.level || null) === (target.level || null)
+      && existing.activityType === target.activityType
+  })
+
+  const nextPosition = relatedQuestions.length > 0
+    ? Math.max(...relatedQuestions.map(item => item.position || 0)) + 1
+    : 1
+
+  return {
+    ...question,
+    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    grade: target.grade,
+    subject: target.subject,
+    level: target.level || null,
+    activityType: target.activityType,
+    position: nextPosition,
+  }
 }
 
 export function AppProvider({ children }) {
+  const gradeValues = useMemo(() => GRADES.map(grade => grade.value), [])
+
   const [user, setUser] = useState(() => {
     seedAdmin()
     const currentUser = getCurrentUser()
@@ -39,6 +156,7 @@ export function AppProvider({ children }) {
   })
 
   const [questions, setQuestions] = useState([])
+  const [customTracks, setCustomTracks] = useState(() => getCustomTracks())
   const [selectedGrade, setSelectedGrade] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [selectedLevel, setSelectedLevel] = useState(null)
@@ -50,6 +168,56 @@ export function AppProvider({ children }) {
     startedAt: null,
     deadlineAt: null,
   })
+  const [hollandAnswers, setHollandAnswers] = useState({})
+  const [hollandResults, setHollandResults] = useState(null)
+
+  const trackCatalog = useMemo(() => {
+    const groupedTracks = Object.fromEntries(gradeValues.map(grade => [grade, new Map()]))
+
+    questions.forEach(question => {
+      if (!question.grade || !question.subject || !groupedTracks[question.grade]) return
+
+      const existing = groupedTracks[question.grade].get(question.subject) || {
+        subject: question.subject,
+        levels: new Set(),
+        activities: new Set(),
+        types: new Set(),
+      }
+
+      if (question.level) existing.levels.add(question.level)
+      existing.activities.add(question.activityType || 'practice')
+      existing.types.add(question.type)
+      groupedTracks[question.grade].set(question.subject, existing)
+    })
+
+    const questionTracks = Object.fromEntries(
+      gradeValues.map(grade => [
+        grade,
+        [...groupedTracks[grade].values()].map(track => ({
+          subject: track.subject,
+          questionTypes: getQuestionTypesLabel(track.types),
+          levels: [...track.levels].sort((first, second) => first.localeCompare(second, 'he')),
+          activities: [...track.activities].sort(),
+        })),
+      ]),
+    )
+
+    return Object.fromEntries(
+      gradeValues.map(grade => {
+        const extraTracks = grade === 'grade-8' || grade === 'grade-12'
+          ? [{ subject: HOLLAND_SUBJECT, questionTypes: 'שאלון דירוג אישיותי', levels: [], activities: ['practice'] }]
+          : []
+
+        return [
+          grade,
+          mergeTrackCollections(
+            [...(customTracks[grade] || []), ...extraTracks],
+            questionTracks[grade],
+          ),
+        ]
+      }),
+    )
+  }, [customTracks, gradeValues, questions])
 
   useEffect(() => {
     const stored = getQuestions()
@@ -58,25 +226,29 @@ export function AppProvider({ children }) {
       const hasNewSchema = stored.every(question => question.grade && question.subject && question.activityType)
 
       if (!hasNewSchema) {
-        saveQuestions(seedQuestions)
-        setQuestions(seedQuestions)
+        const { normalized } = ensureQuestionPositions(seedQuestions)
+        saveQuestions(normalized)
+        setQuestions(normalized)
         return
       }
 
-      const storedIds = new Set(stored.map(question => question.id))
+      const withoutLegacyQuestions = stored.filter(question => !LEGACY_SUBJECTS.has(question.subject))
+      const storedIds = new Set(withoutLegacyQuestions.map(question => question.id))
       const missingSeedQuestions = seedQuestions.filter(question => !storedIds.has(question.id))
-      const mergedQuestions = missingSeedQuestions.length > 0 ? [...stored, ...missingSeedQuestions] : stored
+      const mergedQuestions = missingSeedQuestions.length > 0 ? [...withoutLegacyQuestions, ...missingSeedQuestions] : withoutLegacyQuestions
+      const { normalized, changed } = ensureQuestionPositions(mergedQuestions)
 
-      if (missingSeedQuestions.length > 0) {
-        saveQuestions(mergedQuestions)
+      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || changed) {
+        saveQuestions(normalized)
       }
 
-      setQuestions(mergedQuestions)
+      setQuestions(normalized)
       return
     }
 
-    saveQuestions(seedQuestions)
-    setQuestions(seedQuestions)
+    const { normalized } = ensureQuestionPositions(seedQuestions)
+    saveQuestions(normalized)
+    setQuestions(normalized)
   }, [])
 
   function login(username, password) {
@@ -121,6 +293,8 @@ export function AppProvider({ children }) {
     setQuizQuestions([])
     setQuizResults(null)
     setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
+    setHollandAnswers({})
+    setHollandResults(null)
   }
 
   function logout() {
@@ -137,7 +311,9 @@ export function AppProvider({ children }) {
   }
 
   function addQuestion(question) {
-    const newQuestion = { ...question, id: `custom-${Date.now()}` }
+    const relatedQuestions = questions.filter(existing => getQuestionGroupKey(existing) === getQuestionGroupKey(question))
+    const nextPosition = question.position || (relatedQuestions.length > 0 ? Math.max(...relatedQuestions.map(item => item.position || 0)) + 1 : 1)
+    const newQuestion = { ...question, id: `custom-${Date.now()}`, position: nextPosition }
     const updatedQuestions = [...questions, newQuestion]
     setQuestions(updatedQuestions)
     saveQuestions(updatedQuestions)
@@ -150,10 +326,125 @@ export function AppProvider({ children }) {
     saveQuestions(updatedQuestions)
   }
 
+  function duplicateQuestionToTargets(id, targets) {
+    const sourceQuestion = questions.find(question => question.id === id)
+    if (!sourceQuestion || !targets?.length) return []
+
+    let workingQuestions = [...questions]
+    const createdQuestions = []
+
+    targets.forEach(target => {
+      const alreadyExists = workingQuestions.some(question => {
+        return question.grade === target.grade
+          && question.subject === target.subject
+          && (question.level || null) === (target.level || null)
+          && question.activityType === target.activityType
+          && question.text.trim() === sourceQuestion.text.trim()
+      })
+
+      if (alreadyExists) return
+
+      const clonedQuestion = cloneQuestionForTarget(sourceQuestion, target, workingQuestions)
+      workingQuestions.push(clonedQuestion)
+      createdQuestions.push(clonedQuestion)
+    })
+
+    if (createdQuestions.length === 0) return []
+
+    setQuestions(workingQuestions)
+    saveQuestions(workingQuestions)
+    return createdQuestions
+  }
+
   function deleteQuestion(id) {
     const updatedQuestions = questions.filter(question => question.id !== id)
     setQuestions(updatedQuestions)
     saveQuestions(updatedQuestions)
+  }
+
+  function moveQuestion(id, direction) {
+    const targetQuestion = questions.find(question => question.id === id)
+    if (!targetQuestion) return
+
+    const relatedQuestions = sortQuestionsByPosition(
+      questions.filter(question => getQuestionGroupKey(question) === getQuestionGroupKey(targetQuestion)),
+    )
+    const currentIndex = relatedQuestions.findIndex(question => question.id === id)
+    const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+
+    if (nextIndex < 0 || nextIndex >= relatedQuestions.length) return
+
+    const swappedQuestion = relatedQuestions[nextIndex]
+    const updatedQuestions = questions.map(question => {
+      if (question.id === targetQuestion.id) return { ...question, position: swappedQuestion.position }
+      if (question.id === swappedQuestion.id) return { ...question, position: targetQuestion.position }
+      return question
+    })
+
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+  }
+
+  function addTrack(track) {
+    const normalizedTrack = {
+      id: `track-${Date.now()}`,
+      subject: track.subject.trim(),
+      questionTypes: track.questionTypes.trim() || 'מותאם אישית',
+      levels: track.levels || [],
+      activities: track.activities?.length ? track.activities : ['practice'],
+    }
+
+    const nextTracks = {
+      ...customTracks,
+      [track.grade]: [...(customTracks[track.grade] || []), normalizedTrack],
+    }
+
+    setCustomTracks(nextTracks)
+    saveCustomTracks(nextTracks)
+    return normalizedTrack
+  }
+
+  function renameTrack(grade, currentSubject, nextSubject) {
+    const trimmedSubject = nextSubject.trim()
+    if (!trimmedSubject || trimmedSubject === currentSubject) return
+
+    const updatedQuestions = questions.map(question => (
+      question.grade === grade && question.subject === currentSubject
+        ? { ...question, subject: trimmedSubject }
+        : question
+    ))
+
+    const nextTracks = {
+      ...customTracks,
+      [grade]: (customTracks[grade] || []).map(track => (
+        track.subject === currentSubject ? { ...track, subject: trimmedSubject } : track
+      )),
+    }
+
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+    setCustomTracks(nextTracks)
+    saveCustomTracks(nextTracks)
+  }
+
+  function deleteTrack(grade, subject) {
+    const updatedQuestions = questions.filter(question => !(question.grade === grade && question.subject === subject))
+    const nextTracks = {
+      ...customTracks,
+      [grade]: (customTracks[grade] || []).filter(track => track.subject !== subject),
+    }
+
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+    setCustomTracks(nextTracks)
+    saveCustomTracks(nextTracks)
+
+    if (selectedGrade === grade && selectedSubject === subject) {
+      setSelectedSubject(null)
+      setSelectedLevel(null)
+      setQuizQuestions([])
+      setQuizResults(null)
+    }
   }
 
   function chooseGrade(grade) {
@@ -163,6 +454,8 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setHollandAnswers({})
+    setHollandResults(null)
   }
 
   function chooseSubject(subject) {
@@ -171,6 +464,8 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setHollandAnswers({})
+    setHollandResults(null)
   }
 
   function prepareQuiz({ grade, subject, level = null, activityType = 'practice' }) {
@@ -178,17 +473,18 @@ export function AppProvider({ children }) {
     setSelectedSubject(subject)
     setSelectedLevel(level)
     setSelectedActivity(activityType)
+    setHollandAnswers({})
+    setHollandResults(null)
 
-    const filteredQuestions = questions.filter(question => {
+    const filteredQuestions = sortQuestionsByPosition(questions.filter(question => {
       const sameGrade = question.grade === grade
       const sameSubject = question.subject === subject
       const sameActivity = question.activityType === activityType
       const sameLevel = (question.level || null) === (level || null)
       return sameGrade && sameSubject && sameActivity && sameLevel
-    })
+    }))
 
-    const preparedQuestions = shuffleQuestions(filteredQuestions)
-    setQuizQuestions(preparedQuestions)
+    setQuizQuestions(filteredQuestions)
     setQuizResults(null)
     setQuizSession({
       timeLimitSeconds: activityType === 'exam' ? 180 : null,
@@ -196,7 +492,53 @@ export function AppProvider({ children }) {
       deadlineAt: null,
     })
 
-    return preparedQuestions
+    return filteredQuestions
+  }
+
+  function beginHollandQuestionnaire(grade) {
+    setSelectedGrade(grade)
+    setSelectedSubject(HOLLAND_SUBJECT)
+    setSelectedLevel(null)
+    setSelectedActivity('practice')
+    setQuizQuestions([])
+    setQuizResults(null)
+    setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
+    setHollandAnswers({})
+    setHollandResults(null)
+  }
+
+  function updateHollandAnswer(questionId, value) {
+    setHollandAnswers(previous => ({ ...previous, [questionId]: value }))
+  }
+
+  function finishHollandQuestionnaire(summary) {
+    const completedAt = new Date().toISOString()
+    const storedSummary = {
+      ...summary,
+      completedAt,
+      subject: HOLLAND_SUBJECT,
+      grade: selectedGrade,
+    }
+
+    setHollandResults(storedSummary)
+
+    if (user) {
+      saveResult({
+        id: Date.now().toString(),
+        userId: user.id,
+        subject: HOLLAND_SUBJECT,
+        age: selectedGrade,
+        activityType: 'assessment',
+        score: storedSummary.topScore,
+        total: 12,
+        answered: Object.keys(hollandAnswers).length,
+        percent: Math.round((storedSummary.topScore / 12) * 100),
+        topCode: storedSummary.topCode,
+        secondCode: storedSummary.secondCode,
+        combinedCode: storedSummary.combinedCode,
+        date: completedAt,
+      }, mode || 'offline')
+    }
   }
 
   function beginExamSession() {
@@ -259,7 +601,13 @@ export function AppProvider({ children }) {
         questions,
         addQuestion,
         updateQuestion,
+        duplicateQuestionToTargets,
         deleteQuestion,
+        moveQuestion,
+        trackCatalog,
+        addTrack,
+        renameTrack,
+        deleteTrack,
         selectedGrade,
         selectedSubject,
         selectedLevel,
@@ -267,11 +615,16 @@ export function AppProvider({ children }) {
         quizQuestions,
         quizResults,
         quizSession,
+        hollandAnswers,
+        hollandResults,
         chooseGrade,
         chooseSubject,
         setSelectedLevel,
         setSelectedActivity,
         prepareQuiz,
+        beginHollandQuestionnaire,
+        updateHollandAnswer,
+        finishHollandQuestionnaire,
         beginExamSession,
         finishQuiz,
         resetLearningFlow,

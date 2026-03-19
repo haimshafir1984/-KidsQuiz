@@ -11,6 +11,8 @@ import TrackSelectPage from './pages/TrackSelectPage'
 import ExamIntroPage from './pages/ExamIntroPage'
 import QuizPage from './pages/QuizPage'
 import SummaryPage from './pages/SummaryPage'
+import HollandQuestionnairePage from './pages/HollandQuestionnairePage'
+import HollandResultPage from './pages/HollandResultPage'
 import AdminPage from './pages/AdminPage'
 import OfflineDownloadPage from './pages/OfflineDownloadPage'
 import DesktopLicensePage from './pages/DesktopLicensePage'
@@ -90,18 +92,9 @@ function AppRoutes() {
         <Header />
         <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
           <Routes>
-            <Route
-              path="/welcome"
-              element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <WelcomePage />}
-            />
-            <Route
-              path="/auth"
-              element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <AuthPage />}
-            />
-            <Route
-              path="/desktop-license"
-              element={<DesktopLicensePage licenseStatus={desktopState.license} onRefresh={refreshDesktopState} />}
-            />
+            <Route path="/welcome" element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <WelcomePage />} />
+            <Route path="/auth" element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <AuthPage />} />
+            <Route path="/desktop-license" element={<DesktopLicensePage licenseStatus={desktopState.license} onRefresh={refreshDesktopState} />} />
             <Route path="/mode" element={<AuthRoute><ModePage /></AuthRoute>} />
             <Route path="/offline-download" element={<AuthRoute><OfflineDownloadPage /></AuthRoute>} />
             <Route path="/age" element={<ModeRoute><AgeSelectPage /></ModeRoute>} />
@@ -110,11 +103,10 @@ function AppRoutes() {
             <Route path="/exam-intro" element={<ModeRoute><ExamIntroPage /></ModeRoute>} />
             <Route path="/quiz" element={<ModeRoute><QuizPage /></ModeRoute>} />
             <Route path="/summary" element={<ModeRoute><SummaryPage /></ModeRoute>} />
+            <Route path="/holland-questionnaire" element={<ModeRoute><HollandQuestionnairePage /></ModeRoute>} />
+            <Route path="/holland-result" element={<ModeRoute><HollandResultPage /></ModeRoute>} />
             <Route path="/admin" element={<AuthRoute><AdminPage /></AuthRoute>} />
-            <Route
-              path="*"
-              element={<Navigate to={!user ? '/welcome' : !mode ? '/mode' : '/age'} replace />}
-            />
+            <Route path="*" element={<Navigate to={!user ? '/welcome' : !mode ? '/mode' : '/age'} replace />} />
           </Routes>
         </main>
       </div>
