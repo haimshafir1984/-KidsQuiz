@@ -118,6 +118,9 @@ export default function SummaryPage() {
 
               return (
                 <article key={`${result.question.text}-${index}`} className="rounded-xl border border-red-100 bg-red-50 p-4 text-right">
+                  {result.question.groupTitle && (
+                    <div className="mb-2 text-xs font-bold text-slate-500">{result.question.groupTitle}</div>
+                  )}
                   <h3 className="font-bold text-slate-900">{result.question.text}</h3>
                   {result.question.image && (
                     <div className="mt-3 rounded-2xl border border-red-100 bg-white p-3">

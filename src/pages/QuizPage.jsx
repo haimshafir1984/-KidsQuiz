@@ -238,7 +238,7 @@ export default function QuizPage() {
         <div className="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-slate-100">
           {selectedActivity === 'exam' ? 'מבחן פעיל' : 'תרגול פעיל'} | {selectedSubject}
         </div>
-        <h1 className="section-title">
+        <h1 className="section-title font-extrabold">
           {selectedActivity === 'exam' ? 'שומרים על קצב ומסיימים בזמן' : 'ממשיכים לצבור הצלחות שאלה אחר שאלה'}
         </h1>
         <p className="section-subtitle mt-3">
@@ -249,7 +249,7 @@ export default function QuizPage() {
         </p>
       </section>
 
-      <section className="edu-card p-6">
+      <section className="edu-card-quiz p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm font-semibold text-slate-600">{selectedSubject}</span>
           <div className="flex items-center gap-3">
@@ -271,12 +271,17 @@ export default function QuizPage() {
         </div>
       </section>
 
-      <section className="edu-card p-6 sm:p-8">
+      <section className="edu-card-quiz p-6 sm:p-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
               שאלה {currentIdx + 1}
             </div>
+            {question.groupTitle && (
+              <div className="mb-3 text-sm font-bold tracking-wide text-slate-500">
+                {question.groupTitle}
+              </div>
+            )}
             <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950">
               {question.text}
             </p>

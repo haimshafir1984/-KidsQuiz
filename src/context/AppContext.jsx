@@ -18,7 +18,7 @@ import {
   setStoredMode,
   clearStoredMode,
 } from '../utils/db'
-import seedQuestions from '../data/seedQuestions'
+import seedQuestions, { normalizeImportedQuestionStructure } from '../data/seedQuestions'
 import { BASE_VISIBLE_TRACKS, GRADES } from '../data/learningTracks'
 import { normalizeSubjectName } from '../data/subjectCatalog'
 
@@ -122,6 +122,20 @@ function normalizeQuestionSubjects(items) {
     changed = true
     return { ...question, subject: normalizedSubject }
   })
+
+  return { normalized, changed }
+}
+
+function normalizeQuestionGroupTitles(items) {
+  const normalized = normalizeImportedQuestionStructure(items)
+  const changed = normalized.length !== items.length
+    || normalized.some((question, index) => {
+      const original = items[index]
+      return !original
+        || original.id !== question.id
+        || original.text !== question.text
+        || (original.groupTitle || '') !== (question.groupTitle || '')
+    })
 
   return { normalized, changed }
 }
@@ -257,9 +271,10 @@ export function AppProvider({ children }) {
       const missingSeedQuestions = seedQuestions.filter(question => !storedIds.has(question.id))
       const mergedQuestions = missingSeedQuestions.length > 0 ? [...withoutLegacyQuestions, ...missingSeedQuestions] : withoutLegacyQuestions
       const { normalized: subjectNormalizedQuestions, changed: subjectNamesChanged } = normalizeQuestionSubjects(mergedQuestions)
-      const { normalized, changed } = ensureQuestionPositions(subjectNormalizedQuestions)
+      const { normalized: titleNormalizedQuestions, changed: groupTitlesChanged } = normalizeQuestionGroupTitles(subjectNormalizedQuestions)
+      const { normalized, changed } = ensureQuestionPositions(titleNormalizedQuestions)
 
-      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || subjectNamesChanged || changed) {
+      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || subjectNamesChanged || groupTitlesChanged || changed) {
         saveQuestions(normalized)
       }
 
@@ -268,7 +283,8 @@ export function AppProvider({ children }) {
     }
 
     const normalizedSeedQuestions = normalizeQuestionSubjects(seedQuestions).normalized
-    const { normalized } = ensureQuestionPositions(normalizedSeedQuestions)
+    const titleNormalizedSeedQuestions = normalizeQuestionGroupTitles(normalizedSeedQuestions).normalized
+    const { normalized } = ensureQuestionPositions(titleNormalizedSeedQuestions)
     saveQuestions(normalized)
     setQuestions(normalized)
   }, [])
@@ -343,9 +359,36 @@ export function AppProvider({ children }) {
   }
 
   function updateQuestion(id, data) {
-    const updatedQuestions = questions.map(question => (question.id === id ? { ...question, ...data } : question))
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
+    const currentQuestion = questions.find(question => question.id === id)
+    if (!currentQuestion) return
+
+    let updatedQuestion = { ...currentQuestion, ...data }
+
+    const groupChanged = ['grade', 'subject', 'level', 'activityType'].some(field => {
+      return (currentQuestion[field] || null) !== (updatedQuestion[field] || null)
+    })
+
+    if (groupChanged) {
+      const targetGroupQuestions = questions.filter(question => {
+        return question.id !== id
+          && question.grade === updatedQuestion.grade
+          && question.subject === updatedQuestion.subject
+          && (question.level || null) === (updatedQuestion.level || null)
+          && question.activityType === updatedQuestion.activityType
+      })
+
+      updatedQuestion = {
+        ...updatedQuestion,
+        position: targetGroupQuestions.length > 0
+          ? Math.max(...targetGroupQuestions.map(question => question.position || 0)) + 1
+          : 1,
+      }
+    }
+
+    const updatedQuestions = questions.map(question => (question.id === id ? updatedQuestion : question))
+    const { normalized } = ensureQuestionPositions(updatedQuestions)
+    setQuestions(normalized)
+    saveQuestions(normalized)
   }
 
   function duplicateQuestionToTargets(id, targets) {
@@ -380,6 +423,13 @@ export function AppProvider({ children }) {
 
   function deleteQuestion(id) {
     const updatedQuestions = questions.filter(question => question.id !== id)
+    setQuestions(updatedQuestions)
+    saveQuestions(updatedQuestions)
+  }
+
+  function deleteQuestions(ids) {
+    const idSet = new Set(ids)
+    const updatedQuestions = questions.filter(question => !idSet.has(question.id))
     setQuestions(updatedQuestions)
     saveQuestions(updatedQuestions)
   }
@@ -424,6 +474,74 @@ export function AppProvider({ children }) {
     setCustomTracks(nextTracks)
     saveCustomTracks(nextTracks)
     return normalizedTrack
+  }
+
+  function assignTrackToGrade({ sourceGrade, sourceSubject, targetGrade, includeQuestions = false }) {
+    const sourceTrack = (trackCatalog[sourceGrade] || []).find(track => track.subject === sourceSubject)
+    if (!sourceTrack || sourceGrade === targetGrade) return { createdTrack: false, copiedQuestions: 0 }
+
+    const targetHasTrack = (trackCatalog[targetGrade] || []).some(track => track.subject === sourceSubject)
+    let nextTracks = customTracks
+    let createdTrack = false
+
+    if (!targetHasTrack) {
+      const normalizedTrack = {
+        id: `track-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        subject: sourceTrack.subject,
+        questionTypes: sourceTrack.questionTypes,
+        levels: [...(sourceTrack.levels || [])],
+        activities: [...(sourceTrack.activities || ['practice'])],
+      }
+
+      nextTracks = {
+        ...customTracks,
+        [targetGrade]: [...(customTracks[targetGrade] || []), normalizedTrack],
+      }
+
+      setCustomTracks(nextTracks)
+      saveCustomTracks(nextTracks)
+      createdTrack = true
+    }
+
+    if (!includeQuestions) {
+      return { createdTrack, copiedQuestions: 0 }
+    }
+
+    const sourceQuestions = questions.filter(question => question.grade === sourceGrade && question.subject === sourceSubject)
+    if (sourceQuestions.length === 0) {
+      return { createdTrack, copiedQuestions: 0 }
+    }
+
+    const targetQuestions = questions.filter(question => question.grade === targetGrade && question.subject === sourceSubject)
+    let workingQuestions = [...questions]
+    let copiedQuestions = 0
+
+    sourceQuestions.forEach(question => {
+      const alreadyExists = targetQuestions.some(existing => {
+        return existing.text.trim() === question.text.trim()
+          && (existing.level || null) === (question.level || null)
+          && existing.activityType === question.activityType
+      })
+
+      if (alreadyExists) return
+
+      const clonedQuestion = cloneQuestionForTarget(question, {
+        grade: targetGrade,
+        subject: sourceSubject,
+        level: question.level || null,
+        activityType: question.activityType,
+      }, workingQuestions)
+
+      workingQuestions.push(clonedQuestion)
+      copiedQuestions += 1
+    })
+
+    if (copiedQuestions > 0) {
+      setQuestions(workingQuestions)
+      saveQuestions(workingQuestions)
+    }
+
+    return { createdTrack, copiedQuestions }
   }
 
   function renameTrack(grade, currentSubject, nextSubject) {
@@ -625,9 +743,11 @@ export function AppProvider({ children }) {
         updateQuestion,
         duplicateQuestionToTargets,
         deleteQuestion,
+        deleteQuestions,
         moveQuestion,
         trackCatalog,
         addTrack,
+        assignTrackToGrade,
         renameTrack,
         deleteTrack,
         selectedGrade,
