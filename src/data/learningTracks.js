@@ -39,7 +39,7 @@ export const LEARNING_TRACKS = {
 export const TEMP_IMPORTED_TRACKS = {
   'grade-8': getCatalogTracksForGrade('grade-8'),
   'grade-12': getCatalogTracksForGrade('grade-12'),
-  'thinking-challenge': [],
+  'thinking-challenge': getCatalogTracksForGrade('thinking-challenge'),
 }
 
 export const BASE_VISIBLE_TRACKS = {
@@ -51,7 +51,9 @@ export const BASE_VISIBLE_TRACKS = {
     ...TEMP_IMPORTED_TRACKS['grade-12'],
     { subject: HOLLAND_TRACK.label, questionTypes: HOLLAND_TRACK.questionTypes, levels: [], activities: ['practice'] },
   ],
-  'thinking-challenge': [],
+  'thinking-challenge': [
+    ...TEMP_IMPORTED_TRACKS['thinking-challenge'],
+  ],
 }
 
 export { SUBJECT_TONES }

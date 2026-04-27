@@ -82,7 +82,8 @@ function sortQuestionsByPosition(items) {
   })
 }
 
-function getQuestionTypesLabel(types) {
+function getQuestionTypesLabel(types, hasVisuals = false) {
+  if (hasVisuals) return 'סגורות עם תמונות'
   if (types.has('sentence_completion')) return 'השלמת משפטים'
   if (types.has('multiple') && types.has('open')) return 'פתוחות וסגורות'
   if (types.has('multiple')) return 'סגורות'
@@ -196,11 +197,15 @@ export function AppProvider({ children }) {
         levels: new Set(),
         activities: new Set(),
         types: new Set(),
+        hasVisuals: false,
       }
 
       if (question.level) existing.levels.add(question.level)
       existing.activities.add(question.activityType || 'practice')
       existing.types.add(question.type)
+      if (question.image || question.optionImages?.length) {
+        existing.hasVisuals = true
+      }
       groupedTracks[question.grade].set(question.subject, existing)
     })
 
@@ -209,7 +214,7 @@ export function AppProvider({ children }) {
         grade,
         [...groupedTracks[grade].values()].map(track => ({
           subject: track.subject,
-          questionTypes: getQuestionTypesLabel(track.types),
+          questionTypes: getQuestionTypesLabel(track.types, track.hasVisuals),
           levels: [...track.levels].sort((first, second) => first.localeCompare(second, 'he')),
           activities: [...track.activities].sort(),
         })),

@@ -79,9 +79,29 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-fuchsia-300',
     emoji: '📝',
   },
+  challengeVerbalVocabulary: {
+    label: 'אתגר מחשבתי: מילולי: אוצר מילים',
+    aliases: [],
+    questionTypes: 'סגורות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-fuchsia-50 text-fuchsia-600',
+    hover: 'hover:border-fuchsia-300',
+    emoji: '📝',
+  },
   readingComprehension: {
     label: 'מילולי: הבנת הנקרא',
     aliases: [' מילולי: הבנת הנקרא'],
+    questionTypes: 'סגורות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-cyan-50 text-cyan-600',
+    hover: 'hover:border-cyan-300',
+    emoji: '📚',
+  },
+  challengeReadingComprehension: {
+    label: 'אתגר מחשבתי: מילולי: הבנת הנקרא',
+    aliases: [],
     questionTypes: 'סגורות',
     levels: [],
     activities: ['practice'],
@@ -99,6 +119,26 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-blue-300',
     emoji: '✍️',
   },
+  challengeSentenceCompletion: {
+    label: 'אתגר מחשבתי: מילולי: השלמת משפטים',
+    aliases: [],
+    questionTypes: 'השלמת משפטים',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-blue-50 text-blue-600',
+    hover: 'hover:border-blue-300',
+    emoji: '✍️',
+  },
+  challengeAnalogies: {
+    label: 'אתגר מחשבתי: מילולי: אנלוגיות',
+    aliases: [],
+    questionTypes: 'סגורות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-rose-50 text-rose-600',
+    hover: 'hover:border-rose-300',
+    emoji: '🧷',
+  },
   conclusions: {
     label: 'מילולי: הסקת מסקנות',
     aliases: [' מילולי: הסקת מסקנות'],
@@ -108,6 +148,36 @@ const BASE_SUBJECTS = {
     tone: 'bg-violet-50 text-violet-600',
     hover: 'hover:border-violet-300',
     emoji: '🔍',
+  },
+  challengeConclusions: {
+    label: 'אתגר מחשבתי: מילולי: הסקת מסקנות',
+    aliases: [],
+    questionTypes: 'סגורות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-violet-50 text-violet-600',
+    hover: 'hover:border-violet-300',
+    emoji: '🔍',
+  },
+  challengeSeriesCompletion: {
+    label: 'אתגר מחשבתי: השלמת סדרות',
+    aliases: [],
+    questionTypes: 'סגורות עם תמונות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-slate-100 text-slate-700',
+    hover: 'hover:border-slate-300',
+    emoji: '🖼️',
+  },
+  seriesCompletion: {
+    label: 'השלמת סדרות',
+    aliases: [],
+    questionTypes: 'סגורות עם תמונות',
+    levels: [],
+    activities: ['practice'],
+    tone: 'bg-slate-100 text-slate-700',
+    hover: 'hover:border-slate-300',
+    emoji: '🖼️',
   },
   generalIntelligence: {
     label: 'אינטליגנציה כללית',
@@ -156,6 +226,7 @@ export const SUBJECT_CATALOG = {
     BASE_SUBJECTS.conclusions,
     BASE_SUBJECTS.generalIntelligence,
     BASE_SUBJECTS.numberSeries,
+    BASE_SUBJECTS.seriesCompletion,
   ],
   'grade-12': [
     { ...BASE_SUBJECTS.verbalVocabulary, levels: ['רמה 1', 'רמה 2', 'רמה 3'] },
@@ -164,8 +235,15 @@ export const SUBJECT_CATALOG = {
     { ...BASE_SUBJECTS.conclusions, levels: ['רמה 1'] },
     { ...BASE_SUBJECTS.generalIntelligence, levels: ['רמה 1', 'רמה 2', 'רמה 3'] },
     { ...BASE_SUBJECTS.numberSeries, levels: ['רמה 1', 'רמה 2'] },
+    BASE_SUBJECTS.seriesCompletion,
   ],
   'thinking-challenge': [
+    BASE_SUBJECTS.challengeVerbalVocabulary,
+    BASE_SUBJECTS.challengeReadingComprehension,
+    BASE_SUBJECTS.challengeSentenceCompletion,
+    BASE_SUBJECTS.challengeAnalogies,
+    BASE_SUBJECTS.challengeConclusions,
+    BASE_SUBJECTS.challengeSeriesCompletion,
     {
       label: 'אתגר מחשבתי: שאלון אישי',
       aliases: [],
@@ -284,7 +362,7 @@ const SUBJECT_ALIAS_MAP = new Map(aliasPairs)
 
 export function normalizeSubjectName(subject) {
   if (!subject) return subject
-  const trimmedSubject = subject.trim()
+  const trimmedSubject = subject.trim().replace(/^[-–—•]+\s*/, '')
   return SUBJECT_ALIAS_MAP.get(trimmedSubject) || SUBJECT_ALIAS_MAP.get(subject) || trimmedSubject
 }
 

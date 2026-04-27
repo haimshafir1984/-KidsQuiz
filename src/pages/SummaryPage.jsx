@@ -119,6 +119,15 @@ export default function SummaryPage() {
               return (
                 <article key={`${result.question.text}-${index}`} className="rounded-xl border border-red-100 bg-red-50 p-4 text-right">
                   <h3 className="font-bold text-slate-900">{result.question.text}</h3>
+                  {result.question.image && (
+                    <div className="mt-3 rounded-2xl border border-red-100 bg-white p-3">
+                      <img
+                        src={result.question.image}
+                        alt={result.question.text}
+                        className="mx-auto h-auto max-h-56 max-w-full rounded-xl object-contain"
+                      />
+                    </div>
+                  )}
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <div className="rounded-xl bg-white px-3 py-2 text-sm text-red-700 shadow-sm">
                       <span className="font-semibold">התשובה שנבחרה:</span> {result.userAnswer}

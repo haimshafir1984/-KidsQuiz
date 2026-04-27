@@ -509,6 +509,15 @@ function QuestionRow({ question, onEdit, onDelete, onMoveUp, onMoveDown }) {
         <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">מיקום {question.position || 1}</span>
       </div>
       <h3 className="text-lg font-bold text-slate-950">{question.text}</h3>
+      {question.image && (
+        <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-3">
+          <img
+            src={question.image}
+            alt={question.text}
+            className="mx-auto h-auto max-h-52 max-w-full rounded-xl object-contain"
+          />
+        </div>
+      )}
       <div className="mt-2 text-sm text-slate-600">
         סוג: {question.type === 'multiple' ? 'אמריקאית' : question.type === 'sentence_completion' ? 'השלמת משפטים' : 'פתוחה קצרה'}
       </div>
