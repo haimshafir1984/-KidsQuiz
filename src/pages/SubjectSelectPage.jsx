@@ -5,7 +5,7 @@ import { HOLLAND_QUESTIONS } from '../data/hollandQuestionnaire'
 
 export default function SubjectSelectPage() {
   const navigate = useNavigate()
-  const { selectedGrade, chooseSubject, questions, trackCatalog, prepareQuiz } = useApp()
+  const { selectedGrade, chooseSubject, questions, trackCatalog, prepareQuiz, getSavedQuizProgress } = useApp()
 
   if (!selectedGrade) {
     return <Navigate to="/age" replace />
@@ -29,7 +29,7 @@ export default function SubjectSelectPage() {
       })
 
       if (prepared.length === 0) {
-        alert('עדיין אין שאלות זמינות עבור הנושא הזה.')
+        window.alert('עדיין אין שאלות זמינות עבור הנושא הזה.')
         return
       }
 
@@ -70,6 +70,14 @@ export default function SubjectSelectPage() {
           const total = countForTrack(track.subject)
           const activityLabel = track.activities.length > 1 ? 'תרגול ומבחן' : 'תרגול'
           const levelLabel = track.levels.length > 0 ? `${track.levels.length} רמות` : 'ללא חלוקה לרמות'
+          const savedPractice = track.subject !== 'שאלון הולנד'
+            ? getSavedQuizProgress({
+                grade: selectedGrade,
+                subject: track.subject,
+                level: null,
+                activityType: 'practice',
+              })
+            : null
 
           return (
             <button
@@ -84,9 +92,16 @@ export default function SubjectSelectPage() {
                 <div className="flex-1">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <h2 className="text-xl font-extrabold text-slate-950">{track.subject}</h2>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                      {total} פריטים
-                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {savedPractice && (
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                          יש שמירה פעילה
+                        </span>
+                      )}
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {total} פריטים
+                      </span>
+                    </div>
                   </div>
                   <p className="text-sm leading-6 text-slate-600">סוגי שאלות: {track.questionTypes}</p>
                   <div className="mt-3 flex flex-wrap gap-2">

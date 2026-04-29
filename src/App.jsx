@@ -14,6 +14,7 @@ import SummaryPage from './pages/SummaryPage'
 import HollandQuestionnairePage from './pages/HollandQuestionnairePage'
 import HollandResultPage from './pages/HollandResultPage'
 import AdminPage from './pages/AdminPage'
+import ProfilePage from './pages/ProfilePage'
 import OfflineDownloadPage from './pages/OfflineDownloadPage'
 import DesktopLicensePage from './pages/DesktopLicensePage'
 import { getLicenseStatus, getRuntimeInfo } from './utils/runtime'
@@ -24,8 +25,9 @@ function AuthRoute({ children }) {
 }
 
 function ModeRoute({ children }) {
-  const { user, mode } = useApp()
+  const { user, mode, profileComplete } = useApp()
   if (!user) return <Navigate to="/welcome" replace />
+  if (user.role !== 'admin' && !profileComplete) return <Navigate to="/profile" replace />
   if (!mode) return <Navigate to="/mode" replace />
   return children
 }
@@ -57,7 +59,7 @@ function DesktopGate({ desktopState, children }) {
 }
 
 function AppRoutes() {
-  const { user, mode } = useApp()
+  const { user, mode, profileComplete } = useApp()
   const [desktopState, setDesktopState] = useState({
     loading: true,
     isDesktop: false,
@@ -92,10 +94,11 @@ function AppRoutes() {
         <Header />
         <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
           <Routes>
-            <Route path="/welcome" element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <WelcomePage />} />
-            <Route path="/auth" element={user ? <Navigate to={mode ? '/age' : '/mode'} replace /> : <AuthPage />} />
+            <Route path="/welcome" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <WelcomePage />} />
+            <Route path="/auth" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <AuthPage />} />
             <Route path="/desktop-license" element={<DesktopLicensePage licenseStatus={desktopState.license} onRefresh={refreshDesktopState} />} />
             <Route path="/mode" element={<AuthRoute><ModePage /></AuthRoute>} />
+            <Route path="/profile" element={<AuthRoute><ProfilePage /></AuthRoute>} />
             <Route path="/offline-download" element={<AuthRoute><OfflineDownloadPage /></AuthRoute>} />
             <Route path="/age" element={<ModeRoute><AgeSelectPage /></ModeRoute>} />
             <Route path="/subject" element={<ModeRoute><SubjectSelectPage /></ModeRoute>} />
@@ -106,7 +109,7 @@ function AppRoutes() {
             <Route path="/holland-questionnaire" element={<ModeRoute><HollandQuestionnairePage /></ModeRoute>} />
             <Route path="/holland-result" element={<ModeRoute><HollandResultPage /></ModeRoute>} />
             <Route path="/admin" element={<AuthRoute><AdminPage /></AuthRoute>} />
-            <Route path="*" element={<Navigate to={!user ? '/welcome' : !mode ? '/mode' : '/age'} replace />} />
+            <Route path="*" element={<Navigate to={!user ? '/welcome' : user.role !== 'admin' && !profileComplete ? '/profile' : !mode ? '/mode' : '/age'} replace />} />
           </Routes>
         </main>
       </div>

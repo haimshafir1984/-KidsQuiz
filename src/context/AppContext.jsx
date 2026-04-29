@@ -6,6 +6,8 @@ import {
   saveQuestions,
   getCustomTracks,
   saveCustomTracks,
+  getQuizProgressMap,
+  saveQuizProgressMap,
 } from '../utils/storage'
 import {
   seedAdmin,
@@ -13,6 +15,7 @@ import {
   serverGetUsers,
   serverSaveUser,
   saveResult,
+  getUserResults,
   checkSubscription,
   getStoredMode,
   setStoredMode,
@@ -21,6 +24,7 @@ import {
 import seedQuestions, { normalizeImportedQuestionStructure } from '../data/seedQuestions'
 import { BASE_VISIBLE_TRACKS, GRADES } from '../data/learningTracks'
 import { normalizeSubjectName } from '../data/subjectCatalog'
+import { getUserDisplayName, isProfileComplete } from '../utils/userProfile'
 
 const AppContext = createContext(null)
 const HOLLAND_SUBJECT = 'שאלון הולנד'
@@ -163,6 +167,19 @@ function cloneQuestionForTarget(question, target, existingQuestions) {
   }
 }
 
+function getQuizProgressKey({ userId, grade, subject, level = null, activityType = 'practice' }) {
+  return [userId, grade, subject, level || 'no-level', activityType].join('::')
+}
+
+function getQuestionCountForSelection(questions, selection) {
+  return questions.filter(question => {
+    return question.grade === selection.grade
+      && question.subject === selection.subject
+      && (question.level || null) === (selection.level || null)
+      && question.activityType === selection.activityType
+  }).length
+}
+
 export function AppProvider({ children }) {
   const gradeValues = useMemo(() => GRADES.map(grade => grade.value), [])
 
@@ -186,12 +203,15 @@ export function AppProvider({ children }) {
 
   const [questions, setQuestions] = useState([])
   const [customTracks, setCustomTracks] = useState(() => getCustomTracks())
+  const [quizProgressMap, setQuizProgressState] = useState(() => getQuizProgressMap())
   const [selectedGrade, setSelectedGrade] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [selectedLevel, setSelectedLevel] = useState(null)
   const [selectedActivity, setSelectedActivity] = useState('practice')
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizResults, setQuizResults] = useState(null)
+  const [activeQuizProgress, setActiveQuizProgress] = useState(null)
+  const [resultsVersion, setResultsVersion] = useState(0)
   const [quizSession, setQuizSession] = useState({
     timeLimitSeconds: null,
     startedAt: null,
@@ -251,6 +271,28 @@ export function AppProvider({ children }) {
       }),
     )
   }, [customTracks, gradeValues, questions])
+
+  const userResults = useMemo(() => {
+    if (!user) return []
+    return getUserResults(user.id)
+  }, [resultsVersion, user])
+
+  const savedQuizProgress = useMemo(() => {
+    if (!user) return []
+
+    return Object.values(quizProgressMap)
+      .filter(item => item.userId === user.id)
+      .map(item => ({
+        ...item,
+        questionCount: item.questionCount || getQuestionCountForSelection(questions, item),
+      }))
+      .sort((first, second) => new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime())
+  }, [questions, quizProgressMap, user])
+
+  function persistQuizProgress(nextMap) {
+    setQuizProgressState(nextMap)
+    saveQuizProgressMap(nextMap)
+  }
 
   useEffect(() => {
     const stored = getQuestions()
@@ -313,6 +355,11 @@ export function AppProvider({ children }) {
       password,
       role: 'student',
       subscription_date: new Date().toISOString(),
+      firstName: '',
+      lastName: '',
+      city: '',
+      birthDate: '',
+      phone: '',
     }
 
     serverSaveUser(newUser)
@@ -320,7 +367,29 @@ export function AppProvider({ children }) {
     setModeState(null)
     setCurrentUser(newUser)
     setUser(newUser)
-    return { success: true }
+    return { success: true, user: newUser }
+  }
+
+  function updateUserProfile(profileData) {
+    if (!user) return { error: 'לא נמצא משתמש פעיל.' }
+
+    const nextUser = {
+      ...user,
+      firstName: profileData.firstName?.trim() || '',
+      lastName: profileData.lastName?.trim() || '',
+      city: profileData.city?.trim() || '',
+      birthDate: profileData.birthDate || '',
+      phone: profileData.phone?.trim() || '',
+    }
+
+    if (!isProfileComplete(nextUser)) {
+      return { error: 'יש למלא שם, שם משפחה ועיר מגורים.' }
+    }
+
+    serverSaveUser(nextUser)
+    setCurrentUser(nextUser)
+    setUser(nextUser)
+    return { success: true, user: nextUser }
   }
 
   function resetLearningFlow() {
@@ -330,6 +399,7 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setActiveQuizProgress(null)
     setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
     setHollandAnswers({})
     setHollandResults(null)
@@ -587,6 +657,55 @@ export function AppProvider({ children }) {
     }
   }
 
+  function getSavedQuizProgress(selection) {
+    if (!user) return null
+    const key = getQuizProgressKey({ userId: user.id, ...selection })
+    const progress = quizProgressMap[key]
+    if (!progress) return null
+
+    return {
+      ...progress,
+      questionCount: progress.questionCount || getQuestionCountForSelection(questions, selection),
+    }
+  }
+
+  function saveQuizProgress(selection, progressData) {
+    if (!user) return null
+
+    const key = getQuizProgressKey({ userId: user.id, ...selection })
+    const entry = {
+      key,
+      userId: user.id,
+      ...selection,
+      ...progressData,
+      updatedAt: new Date().toISOString(),
+      questionCount: progressData.questionCount || getQuestionCountForSelection(questions, selection),
+    }
+
+    const nextMap = {
+      ...quizProgressMap,
+      [key]: entry,
+    }
+
+    persistQuizProgress(nextMap)
+    setActiveQuizProgress(entry)
+    return entry
+  }
+
+  function clearQuizProgress(selection) {
+    if (!user) return
+    const key = getQuizProgressKey({ userId: user.id, ...selection })
+    if (!quizProgressMap[key]) return
+
+    const nextMap = { ...quizProgressMap }
+    delete nextMap[key]
+    persistQuizProgress(nextMap)
+
+    if (activeQuizProgress?.key === key) {
+      setActiveQuizProgress(null)
+    }
+  }
+
   function chooseGrade(grade) {
     setSelectedGrade(grade)
     setSelectedSubject(null)
@@ -594,6 +713,7 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setActiveQuizProgress(null)
     setHollandAnswers({})
     setHollandResults(null)
   }
@@ -604,11 +724,12 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setActiveQuizProgress(null)
     setHollandAnswers({})
     setHollandResults(null)
   }
 
-  function prepareQuiz({ grade, subject, level = null, activityType = 'practice' }) {
+  function prepareQuiz({ grade, subject, level = null, activityType = 'practice', restart = false }) {
     setSelectedGrade(grade)
     setSelectedSubject(subject)
     setSelectedLevel(level)
@@ -626,11 +747,22 @@ export function AppProvider({ children }) {
 
     setQuizQuestions(filteredQuestions)
     setQuizResults(null)
-    setQuizSession({
-      timeLimitSeconds: activityType === 'exam' ? 180 : null,
-      startedAt: null,
-      deadlineAt: null,
-    })
+    const selection = { grade, subject, level, activityType }
+    const savedProgress = restart ? null : getSavedQuizProgress(selection)
+    if (restart) {
+      clearQuizProgress(selection)
+    } else {
+      setActiveQuizProgress(savedProgress)
+    }
+    setQuizSession(
+      activityType === 'exam' && savedProgress?.quizSession
+        ? savedProgress.quizSession
+        : {
+            timeLimitSeconds: activityType === 'exam' ? 180 : null,
+            startedAt: null,
+            deadlineAt: null,
+          },
+    )
 
     return filteredQuestions
   }
@@ -642,6 +774,7 @@ export function AppProvider({ children }) {
     setSelectedActivity('practice')
     setQuizQuestions([])
     setQuizResults(null)
+    setActiveQuizProgress(null)
     setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
     setHollandAnswers({})
     setHollandResults(null)
@@ -678,16 +811,37 @@ export function AppProvider({ children }) {
         combinedCode: storedSummary.combinedCode,
         date: completedAt,
       }, mode || 'offline')
+      setResultsVersion(previous => previous + 1)
     }
   }
 
   function beginExamSession() {
     const now = Date.now()
-    setQuizSession({
+    const nextSession = {
       timeLimitSeconds: 180,
       startedAt: now,
       deadlineAt: now + 180000,
-    })
+    }
+    setQuizSession(nextSession)
+
+    if (user && selectedGrade && selectedSubject) {
+      saveQuizProgress(
+        {
+          grade: selectedGrade,
+          subject: selectedSubject,
+          level: selectedLevel,
+          activityType: selectedActivity,
+        },
+        {
+          currentIdx: 0,
+          results: [],
+          answered: false,
+          selectedAnswer: null,
+          isCorrect: null,
+          quizSession: nextSession,
+        },
+      )
+    }
   }
 
   function finishQuiz(results, meta = {}) {
@@ -711,6 +865,12 @@ export function AppProvider({ children }) {
     }
 
     setQuizResults(summary)
+    clearQuizProgress({
+      grade: selectedGrade,
+      subject: selectedSubject,
+      level: selectedLevel,
+      activityType: selectedActivity,
+    })
 
     if (user) {
       saveResult({
@@ -726,6 +886,7 @@ export function AppProvider({ children }) {
         percent,
         date: summary.completedAt,
       }, mode || 'offline')
+      setResultsVersion(previous => previous + 1)
     }
   }
 
@@ -733,8 +894,11 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         user,
+        userDisplayName: getUserDisplayName(user),
+        profileComplete: isProfileComplete(user),
         login,
         register,
+        updateUserProfile,
         logout,
         mode,
         setMode,
@@ -756,6 +920,9 @@ export function AppProvider({ children }) {
         selectedActivity,
         quizQuestions,
         quizResults,
+        userResults,
+        savedQuizProgress,
+        activeQuizProgress,
         quizSession,
         hollandAnswers,
         hollandResults,
@@ -764,6 +931,9 @@ export function AppProvider({ children }) {
         setSelectedLevel,
         setSelectedActivity,
         prepareQuiz,
+        getSavedQuizProgress,
+        saveQuizProgress,
+        clearQuizProgress,
         beginHollandQuestionnaire,
         updateHollandAnswer,
         finishHollandQuestionnaire,

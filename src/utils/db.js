@@ -93,6 +93,19 @@ export function serverGetStats() {
   return { users: db.users || [], results: db.results || [] }
 }
 
+export function getUserResults(userId) {
+  const serverResults = (rS().results || [])
+    .filter(result => result.userId === userId)
+    .map(result => ({ ...result, source: 'online' }))
+  const localResults = (rL().results || [])
+    .filter(result => result.userId === userId)
+    .map(result => ({ ...result, source: 'offline' }))
+
+  return [...serverResults, ...localResults].sort((first, second) => {
+    return new Date(second.date).getTime() - new Date(first.date).getTime()
+  })
+}
+
 // --- בדיקת מנוי ---
 export function checkSubscription(user) {
   if (user?.role === 'admin') return { valid: true, daysLeft: 999 }

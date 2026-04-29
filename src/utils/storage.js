@@ -5,6 +5,7 @@ const KEYS = {
   CURRENT_USER: 'kq_current_user',
   QUESTIONS: 'kq_questions',
   TRACKS: 'kq_tracks',
+  QUIZ_PROGRESS: 'kq_quiz_progress',
 }
 
 function getTrackDefaults() {
@@ -27,6 +28,15 @@ export function getCustomTracks() {
 
 export function saveCustomTracks(tracks) {
   localStorage.setItem(KEYS.TRACKS, JSON.stringify(tracks))
+}
+
+export function getQuizProgressMap() {
+  const raw = localStorage.getItem(KEYS.QUIZ_PROGRESS)
+  return raw ? JSON.parse(raw) : {}
+}
+
+export function saveQuizProgressMap(progressMap) {
+  localStorage.setItem(KEYS.QUIZ_PROGRESS, JSON.stringify(progressMap))
 }
 
 export function getUsers() {

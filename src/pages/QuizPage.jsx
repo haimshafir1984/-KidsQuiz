@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { fuzzyMatch } from '../utils/fuzzyMatch'
@@ -138,7 +138,10 @@ export default function QuizPage() {
     selectedSubject,
     selectedLevel,
     selectedActivity,
+    selectedGrade,
+    activeQuizProgress,
     quizSession,
+    saveQuizProgress,
   } = useApp()
   const navigate = useNavigate()
 
@@ -155,11 +158,72 @@ export default function QuizPage() {
   const resultsRef = useRef([])
   const completedRef = useRef(false)
 
+  function buildSelection() {
+    return {
+      grade: selectedGrade,
+      subject: selectedSubject,
+      level: selectedLevel,
+      activityType: selectedActivity,
+    }
+  }
+
+  function persistProgress(nextState = {}) {
+    if (!selectedGrade || !selectedSubject) return
+
+    saveQuizProgress(buildSelection(), {
+      currentIdx: nextState.currentIdx ?? currentIdx,
+      answered: nextState.answered ?? answered,
+      selectedAnswer: nextState.selectedAnswer ?? selectedAnswer,
+      isCorrect: nextState.isCorrect ?? isCorrect,
+      quizSession,
+      questionCount: quizQuestions.length,
+      results: (nextState.results ?? resultsRef.current).map(result => ({
+        questionId: result.question.id,
+        userAnswer: result.userAnswer,
+        correct: result.correct,
+      })),
+    })
+  }
+
   useEffect(() => {
     if (!quizQuestions || quizQuestions.length === 0) {
       navigate('/track')
     }
   }, [navigate, quizQuestions])
+
+  useEffect(() => {
+    completedRef.current = false
+
+    if (!activeQuizProgress) {
+      resultsRef.current = []
+      setResults([])
+      setCurrentIdx(0)
+      setAnswered(false)
+      setIsCorrect(null)
+      setSelectedAnswer(null)
+      return
+    }
+
+    const restoredResults = (activeQuizProgress.results || [])
+      .map(result => {
+        const question = quizQuestions.find(item => item.id === result.questionId)
+        if (!question) return null
+        return {
+          question,
+          userAnswer: result.userAnswer,
+          correct: result.correct,
+        }
+      })
+      .filter(Boolean)
+
+    const safeIndex = Math.min(activeQuizProgress.currentIdx || 0, Math.max(quizQuestions.length - 1, 0))
+    resultsRef.current = restoredResults
+    setResults(restoredResults)
+    setCurrentIdx(safeIndex)
+    setAnswered(Boolean(activeQuizProgress.answered))
+    setIsCorrect(activeQuizProgress.isCorrect ?? null)
+    setSelectedAnswer(activeQuizProgress.selectedAnswer ?? null)
+  }, [activeQuizProgress, quizQuestions])
 
   useEffect(() => {
     if (selectedActivity !== 'exam') return
@@ -209,6 +273,13 @@ export default function QuizPage() {
     setIsCorrect(correct)
     setAnswered(true)
     setSelectedAnswer(userAnswer)
+    persistProgress({
+      currentIdx,
+      answered: true,
+      selectedAnswer: userAnswer,
+      isCorrect: correct,
+      results: nextResults,
+    })
   }
 
   function completeQuiz(meta = {}) {
@@ -226,10 +297,23 @@ export default function QuizPage() {
       return
     }
 
-    setCurrentIdx(previous => previous + 1)
+    const nextIndex = currentIdx + 1
+    setCurrentIdx(nextIndex)
     setAnswered(false)
     setIsCorrect(null)
     setSelectedAnswer(null)
+    persistProgress({
+      currentIdx: nextIndex,
+      answered: false,
+      selectedAnswer: null,
+      isCorrect: null,
+      results: resultsRef.current,
+    })
+  }
+
+  function handleSaveAndExit() {
+    persistProgress()
+    navigate('/subject')
   }
 
   return (
@@ -286,8 +370,8 @@ export default function QuizPage() {
               {question.text}
             </p>
           </div>
-          <button onClick={() => navigate('/track')} className="btn-muted self-start">
-            חזרה למסלול ↩️
+          <button onClick={handleSaveAndExit} className="btn-muted self-start">
+            שמירה ויציאה
           </button>
         </div>
 

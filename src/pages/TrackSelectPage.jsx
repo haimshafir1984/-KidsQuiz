@@ -11,6 +11,8 @@ export default function TrackSelectPage() {
     selectedLevel,
     setSelectedLevel,
     prepareQuiz,
+    getSavedQuizProgress,
+    clearQuizProgress,
     beginHollandQuestionnaire,
     trackCatalog,
   } = useApp()
@@ -33,6 +35,7 @@ export default function TrackSelectPage() {
   }
   const levelOptions = track.levels.length ? track.levels : ['ללא רמה']
   const activeLevel = selectedLevel || levelOptions[0]
+  const normalizedLevel = activeLevel === 'ללא רמה' ? null : activeLevel
 
   const helperText = useMemo(() => {
     if (isHolland) {
@@ -40,11 +43,20 @@ export default function TrackSelectPage() {
     }
 
     if (track.activities.length > 1) {
-      return 'בחרו רמה ולאחר מכן החליטו אם להתחיל תרגול או מבחן בזמן קצוב.'
+      return 'בחרו רמה ולאחר מכן החליטו אם להתחיל תרגול או מבחן. אם קיימת שמירה, המערכת תחזיר אתכם לאותו מקום.'
     }
 
     return 'בחרו רמה כדי להתחיל תרגול מותאם למסלול שנבחר.'
   }, [isHolland, track.activities.length])
+
+  const currentPracticeProgress = !isHolland
+    ? getSavedQuizProgress({
+        grade: selectedGrade,
+        subject: selectedSubject,
+        level: normalizedLevel,
+        activityType: 'practice',
+      })
+    : null
 
   function handleStart(activityType) {
     if (isHolland) {
@@ -53,7 +65,6 @@ export default function TrackSelectPage() {
       return
     }
 
-    const normalizedLevel = activeLevel === 'ללא רמה' ? null : activeLevel
     setSelectedLevel(normalizedLevel)
     const prepared = prepareQuiz({
       grade: selectedGrade,
@@ -63,7 +74,34 @@ export default function TrackSelectPage() {
     })
 
     if (prepared.length === 0) {
-      alert('עדיין אין שאלות זמינות עבור הבחירה הזאת.')
+      window.alert('עדיין אין שאלות זמינות עבור הבחירה הזאת.')
+      return
+    }
+
+    if (activityType === 'exam') {
+      navigate('/exam-intro')
+      return
+    }
+
+    navigate('/quiz')
+  }
+
+  function handleRestart(activityType) {
+    const selection = {
+      grade: selectedGrade,
+      subject: selectedSubject,
+      level: normalizedLevel,
+      activityType,
+    }
+
+    clearQuizProgress(selection)
+    const prepared = prepareQuiz({
+      ...selection,
+      restart: true,
+    })
+
+    if (prepared.length === 0) {
+      window.alert('עדיין אין שאלות זמינות עבור הבחירה הזאת.')
       return
     }
 
@@ -94,7 +132,7 @@ export default function TrackSelectPage() {
             <div className="flex-1 text-right">
               <h2 className="text-2xl font-extrabold text-slate-950">בחירת רמה</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                {track.levels.length > 0 ? 'המסלול מחולק לרמות, כדי להתאים את עומק התרגול.' : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
+                {track.levels.length > 0 ? 'המסלול מחולק לרמות כדי להתאים את עומק התרגול.' : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
               </p>
             </div>
           </div>
@@ -114,7 +152,7 @@ export default function TrackSelectPage() {
                 >
                   <div className="text-lg font-bold">{level}</div>
                   <div className="mt-1 text-sm opacity-80">
-                    {level === 'ללא רמה' ? 'נושא זה פועל כיחידה אחת.' : 'רמת קושי נפרדת עם שאלות ייעודיות.'}
+                    {level === 'ללא רמה' ? 'הנושא הזה פועל כיחידה אחת.' : 'רמת קושי נפרדת עם שאלות ייעודיות.'}
                   </div>
                 </button>
               )
@@ -135,33 +173,62 @@ export default function TrackSelectPage() {
           </p>
         </div>
 
+        {!isHolland && currentPracticeProgress && (
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-sm font-semibold text-amber-800">
+            יש למסלול הזה שמירה פעילה. לחיצה על הפעילות תמשיך מאותו מקום, ואפשר גם להתחיל מחדש.
+          </div>
+        )}
+
         <div className={`mt-6 grid gap-4 ${isHolland ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}>
           {(isHolland ? ['practice'] : track.activities).map(activityType => {
             const isExam = activityType === 'exam'
+            const activitySavedProgress = !isHolland
+              ? getSavedQuizProgress({
+                  grade: selectedGrade,
+                  subject: selectedSubject,
+                  level: normalizedLevel,
+                  activityType,
+                })
+              : null
+
             return (
-              <button
-                key={activityType}
-                onClick={() => handleStart(activityType)}
-                className={`rounded-[20px] border-2 p-6 text-right shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
-                  isHolland
-                    ? 'border-rose-200 bg-rose-50/70 hover:border-rose-300'
-                    : isExam
-                      ? 'border-amber-200 bg-amber-50/70 hover:border-amber-300'
-                      : 'border-blue-200 bg-blue-50/70 hover:border-blue-300'
-                }`}
-              >
-                <div className="text-3xl">{isHolland ? '🧭' : isExam ? '⏱️' : '📚'}</div>
-                <div className="mt-4 text-xl font-extrabold text-slate-950">
-                  {isHolland ? 'התחלת שאלון הולנד' : getActivityLabel(activityType)}
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {isHolland
-                    ? '24 היגדים בדירוג אישי, עם ניתוח מסכם של הטיפוס המוביל והשילוב המרכזי.'
-                    : isExam
-                      ? 'מבחן מוקצב ל-3 דקות עם שעון חי בראש המסך וסיום אוטומטי כאשר הזמן מסתיים.'
-                      : 'תרגול חופשי עם משוב מיידי, בלי מגבלת זמן ועם אפשרות ללמוד בקצב אישי.'}
-                </p>
-              </button>
+              <div key={activityType} className="space-y-2">
+                <button
+                  onClick={() => handleStart(activityType)}
+                  className={`w-full rounded-[20px] border-2 p-6 text-right shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+                    isHolland
+                      ? 'border-rose-200 bg-rose-50/70 hover:border-rose-300'
+                      : isExam
+                        ? 'border-amber-200 bg-amber-50/70 hover:border-amber-300'
+                        : 'border-blue-200 bg-blue-50/70 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="text-3xl">{isHolland ? '🧭' : isExam ? '⏱️' : '📚'}</div>
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="text-xl font-extrabold text-slate-950">
+                      {isHolland ? 'התחלת שאלון הולנד' : getActivityLabel(activityType)}
+                    </div>
+                    {activitySavedProgress && (
+                      <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-amber-700">
+                        יש שמירה פעילה
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {isHolland
+                      ? '24 היגדים בדירוג אישי, עם ניתוח מסכם של הטיפוס המוביל והשילוב המרכזי.'
+                      : isExam
+                        ? 'מבחן מוקצב ל-3 דקות עם שעון חי בראש המסך וסיום אוטומטי כאשר הזמן מסתיים.'
+                        : 'תרגול חופשי עם משוב מיידי, בלי מגבלת זמן ועם אפשרות ללמוד בקצב אישי.'}
+                  </p>
+                </button>
+
+                {activitySavedProgress && (
+                  <button onClick={() => handleRestart(activityType)} className="btn-secondary w-full justify-center">
+                    התחלה מחדש של {getActivityLabel(activityType)}
+                  </button>
+                )}
+              </div>
             )
           })}
         </div>
