@@ -331,8 +331,8 @@ export function AppProvider({ children }) {
     setQuestions(normalized)
   }, [])
 
-  function login(username, password) {
-    const found = serverFindUser(username)
+  function login(identifier, password) {
+    const found = serverFindUser(identifier)
     if (!found || found.password !== password) return { error: 'שם משתמש או סיסמה שגויים' }
     const { valid } = checkSubscription(found)
     if (!valid) return { error: 'פג תוקף המנוי שלך', expired: true }
@@ -343,23 +343,34 @@ export function AppProvider({ children }) {
     return { success: true, user: found }
   }
 
-  function register(username, password) {
+  function register(profileData) {
+    const normalizedUsername = profileData.username?.trim().replace(/\s+/g, ' ') || ''
+    const normalizedEmail = profileData.email?.trim().toLowerCase() || ''
     const users = serverGetUsers()
-    if (users.find(existingUser => existingUser.username === username)) {
+    if (!normalizedUsername || !profileData.password?.trim()) {
+      return { error: 'יש למלא שם משתמש וסיסמה' }
+    }
+
+    if (users.find(existingUser => existingUser.username?.trim().toLowerCase() === normalizedUsername.toLowerCase())) {
       return { error: 'שם המשתמש כבר קיים' }
+    }
+
+    if (normalizedEmail && users.find(existingUser => existingUser.email?.trim().toLowerCase() === normalizedEmail)) {
+      return { error: 'כבר קיים חשבון עם כתובת המייל הזו' }
     }
 
     const newUser = {
       id: Date.now().toString(),
-      username,
-      password,
+      username: normalizedUsername,
+      password: profileData.password,
       role: 'student',
       subscription_date: new Date().toISOString(),
-      firstName: '',
-      lastName: '',
-      city: '',
-      birthDate: '',
-      phone: '',
+      firstName: profileData.firstName?.trim() || '',
+      lastName: profileData.lastName?.trim() || '',
+      city: profileData.city?.trim() || '',
+      birthDate: profileData.birthDate || '',
+      phone: profileData.phone?.trim() || '',
+      email: normalizedEmail,
     }
 
     serverSaveUser(newUser)

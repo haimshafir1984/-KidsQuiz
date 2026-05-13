@@ -70,4 +70,383 @@
   .quiz-option {
     @apply rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:-translate-x-1 hover:border-slate-300 hover:bg-slate-50;
   }
+
+  .demo-presentation {
+    @apply overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_24px_60px_-36px_rgba(37,99,235,0.35)];
+  }
+
+  .demo-presentation__hero {
+    @apply flex flex-col gap-4 p-6 text-white sm:flex-row sm:items-start;
+  }
+
+  .demo-presentation__hero h2 {
+    @apply text-2xl font-bold leading-tight;
+  }
+
+  .demo-presentation__hero p {
+    @apply mt-2 max-w-xl text-sm leading-7;
+    color: rgb(255 255 255 / 0.9);
+  }
+
+  .demo-presentation__icon {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl backdrop-blur-sm;
+    background-color: rgb(255 255 255 / 0.18);
+  }
+
+  .demo-presentation__eyebrow {
+    @apply mb-1 text-xs font-semibold uppercase tracking-[0.24em];
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .demo-presentation__canvas {
+    @apply bg-gradient-to-b from-slate-50 to-white p-5;
+  }
+
+  .demo-presentation__footer {
+    @apply flex flex-col gap-3 border-t border-slate-100 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .demo-presentation__nav {
+    @apply flex items-center gap-3;
+  }
+
+  .demo-presentation__actions {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-center;
+  }
+
+  .demo-nav-btn {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50;
+  }
+
+  .demo-presentation__dots {
+    @apply flex items-center gap-2;
+  }
+
+  .demo-dot {
+    @apply h-2.5 w-2.5 rounded-full bg-slate-300 transition-all duration-200;
+  }
+
+  .demo-dot--active {
+    @apply w-7 bg-blue-600;
+  }
+
+  .demo-presentation__caption {
+    @apply text-sm font-semibold text-slate-500;
+  }
+
+  .demo-presentation__cta {
+    @apply inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700;
+  }
+
+  .demo-device {
+    @apply rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.28)];
+  }
+
+  .demo-device--soft {
+    @apply bg-gradient-to-br from-white via-slate-50 to-blue-50;
+  }
+
+  .demo-strip {
+    @apply mb-5 flex flex-wrap gap-2;
+  }
+
+  .demo-pill {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .demo-pill--blue {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  .demo-pill--mint {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+
+  .demo-pill--rose {
+    @apply bg-rose-50 text-rose-700;
+  }
+
+  .demo-pill--muted {
+    @apply bg-slate-100 text-slate-600;
+  }
+
+  .demo-kpi-grid {
+    @apply grid grid-cols-3 gap-3;
+  }
+
+  .demo-kpi {
+    @apply rounded-2xl border border-slate-100 bg-white p-4 text-center;
+  }
+
+  .demo-kpi strong {
+    @apply block text-2xl font-bold text-slate-950;
+  }
+
+  .demo-kpi span {
+    @apply mt-1 block text-xs font-semibold text-slate-500;
+  }
+
+  .demo-kpi__icon {
+    @apply mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-xl;
+  }
+
+  .demo-kpi__icon--blue {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  .demo-kpi__icon--violet {
+    @apply bg-violet-50 text-violet-700;
+  }
+
+  .demo-kpi__icon--amber {
+    @apply bg-amber-50 text-amber-700;
+  }
+
+  .demo-kpi__icon--mint {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+
+  .demo-feature-list {
+    @apply mt-5 space-y-3;
+  }
+
+  .demo-feature-row {
+    @apply flex items-center gap-3 rounded-2xl border border-slate-100 px-4 py-3 text-sm font-semibold text-slate-700;
+    background-color: rgb(255 255 255 / 0.8);
+  }
+
+  .demo-feature-dot {
+    @apply h-3 w-3 rounded-full;
+  }
+
+  .demo-feature-dot--blue {
+    @apply bg-blue-500;
+  }
+
+  .demo-feature-dot--mint {
+    @apply bg-emerald-500;
+  }
+
+  .demo-feature-dot--amber {
+    @apply bg-amber-400;
+  }
+
+  .demo-question-top {
+    @apply mb-4 flex flex-wrap items-center justify-between gap-2;
+  }
+
+  .demo-progress {
+    @apply mb-5 h-3 overflow-hidden rounded-full bg-slate-100;
+  }
+
+  .demo-progress > span {
+    @apply block h-full rounded-full bg-gradient-to-r from-blue-600 via-violet-500 to-emerald-400;
+  }
+
+  .demo-question-card {
+    @apply mb-5 rounded-[22px] border border-slate-100 bg-slate-50 px-5 py-6;
+  }
+
+  .demo-question-card__eyebrow {
+    @apply mb-2 text-xs font-bold tracking-[0.18em] text-slate-500;
+  }
+
+  .demo-question-card h3 {
+    @apply text-2xl font-bold leading-snug text-slate-950;
+  }
+
+  .demo-answer-grid {
+    @apply grid gap-3;
+  }
+
+  .demo-answer {
+    @apply flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold text-slate-800 shadow-sm;
+  }
+
+  .demo-answer span {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-700;
+  }
+
+  .demo-answer--active {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+
+  .demo-answer--active span {
+    @apply bg-emerald-500 text-white;
+  }
+
+  .demo-feedback {
+    @apply mt-4 flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold leading-7 text-emerald-800;
+  }
+
+  .demo-feedback--soft {
+    @apply border-blue-200 bg-blue-50 text-blue-800;
+  }
+
+  .demo-open-box {
+    @apply rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5;
+  }
+
+  .demo-open-box__label {
+    @apply mb-2 text-xs font-bold tracking-[0.16em] text-slate-500;
+  }
+
+  .demo-open-box__value {
+    @apply text-xl font-bold text-slate-950;
+  }
+
+  .demo-profile-head {
+    @apply mb-5 flex items-start justify-between gap-4;
+  }
+
+  .demo-profile-title {
+    @apply text-2xl font-bold text-slate-950;
+  }
+
+  .demo-profile-subtitle {
+    @apply mt-1 text-sm text-slate-500;
+  }
+
+  .demo-avatar {
+    @apply flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-lg font-bold text-white;
+  }
+
+  .demo-history-card {
+    @apply mt-5 space-y-3 rounded-[22px] border border-slate-100 bg-slate-50 p-4;
+  }
+
+  .demo-history-row {
+    @apply flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm;
+  }
+
+  .demo-history-row strong {
+    @apply block text-sm font-bold text-slate-900;
+  }
+
+  .demo-history-row span {
+    @apply mt-1 block text-xs font-semibold text-slate-500;
+  }
+
+  .demo-history-row button {
+    @apply inline-flex rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white;
+  }
+
+  .demo-modal__backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6;
+    backdrop-filter: blur(6px);
+  }
+
+  .demo-modal {
+    @apply w-full max-w-4xl rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.45)] sm:p-6;
+  }
+
+  .demo-modal__header {
+    @apply mb-6 flex items-start justify-between gap-4;
+  }
+
+  .demo-modal__eyebrow {
+    @apply mb-2 text-xs font-bold tracking-[0.18em] text-blue-600;
+  }
+
+  .demo-modal__title {
+    @apply text-2xl font-bold text-slate-950;
+  }
+
+  .demo-modal__subtitle {
+    @apply mt-2 max-w-2xl text-sm leading-7 text-slate-600;
+  }
+
+  .demo-modal__close {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700;
+  }
+
+  .demo-modal__grid {
+    @apply grid gap-4 lg:grid-cols-2;
+  }
+
+  .demo-modal__question {
+    @apply rounded-[24px] border border-slate-200 bg-slate-50/80 p-5;
+  }
+
+  .demo-modal__question-head {
+    @apply mb-3 flex items-center justify-between text-slate-600;
+  }
+
+  .demo-modal__question-type {
+    @apply inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm;
+  }
+
+  .demo-modal__question-text {
+    @apply mb-4 text-lg font-bold leading-8 text-slate-950;
+  }
+
+  .demo-modal__options {
+    @apply grid gap-3;
+  }
+
+  .demo-modal__option {
+    @apply rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-blue-200 hover:bg-blue-50/70;
+  }
+
+  .demo-modal__option--active {
+    @apply border-blue-500 bg-blue-50 text-blue-700 shadow-sm;
+  }
+
+  .demo-modal__input {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100;
+  }
+
+  .demo-modal__feedback {
+    @apply mt-4 rounded-2xl px-4 py-3 text-sm font-semibold;
+  }
+
+  .demo-modal__feedback--success {
+    @apply border border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+
+  .demo-modal__feedback--neutral {
+    @apply border border-slate-200 bg-white text-slate-700;
+  }
+
+  .demo-modal__footer {
+    @apply mt-6 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .demo-modal__result {
+    @apply min-h-[28px] text-sm font-semibold text-slate-600;
+  }
+
+  .demo-modal__actions {
+    @apply flex flex-col gap-3 sm:flex-row;
+  }
+
+  .demo-modal__secondary {
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50;
+  }
+
+  .demo-modal__primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700;
+  }
+
+  @media (max-width: 640px) {
+    .demo-kpi-grid {
+      @apply grid-cols-1;
+    }
+
+    .demo-presentation__hero {
+      @apply p-5;
+    }
+
+    .demo-presentation__canvas {
+      @apply p-4;
+    }
+
+    .demo-presentation__actions {
+      @apply items-stretch;
+    }
+
+    .demo-presentation__cta {
+      @apply w-full;
+    }
+  }
 }

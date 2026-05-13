@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מוקאפ 3 - מקצועי</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafd;
+      --text: #142033;
+      --muted: #637089;
+      --line: #dce4ef;
+      --navy: #1c3358;
+      --blue: #2563eb;
+      --steel: #5d7399;
+      --gold: #c79b4a;
+      --green: #1f8f6c;
+      --shadow: 0 24px 50px -34px rgba(20, 32, 51, 0.24);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Assistant", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+      color: var(--text);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 42px 24px 56px;
+    }
+
+    .frame {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .meta-title,
+    .meta-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--navy);
+      font-weight: 700;
+      box-shadow: 0 12px 22px -22px rgba(20, 32, 51, 0.24);
+    }
+
+    .layout-login,
+    .layout-question,
+    .layout-profile {
+      display: grid;
+      gap: 24px;
+    }
+
+    .layout-login { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .layout-question { grid-template-columns: 0.76fr 1.24fr; }
+    .layout-profile { grid-template-columns: 1fr 1fr; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .hero {
+      padding: 34px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--blue);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero h1,
+    .hero p {
+      margin: 0;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 4vw, 4.1rem);
+      line-height: 1.06;
+      max-width: 12ch;
+      margin-bottom: 18px;
+    }
+
+    .hero p {
+      font-size: 1.08rem;
+      line-height: 1.9;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .highlight {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .highlight strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .highlight p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .highlight .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 12px;
+      color: var(--navy);
+      background: #eaf0fb;
+      font-size: 20px;
+    }
+
+    .form-card {
+      padding: 28px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+    }
+
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      padding: 5px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .tabs span {
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .tabs span.active {
+      background: var(--surface);
+      color: var(--navy);
+      box-shadow: 0 10px 22px -20px rgba(20,32,51,0.24);
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+
+    .input {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font: inherit;
+      color: var(--text);
+    }
+
+    .note {
+      margin: 18px 0;
+      padding: 15px 16px;
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid #d9e6fb;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.94rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font: inherit;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: #fff;
+      box-shadow: 0 18px 28px -20px rgba(28,51,88,0.34);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stat {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .shell {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      min-height: 620px;
+    }
+
+    .shell-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .pill,
+    .time {
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+
+    .pill {
+      background: #eef4ff;
+      color: var(--blue);
+    }
+
+    .time {
+      background: #fff7eb;
+      color: var(--gold);
+    }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      background: #edf2f8;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress > span {
+      display: block;
+      width: 71%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), #4f86f7, var(--navy));
+    }
+
+    .question-card {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+
+    .question-card p,
+    .question-card h2 {
+      margin: 0;
+    }
+
+    .question-card p {
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .question-card h2 {
+      font-size: 2rem;
+      line-height: 1.25;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .answer.good {
+      border-color: rgba(31,143,108,0.28);
+      background: rgba(31,143,108,0.06);
+    }
+
+    .answer .mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #edf2f8;
+      color: var(--navy);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .feedback {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(31,143,108,0.22);
+      background: rgba(31,143,108,0.06);
+      line-height: 1.75;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+    }
+
+    .side-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .side-card h3,
+    .side-card p {
+      margin: 0;
+    }
+
+    .side-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.02rem;
+    }
+
+    .side-card p,
+    .side-card li {
+      font-size: 0.94rem;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .side-card ul {
+      margin: 0;
+      padding: 0 18px 0 0;
+    }
+
+    .panel-title {
+      display: inline-flex;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #f3f6fb;
+      color: var(--steel);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 18px;
+    }
+
+    .user-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    }
+
+    .user-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 74px;
+      height: 74px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--navy), #365486);
+      color: #fff;
+      font-size: 28px;
+      box-shadow: 0 18px 26px -18px rgba(20,32,51,0.38);
+    }
+
+    .user-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .summary-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 1.7rem;
+      margin-bottom: 6px;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .list-item {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .list-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .score {
+      min-width: 82px;
+      border-radius: 18px;
+      background: #eef4ff;
+      color: var(--blue);
+      text-align: center;
+      padding: 12px 10px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .list-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .soft {
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font: inherit;
+      font-weight: 700;
+      color: var(--text);
+      cursor: default;
+    }
+
+    .soft.primary {
+      background: var(--navy);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    @media (max-width: 980px) {
+      .layout-login,
+      .layout-question,
+      .layout-profile,
+      .highlights,
+      .stats,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .meta,
+      .shell-top,
+      .user-row,
+      .list-top,
+      .user-meta {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions,
+      .list-actions {
+        flex-direction: column;
+      }
+
+      .hero h1 {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-title">מוקאפ 3 · סגנון מקצועי</div>
+        <div class="meta-label">דף כניסה</div>
+      </div>
+
+      <div class="layout-login">
+        <section class="hero card">
+          <div class="eyebrow">מערכת למידה מסודרת ומדויקת</div>
+          <h1>ממשק מקצועי, שקט וברור לכל שלב בתהליך.</h1>
+          <p>
+            הכיוון הזה מתאים אם רוצים תחושה בוגרת, מסודרת ובעלת אמינות גבוהה. פחות “משחק”, יותר מערכת חכמה שנעים לעבוד איתה לאורך זמן.
+          </p>
+
+          <div class="highlights">
+            <article class="highlight">
+              <div class="icon">◻</div>
+              <strong>מבנה עקבי</strong>
+              <p>כל מסך נשען על אותה מערכת גריד, כותרות ובלוקים.</p>
+            </article>
+            <article class="highlight">
+              <div class="icon">▣</div>
+              <strong>סמכות וניקיון</strong>
+              <p>שפה חזותית שמרגישה יציבה, מסודרת ובטוחה.</p>
+            </article>
+            <article class="highlight">
+              <div class="icon">◎</div>
+              <strong>מיקוד בתוכן</strong>
+              <p>הרכיבים לא מתחרים בשאלה או בנתונים, אלא תומכים בהם.</p>
+            </article>
+          </div>
+        </section>
+
+        <aside class="form-card card">
+          <div class="tabs">
+            <span>כניסה</span>
+            <span class="active">הרשמה</span>
+          </div>
+
+          <div class="field">
+            <label>אימייל</label>
+            <input class="input" value="demo@example.com" />
+          </div>
+          <div class="field">
+            <label>סיסמה</label>
+            <input class="input" value="••••••••••" />
+          </div>
+          <div class="field">
+            <label>שם פרטי</label>
+            <input class="input" value="יואב" />
+          </div>
+          <div class="field">
+            <label>עיר מגורים</label>
+            <input class="input" value="מודיעין" />
+          </div>
+
+          <div class="note">אחרי ההרשמה המשתמש משלים פרטים אישיים, ולאחר מכן עובר לבחירת מסלול העבודה.</div>
+
+          <div class="actions">
+            <button class="btn btn-primary">יצירת חשבון</button>
+            <button class="btn btn-secondary">חזרה למסך הפתיחה</button>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>3</strong>
+              <span>מסלולים</span>
+            </div>
+            <div class="stat">
+              <strong>38</strong>
+              <span>נושאים</span>
+            </div>
+            <div class="stat">
+              <strong>356</strong>
+              <span>שאלות</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-title">מוקאפ 3 · סגנון מקצועי</div>
+        <div class="meta-label">מסך שאלה</div>
+      </div>
+
+      <div class="layout-question">
+        <aside class="sidebar">
+          <div class="side-card">
+            <div class="panel-title">מטרת הסגנון</div>
+            <h3>הובלת המשתמש דרך תוכן מורכב</h3>
+            <p>המסך הזה עובד טוב אם רוצים להרגיש מערכת לימוד רצינית, מאורגנת ויעילה, בלי עודף הבעה רגשית.</p>
+          </div>
+          <div class="side-card">
+            <div class="panel-title">יתרונות</div>
+            <ul>
+              <li>כותרות ברורות ונקיות</li>
+              <li>קל מאוד לסרוק מידע</li>
+              <li>מתאים גם לתלמידים בוגרים וגם למנהלים</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="shell card">
+          <div class="shell-top">
+            <div class="pill">תרגול פעיל · אינטליגנציה כללית</div>
+            <div class="time">שאלה 8 מתוך 12</div>
+          </div>
+          <div class="progress"><span></span></div>
+
+          <div class="question-card">
+            <p>מה משותף ל</p>
+            <h2>לוויתן, עטלף, אדם ודולפין?</h2>
+          </div>
+
+          <div class="answers">
+            <div class="answer"><div class="mark">א</div><strong>כולם חיים במים</strong></div>
+            <div class="answer good"><div class="mark">ב</div><strong>כולם יונקים</strong></div>
+            <div class="answer"><div class="mark">ג</div><strong>כולם מעופפים</strong></div>
+            <div class="answer"><div class="mark">ד</div><strong>כולם טורפים</strong></div>
+          </div>
+
+          <div class="feedback">
+            <strong>תשובה נכונה</strong>
+            <div>הסבר קצר, מסודר וממוקד מופיע מתחת לתשובות בלי לשבור את ההיררכיה של המסך.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-title">מוקאפ 3 · סגנון מקצועי</div>
+        <div class="meta-label">אזור אישי</div>
+      </div>
+
+      <div class="layout-profile">
+        <section class="summary">
+          <div class="user-card card">
+            <div class="user-row">
+              <div class="user-meta">
+                <div class="avatar">י</div>
+                <div>
+                  <h2 style="margin:0 0 6px;">יואב ישראלי</h2>
+                  <p class="muted">כיתה י״ב · עבודה מחוברת · ירושלים</p>
+                </div>
+              </div>
+              <div class="meta-label">אזור אישי</div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <strong>18</strong>
+                <span>תרגולים ומבחנים</span>
+              </div>
+              <div class="summary-box">
+                <strong>89%</strong>
+                <span>ממוצע</span>
+              </div>
+              <div class="summary-box">
+                <strong>2</strong>
+                <span>שמירות פעילות</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-title">שמירות פעילות</div>
+            <div class="list">
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>אוצר מילים</strong>
+                    <p class="muted">כיתה ח׳ · תרגול · נענו 6 מתוך 10</p>
+                  </div>
+                  <div class="score">60%</div>
+                </div>
+                <div class="list-actions">
+                  <button class="soft primary">המשך מהמקום האחרון</button>
+                  <button class="soft">התחלה מחדש</button>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>השלמת סדרות</strong>
+                    <p class="muted">אתגר מחשבתי · נענו 9 מתוך 14</p>
+                  </div>
+                  <div class="score">64%</div>
+                </div>
+                <div class="list-actions">
+                  <button class="soft primary">המשך מהמקום האחרון</button>
+                  <button class="soft">התחלה מחדש</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="summary">
+          <div class="card">
+            <div class="panel-title">תוצאות והתקדמות</div>
+            <div class="list">
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>תנ"ך</strong>
+                    <p class="muted">מבחן · 10 מתוך 12</p>
+                  </div>
+                  <div class="score">83%</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>דינים</strong>
+                    <p class="muted">תרגול · 8 מתוך 9</p>
+                  </div>
+                  <div class="score">89%</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>שאלון הולנד</strong>
+                    <p class="muted">קוד מוביל · ASE</p>
+                  </div>
+                  <div class="score">94%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-title">אופי המסך</div>
+            <p class="muted">
+              הכיוון המקצועי שם דגש על סדר, אמינות ובהירות. הוא מתאים במיוחד אם רוצים שהמערכת תרגיש “רצינית” ותתאים גם ללמידה בוגרת וגם לעבודה מול הורים או מנהלים.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

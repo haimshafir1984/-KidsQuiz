@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מוקאפ 1 - צבעוני וילדותי</title>
+  <style>
+    :root {
+      --bg: #fff7ec;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-strong: #ffffff;
+      --text: #26324a;
+      --muted: #5f6f8d;
+      --blue: #4f7cff;
+      --mint: #5ed0b3;
+      --yellow: #ffd65a;
+      --coral: #ff8c7b;
+      --violet: #9f7bff;
+      --shadow: 0 26px 48px -28px rgba(79, 124, 255, 0.34);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Rubik", "Assistant", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(255, 214, 90, 0.45), transparent 24%),
+        radial-gradient(circle at left 18%, rgba(94, 208, 179, 0.28), transparent 20%),
+        linear-gradient(180deg, #fff8f1 0%, #eef6ff 100%);
+      color: var(--text);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 42px 24px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page::before,
+    .page::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    .page::before {
+      width: 220px;
+      height: 220px;
+      background: rgba(159, 123, 255, 0.12);
+      top: 18px;
+      left: -64px;
+    }
+
+    .page::after {
+      width: 280px;
+      height: 280px;
+      background: rgba(94, 208, 179, 0.1);
+      bottom: -120px;
+      right: -90px;
+    }
+
+    .frame {
+      max-width: 1180px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: #fff;
+      font-size: 28px;
+    }
+
+    .brand h1,
+    .brand p {
+      margin: 0;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+    }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .screen-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.84);
+      border-radius: 999px;
+      color: var(--blue);
+      font-weight: 700;
+      box-shadow: 0 18px 28px -24px rgba(79, 124, 255, 0.5);
+    }
+
+    .hero-grid,
+    .question-grid,
+    .profile-grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+    }
+
+    .question-grid {
+      grid-template-columns: 0.72fr 1.28fr;
+      align-items: start;
+    }
+
+    .profile-grid {
+      grid-template-columns: 1.02fr 0.98fr;
+      align-items: start;
+    }
+
+    .bubble-card,
+    .panel {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .bubble-card {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+    }
+
+    .panel {
+      border-radius: 34px;
+      padding: 28px;
+    }
+
+    .headline {
+      font-size: clamp(2.5rem, 5vw, 4.4rem);
+      line-height: 1.02;
+      margin: 0 0 18px;
+      max-width: 11ch;
+    }
+
+    .lead {
+      margin: 0 0 24px;
+      font-size: 1.1rem;
+      line-height: 1.9;
+      color: var(--muted);
+      max-width: 58ch;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .chip {
+      padding: 11px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.94rem;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(79, 124, 255, 0.12);
+      color: var(--text);
+    }
+
+    .chip.blue { color: var(--blue); }
+    .chip.coral { color: var(--coral); }
+    .chip.mint { color: #0f8a6f; }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 15px 24px;
+      font: inherit;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: #fff;
+      box-shadow: 0 20px 28px -18px rgba(79, 124, 255, 0.6);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid rgba(95, 111, 141, 0.18);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .feature {
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .feature .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    .feature:nth-child(1) .icon { background: rgba(94, 208, 179, 0.18); }
+    .feature:nth-child(2) .icon { background: rgba(255, 214, 90, 0.25); }
+    .feature:nth-child(3) .icon { background: rgba(159, 123, 255, 0.18); }
+
+    .feature h3,
+    .feature p {
+      margin: 0;
+    }
+
+    .feature h3 {
+      margin-bottom: 8px;
+      font-size: 1.02rem;
+    }
+
+    .feature p {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.94rem;
+    }
+
+    .login-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 100%);
+      border-radius: 32px;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      background: rgba(79, 124, 255, 0.08);
+      border-radius: 18px;
+      margin-bottom: 22px;
+    }
+
+    .tab {
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .tab.active {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 12px 24px -20px rgba(79, 124, 255, 0.45);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.96rem;
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(95, 111, 141, 0.18);
+      background: #fff;
+      padding: 15px 16px;
+      color: var(--text);
+      font: inherit;
+    }
+
+    .helper {
+      background: linear-gradient(135deg, rgba(255, 214, 90, 0.18), rgba(94, 208, 179, 0.12));
+      border-radius: 20px;
+      padding: 16px 18px;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.82);
+      border-radius: 22px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .question-shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border-radius: 36px;
+      padding: 28px;
+      min-height: 620px;
+      box-shadow: var(--shadow);
+    }
+
+    .question-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .question-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: rgba(79, 124, 255, 0.1);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .timer {
+      background: rgba(255, 140, 123, 0.16);
+      color: #c94f3d;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 14px;
+      background: rgba(79, 124, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .progress-fill {
+      width: 58%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet));
+    }
+
+    .question-box {
+      background: rgba(255,255,255,0.78);
+      border-radius: 28px;
+      padding: 26px;
+      margin-bottom: 20px;
+    }
+
+    .question-box h2,
+    .question-box p {
+      margin: 0;
+    }
+
+    .question-box h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .question-box p {
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .answer {
+      border-radius: 24px;
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.84);
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow: 0 20px 28px -24px rgba(79, 124, 255, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .answer.badge-green { outline: 2px solid rgba(94, 208, 179, 0.26); }
+    .answer.badge-yellow { outline: 2px solid rgba(255, 214, 90, 0.32); }
+    .answer.badge-coral { outline: 2px solid rgba(255, 140, 123, 0.28); }
+    .answer.badge-violet { outline: 2px solid rgba(159, 123, 255, 0.26); }
+
+    .letter {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .badge-green .letter { background: var(--mint); }
+    .badge-yellow .letter { background: #f0bf33; }
+    .badge-coral .letter { background: var(--coral); }
+    .badge-violet .letter { background: var(--violet); }
+
+    .feedback {
+      margin-top: 18px;
+      background: rgba(94, 208, 179, 0.14);
+      border-radius: 24px;
+      padding: 18px 20px;
+      border: 1px solid rgba(94, 208, 179, 0.24);
+      line-height: 1.75;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .mini-panel {
+      background: rgba(255,255,255,0.84);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .mini-panel h3,
+    .mini-panel p {
+      margin: 0;
+    }
+
+    .mini-panel h3 {
+      margin-bottom: 10px;
+      font-size: 1.06rem;
+    }
+
+    .mini-panel p,
+    .mini-panel li {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .mini-panel ul {
+      margin: 0;
+      padding: 0 18px 0 0;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .user-card {
+      background: linear-gradient(135deg, rgba(79, 124, 255, 0.16), rgba(159, 123, 255, 0.14));
+      border-radius: 30px;
+      padding: 22px;
+    }
+
+    .user-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+    }
+
+    .result-list,
+    .progress-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-item,
+    .progress-item {
+      background: rgba(255,255,255,0.8);
+      border-radius: 22px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.82);
+    }
+
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .score-bubble {
+      min-width: 82px;
+      text-align: center;
+      padding: 14px 12px;
+      border-radius: 22px;
+      background: rgba(79, 124, 255, 0.12);
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .progress-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-soft {
+      padding: 11px 16px;
+      border-radius: 16px;
+      border: none;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .btn-soft.primary {
+      background: linear-gradient(135deg, var(--mint), #45bca0);
+      color: #fff;
+    }
+
+    .tagline {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .question-grid,
+      .profile-grid,
+      .feature-grid,
+      .stats-row,
+      .answers {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-header,
+      .question-top,
+      .row-between,
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .cta-row,
+      .progress-actions {
+        flex-direction: column;
+      }
+
+      .headline {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-badge">✦</div>
+          <div>
+            <h1>מוקאפ 1</h1>
+            <p>סגנון צבעוני, ילדותי ומלא אנרגיה</p>
+          </div>
+        </div>
+        <div class="screen-label">דף כניסה</div>
+      </div>
+
+      <div class="hero-grid">
+        <div>
+          <div class="chips">
+            <span class="chip blue">למידה נעימה</span>
+            <span class="chip coral">שפה ידידותית</span>
+            <span class="chip mint">חיזוקים מיידיים</span>
+          </div>
+          <h2 class="headline">נכנסים, לומדים, ומרגישים שמצליחים.</h2>
+          <p class="lead">
+            העיצוב כאן מכוון לילדים ולהורים יחד: הרבה אוויר, צבעים שמחים, בלוקים ידידותיים ותחושה של מערכת בטוחה ולא מלחיצה.
+          </p>
+          <div class="cta-row">
+            <button class="btn btn-primary">יצירת חשבון</button>
+            <button class="btn btn-secondary">כניסה לחשבון קיים</button>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature">
+              <div class="icon">🧩</div>
+              <h3>תרגול כמו משחק</h3>
+              <p>כרטיסים מעוגלים, תגיות ברורות ומבנה שמעודד התקדמות בלי עומס.</p>
+            </article>
+            <article class="feature">
+              <div class="icon">🌈</div>
+              <h3>צבע בכל שלב</h3>
+              <p>פלטה שמחה ורכה, כדי לתת יותר חיים בלי להפוך את המסך לרועש.</p>
+            </article>
+            <article class="feature">
+              <div class="icon">⭐</div>
+              <h3>הצלחות קטנות</h3>
+              <p>כל פעולה נראית כמו צעד קטן קדימה, וזה מחזק את תחושת ההישג.</p>
+            </article>
+          </div>
+        </div>
+
+        <aside class="login-card">
+          <div class="tabs">
+            <div class="tab">כניסה</div>
+            <div class="tab active">הרשמה</div>
+          </div>
+
+          <div class="field">
+            <label>אימייל</label>
+            <input class="input" value="student@example.com" />
+          </div>
+          <div class="field">
+            <label>סיסמה</label>
+            <input class="input" value="••••••••••" />
+          </div>
+          <div class="field">
+            <label>שם פרטי</label>
+            <input class="input" value="נועה" />
+          </div>
+          <div class="field">
+            <label>עיר מגורים</label>
+            <input class="input" value="ירושלים" />
+          </div>
+
+          <div class="helper">אחרי ההרשמה הילד עובר ישר להשלמת פרטים קצרים, ומשם למסך בחירת המסלול.</div>
+
+          <div class="stats-row">
+            <div class="stat">
+              <strong>38</strong>
+              <span>נושאים</span>
+            </div>
+            <div class="stat">
+              <strong>356</strong>
+              <span>שאלות</span>
+            </div>
+            <div class="stat">
+              <strong>3</strong>
+              <span>מסלולי קושי</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-badge">?</div>
+          <div>
+            <h1>מוקאפ 1</h1>
+            <p>דף שאלה</p>
+          </div>
+        </div>
+        <div class="screen-label">מסך שאלה</div>
+      </div>
+
+      <div class="question-grid">
+        <aside class="side-stack">
+          <section class="mini-panel">
+            <h3>רצף התקדמות</h3>
+            <p>נשארו עוד 4 שאלות. העיצוב שומר על קצב שמח עם צבעים שמחזקים תחושת תנועה.</p>
+          </section>
+          <section class="mini-panel">
+            <h3>עידוד קטן בצד</h3>
+            <ul>
+              <li>שאלה 7 מתוך 11</li>
+              <li>חיווי ברור לזמן</li>
+              <li>שמירה ויציאה בלחיצה אחת</li>
+            </ul>
+          </section>
+          <section class="mini-panel">
+            <h3>טון כללי</h3>
+            <p>ידידותי, רך ומעודד, אבל עדיין עם היררכיה ברורה שמחזיקה את התוכן במרכז.</p>
+          </section>
+        </aside>
+
+        <section class="question-shell">
+          <div class="question-top">
+            <div class="question-pill">תרגול פעיל | אינטליגנציה יהודית</div>
+            <div class="timer">זמן נותר: 02:18</div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+
+          <div class="question-box">
+            <p>מי חיבר את הספרים האלה</p>
+            <h2>היד החזקה?</h2>
+            <p>מעל השאלה מופיעה כותרת משנה ברורה, והאפשרויות יושבות בכרטיסים גדולים ונוחים מאוד ללחיצה.</p>
+          </div>
+
+          <div class="answers">
+            <div class="answer badge-green">
+              <div class="letter">א</div>
+              <div>הרמב"ם</div>
+            </div>
+            <div class="answer badge-yellow">
+              <div class="letter">ב</div>
+              <div>רבי יהודה הלוי</div>
+            </div>
+            <div class="answer badge-coral">
+              <div class="letter">ג</div>
+              <div>הרב קוק</div>
+            </div>
+            <div class="answer badge-violet">
+              <div class="letter">ד</div>
+              <div>רבי שלמה אבן גבירול</div>
+            </div>
+          </div>
+
+          <div class="feedback">
+            <strong>תשובה נכונה!</strong>
+            <div>ההסבר מופיע בחלונית ירקרקה רכה כדי לחזק הצלחה בלי לשבור את זרימת התרגול.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-badge">☺</div>
+          <div>
+            <h1>מוקאפ 1</h1>
+            <p>אזור אישי עם תוצאות והתקדמות</p>
+          </div>
+        </div>
+        <div class="screen-label">אזור אישי</div>
+      </div>
+
+      <div class="profile-grid">
+        <section>
+          <div class="profile-header">
+            <div>
+              <div class="chips">
+                <span class="chip mint">התקדמות נשמרת</span>
+                <span class="chip blue">אזור אישי</span>
+              </div>
+              <h2 class="headline" style="font-size: clamp(2.2rem,4vw,3.4rem); max-width: 10ch;">עוקבים אחרי כל הצלחה לאורך הדרך.</h2>
+              <p class="tagline">המסך הזה מרכז תוצאות, ממוצעים ושמירות פעילות בשפה צבעונית אבל ברורה.</p>
+            </div>
+          </div>
+
+          <div class="feature-grid" style="margin-top: 0;">
+            <article class="feature">
+              <div class="icon">📚</div>
+              <h3>14 פעילויות</h3>
+              <p>תרגולים ומבחנים שהושלמו נשמרים כאן לצפייה מהירה.</p>
+            </article>
+            <article class="feature">
+              <div class="icon">🏆</div>
+              <h3>92%</h3>
+              <p>ממוצע כללי עם דגש על הישגים ולא על “דוח יבש”.</p>
+            </article>
+            <article class="feature">
+              <div class="icon">💾</div>
+              <h3>2 שמירות</h3>
+              <p>חזרה לנקודה האחרונה בלחיצה אחת, בלי ללכת לאיבוד.</p>
+            </article>
+          </div>
+
+          <div class="bubble-card" style="margin-top: 20px;">
+            <h3 style="margin:0 0 12px;">שמירות פעילות</h3>
+            <div class="progress-list">
+              <div class="progress-item">
+                <div class="row-between">
+                  <div>
+                    <strong>השלמת סדרות</strong>
+                    <div class="tagline">כיתה ח׳ | תרגול | נענו 7 מתוך 12</div>
+                  </div>
+                  <div class="score-bubble">58%</div>
+                </div>
+                <div class="progress-actions">
+                  <button class="btn-soft primary">המשך מהמקום האחרון</button>
+                  <button class="btn-soft">התחלה מחדש</button>
+                </div>
+              </div>
+              <div class="progress-item">
+                <div class="row-between">
+                  <div>
+                    <strong>אוצר מילים</strong>
+                    <div class="tagline">אתגר מחשבתי | תרגול | נענו 4 מתוך 10</div>
+                  </div>
+                  <div class="score-bubble">40%</div>
+                </div>
+                <div class="progress-actions">
+                  <button class="btn-soft primary">המשך מהמקום האחרון</button>
+                  <button class="btn-soft">התחלה מחדש</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-stack">
+          <div class="user-card">
+            <div class="user-meta">
+              <div class="avatar">נ</div>
+              <div>
+                <h3 style="margin:0;">נועה לוי</h3>
+                <p class="tagline">ירושלים | כיתה ח׳ | מצב עבודה: מחובר</p>
+              </div>
+            </div>
+            <p class="tagline">כרטיס אישי רך ושמח, שמרגיש פחות “ניהול נתונים” ויותר “מרחב אישי לילד/ה”.</p>
+          </div>
+
+          <div class="bubble-card">
+            <h3 style="margin:0 0 12px;">תוצאות אחרונות</h3>
+            <div class="result-list">
+              <div class="result-item">
+                <div class="row-between">
+                  <div>
+                    <strong>תפילה וברכות</strong>
+                    <div class="tagline">מבחן | 11 מתוך 12</div>
+                  </div>
+                  <div class="score-bubble">91%</div>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="row-between">
+                  <div>
+                    <strong>אינטליגנציה כללית</strong>
+                    <div class="tagline">תרגול | 8 מתוך 10</div>
+                  </div>
+                  <div class="score-bubble">80%</div>
+                </div>
+              </div>
+              <div class="result-item">
+                <div class="row-between">
+                  <div>
+                    <strong>שאלון הולנד</strong>
+                    <div class="tagline">סיכום אישי | קוד מוביל: ASE</div>
+                  </div>
+                  <div class="score-bubble">95%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

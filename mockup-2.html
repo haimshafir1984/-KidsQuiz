@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מוקאפ 2 - חווייתי</title>
+  <style>
+    :root {
+      --bg: #f4efe8;
+      --surface: rgba(255, 255, 255, 0.84);
+      --surface-strong: rgba(255, 255, 255, 0.95);
+      --text: #1f2937;
+      --muted: #6a7284;
+      --teal: #0f9d94;
+      --sea: #1fb8a9;
+      --sand: #f4be63;
+      --coral: #ea7b61;
+      --ink: #11314d;
+      --shadow: 0 28px 58px -30px rgba(17, 49, 77, 0.34);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Assistant", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(244,190,99,0.14), transparent 24%),
+        radial-gradient(circle at 90% 12%, rgba(31,184,169,0.16), transparent 28%),
+        linear-gradient(180deg, #f6f1eb 0%, #edf7f5 100%);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 46px 28px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shape,
+    .shape-two {
+      position: absolute;
+      border-radius: 34px;
+      transform: rotate(-10deg);
+      opacity: 0.14;
+      z-index: 0;
+    }
+
+    .shape {
+      width: 280px;
+      height: 280px;
+      background: linear-gradient(180deg, var(--sand), transparent);
+      top: -80px;
+      left: -80px;
+    }
+
+    .shape-two {
+      width: 300px;
+      height: 240px;
+      background: linear-gradient(180deg, var(--sea), transparent);
+      bottom: -100px;
+      right: -70px;
+    }
+
+    .frame {
+      max-width: 1220px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .meta-badge,
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.86);
+      border-radius: 999px;
+      padding: 11px 18px;
+      box-shadow: 0 12px 28px -22px rgba(17,49,77,0.3);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .grid-login,
+    .grid-question,
+    .grid-profile {
+      display: grid;
+      gap: 24px;
+    }
+
+    .grid-login { grid-template-columns: 0.92fr 1.08fr; align-items: center; }
+    .grid-question { grid-template-columns: 0.82fr 1.18fr; }
+    .grid-profile { grid-template-columns: 1.06fr 0.94fr; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.78);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      padding: 28px;
+    }
+
+    .hero-card {
+      padding: 38px;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.94), rgba(255,255,255,0.84)),
+        linear-gradient(135deg, rgba(15,157,148,0.16), rgba(244,190,99,0.12));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: rgba(15,157,148,0.1);
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+
+    .hero-card h1,
+    .hero-card p {
+      margin: 0;
+    }
+
+    .hero-card h1 {
+      font-size: clamp(2.5rem, 4vw, 4.3rem);
+      line-height: 1.04;
+      max-width: 11ch;
+      margin-bottom: 18px;
+    }
+
+    .hero-card p {
+      line-height: 1.95;
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 58ch;
+    }
+
+    .scene {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .scene-card {
+      background: rgba(255,255,255,0.78);
+      border-radius: 26px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scene-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -18px -18px auto;
+      width: 86px;
+      height: 86px;
+      border-radius: 30px;
+      background: rgba(244,190,99,0.12);
+    }
+
+    .scene-card:nth-child(2)::after { background: rgba(31,184,169,0.12); }
+    .scene-card:nth-child(3)::after { background: rgba(234,123,97,0.12); }
+
+    .scene-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .scene-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.94rem;
+    }
+
+    .orb-card {
+      padding: 32px;
+      background:
+        radial-gradient(circle at top right, rgba(31,184,169,0.16), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(244,190,99,0.16), transparent 30%),
+        rgba(255,255,255,0.9);
+    }
+
+    .orb-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .orb {
+      width: 56px;
+      height: 56px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--ink), var(--teal));
+      color: #fff;
+      font-size: 24px;
+      box-shadow: 0 16px 28px -18px rgba(17,49,77,0.46);
+    }
+
+    .switch {
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 18px;
+      background: rgba(17,49,77,0.08);
+      margin-bottom: 18px;
+    }
+
+    .switch span {
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .switch span.active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 12px 22px -20px rgba(17,49,77,0.4);
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.93rem;
+      font-weight: 700;
+    }
+
+    .input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(17,49,77,0.12);
+      background: rgba(255,255,255,0.9);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .flow-note {
+      border-radius: 22px;
+      padding: 16px 18px;
+      background: rgba(15,157,148,0.08);
+      color: var(--ink);
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 15px 22px;
+      font: inherit;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--ink), var(--teal));
+      box-shadow: 0 18px 28px -18px rgba(17,49,77,0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      border: 1px solid rgba(17,49,77,0.1);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      align-items: start;
+      background: rgba(255,255,255,0.78);
+      border-radius: 24px;
+      padding: 16px;
+    }
+
+    .timeline-dot {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(15,157,148,0.12);
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .timeline-item h3,
+    .timeline-item p {
+      margin: 0;
+    }
+
+    .timeline-item p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-top: 6px;
+      font-size: 0.94rem;
+    }
+
+    .shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.88));
+      border-radius: 38px;
+      padding: 30px;
+      min-height: 640px;
+    }
+
+    .shell-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .shell-pill,
+    .shell-time {
+      border-radius: 999px;
+      padding: 10px 15px;
+      font-weight: 700;
+    }
+
+    .shell-pill {
+      background: rgba(15,157,148,0.1);
+      color: var(--teal);
+    }
+
+    .shell-time {
+      background: rgba(244,190,99,0.16);
+      color: #9c6a17;
+    }
+
+    .progress {
+      height: 15px;
+      border-radius: 999px;
+      background: rgba(17,49,77,0.08);
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 66%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--sand), var(--sea), var(--ink));
+    }
+
+    .question-card {
+      border-radius: 30px;
+      padding: 26px;
+      background: rgba(255,255,255,0.8);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .question-card::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 34px;
+      background: rgba(31,184,169,0.08);
+      top: -30px;
+      left: -20px;
+      transform: rotate(18deg);
+    }
+
+    .question-card h2,
+    .question-card p {
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .question-card p {
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .question-card h2 {
+      font-size: 2.15rem;
+      line-height: 1.2;
+    }
+
+    .answer-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .answer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 18px 26px -24px rgba(17,49,77,0.28);
+    }
+
+    .answer strong {
+      font-size: 1rem;
+    }
+
+    .answer span {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 15px;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, var(--ink), var(--teal));
+    }
+
+    .answer.good {
+      outline: 2px solid rgba(15,157,148,0.22);
+    }
+
+    .feedback {
+      margin-top: 18px;
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(15,157,148,0.08);
+      border: 1px solid rgba(15,157,148,0.18);
+      line-height: 1.8;
+    }
+
+    .rail {
+      display: grid;
+      gap: 18px;
+    }
+
+    .rail-card {
+      background: rgba(255,255,255,0.82);
+      border-radius: 28px;
+      padding: 22px;
+    }
+
+    .rail-card h3,
+    .rail-card p {
+      margin: 0;
+    }
+
+    .rail-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+    }
+
+    .rail-card p,
+    .rail-card li {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .rail-card ul {
+      margin: 0;
+      padding: 0 18px 0 0;
+    }
+
+    .profile-wrap {
+      display: grid;
+      gap: 18px;
+    }
+
+    .glass {
+      background: linear-gradient(160deg, rgba(255,255,255,0.94), rgba(255,255,255,0.84));
+      border-radius: 30px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 28px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--ink), var(--teal));
+      color: #fff;
+      font-size: 30px;
+      box-shadow: 0 18px 28px -18px rgba(17,49,77,0.44);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-box {
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(255,255,255,0.78);
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .list-item {
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid rgba(255,255,255,0.82);
+    }
+
+    .list-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .score {
+      border-radius: 20px;
+      min-width: 84px;
+      text-align: center;
+      padding: 12px 10px;
+      background: rgba(15,157,148,0.1);
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .soft {
+      border: none;
+      border-radius: 16px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 700;
+      background: rgba(255,255,255,0.94);
+      color: var(--text);
+    }
+
+    .soft.primary {
+      background: linear-gradient(135deg, var(--sea), var(--teal));
+      color: #fff;
+    }
+
+    @media (max-width: 980px) {
+      .grid-login,
+      .grid-question,
+      .grid-profile,
+      .scene,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .meta,
+      .shell-top,
+      .list-top,
+      .user {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions,
+      .buttons {
+        flex-direction: column;
+      }
+
+      .hero-card h1 {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="shape"></div>
+    <div class="shape-two"></div>
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-badge">מוקאפ 2 · סגנון חווייתי</div>
+        <div class="label">דף כניסה</div>
+      </div>
+
+      <div class="grid-login">
+        <aside class="orb-card">
+          <div class="orb-header">
+            <div class="orb">◌</div>
+            <div>
+              <strong>נקודת הכניסה</strong>
+              <div class="muted">כרטיס כניסה עם חוויה יותר “מסע” ופחות “טופס”.</div>
+            </div>
+          </div>
+
+          <div class="switch">
+            <span>כניסה</span>
+            <span class="active">הרשמה</span>
+          </div>
+
+          <div class="flow-note">העיצוב החווייתי מנסה לתת תחושה של תנועה והמשכיות: כניסה, המשך למסלול, וחזרה קלה למה שכבר נשמר.</div>
+
+          <div class="field">
+            <label>אימייל</label>
+            <input class="input" value="learner@example.com" />
+          </div>
+          <div class="field">
+            <label>סיסמה</label>
+            <input class="input" value="••••••••••" />
+          </div>
+          <div class="field">
+            <label>עיר מגורים</label>
+            <input class="input" value="חיפה" />
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary">יצירת חשבון</button>
+            <button class="btn btn-secondary">חזרה לפתיחה</button>
+          </div>
+        </aside>
+
+        <section class="hero-card card">
+          <div class="eyebrow">מערכת שלומדת יחד עם התלמיד</div>
+          <h1>חוויית למידה שמרגישה כמו מסלול חי.</h1>
+          <p>
+            כאן הסיפור הוא לא רק “מסך יפה”, אלא תחושה של מסע: יש התחלה, יש התקדמות, ויש מקום ברור לראות מה הושלם ומה מחכה בהמשך.
+          </p>
+
+          <div class="scene">
+            <article class="scene-card">
+              <strong>כניסה רכה</strong>
+              <p>רכיבים עגולים, שכבות עדינות ותחושת זרימה בין שלבים.</p>
+            </article>
+            <article class="scene-card">
+              <strong>שאלה במרכז</strong>
+              <p>המסך הבא מרגיש כמו תחנה במסלול, עם דופק חזותי ברור.</p>
+            </article>
+            <article class="scene-card">
+              <strong>הישגים במקום אחד</strong>
+              <p>האזור האישי מרגיש כמו לוח מסע עם תחנות, ולא רק טבלת ציונים.</p>
+            </article>
+          </div>
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot">1</div>
+              <div>
+                <h3>יצירת חשבון</h3>
+                <p>המשתמש נכנס למערכת דרך כרטיס נקי שמרגיש כמו שער פתיחה.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">2</div>
+              <div>
+                <h3>בחירת פעילות</h3>
+                <p>הממשק עובר לשפה של התקדמות ושומר על עקביות בין מסכים.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="shape"></div>
+    <div class="shape-two"></div>
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-badge">מוקאפ 2 · סגנון חווייתי</div>
+        <div class="label">מסך שאלה</div>
+      </div>
+
+      <div class="grid-question">
+        <aside class="rail">
+          <div class="rail-card">
+            <h3>תחושת מסלול</h3>
+            <p>במקום “רק שאלה”, המשתמש מרגיש שהוא נמצא באמצע מסע למידה עם קצב, מצב וזמן.</p>
+          </div>
+          <div class="rail-card">
+            <h3>כדאי לשים לב</h3>
+            <ul>
+              <li>התקדמות נראית חיה וברורה</li>
+              <li>כפתורי תשובה עם מגע רך יותר</li>
+              <li>הסברים מרגישים כמו תחנת עצירה קצרה</li>
+            </ul>
+          </div>
+          <div class="rail-card">
+            <h3>סוג האווירה</h3>
+            <p>מתאים אם רוצים חוויה יותר זורמת, רגשית וקצת “אפליקטיבית” בלי להיות ילדותית ממש.</p>
+          </div>
+        </aside>
+
+        <section class="shell card">
+          <div class="shell-top">
+            <div class="shell-pill">מבחן פעיל · תפילה וברכות</div>
+            <div class="shell-time">02:18</div>
+          </div>
+          <div class="progress"><span></span></div>
+
+          <div class="question-card">
+            <p>מאיזו תפילה נלקח הציטוט</p>
+            <h2>"כי הם חיינו ואורך ימינו"?</h2>
+          </div>
+
+          <div class="answer-grid">
+            <div class="answer"><strong>ברכת התורה</strong><span>א</span></div>
+            <div class="answer good"><strong>אהבת עולם</strong><span>ב</span></div>
+            <div class="answer"><strong>עלינו לשבח</strong><span>ג</span></div>
+            <div class="answer"><strong>ברכת המזון</strong><span>ד</span></div>
+          </div>
+
+          <div class="feedback">
+            <strong>תשובה נכונה</strong>
+            <div>החיווי מופיע כמו רגע קצר במסלול: עוצרים, מבינים, וממשיכים בלי להעמיס על המסך.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="shape"></div>
+    <div class="shape-two"></div>
+    <div class="frame">
+      <div class="meta">
+        <div class="meta-badge">מוקאפ 2 · סגנון חווייתי</div>
+        <div class="label">אזור אישי</div>
+      </div>
+
+      <div class="grid-profile">
+        <section class="profile-wrap">
+          <div class="glass">
+            <div class="user">
+              <div class="avatar">א</div>
+              <div>
+                <h2 style="margin:0 0 6px;">אליה כהן</h2>
+                <p class="muted">כיתה י״ב · עבודה מחוברת · ממשיך מהמקום האחרון</p>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <strong>21</strong>
+                <span>פעילויות</span>
+              </div>
+              <div class="summary-box">
+                <strong>88%</strong>
+                <span>ממוצע</span>
+              </div>
+              <div class="summary-box">
+                <strong>3</strong>
+                <span>שמירות</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass">
+            <div class="eyebrow" style="margin-bottom:14px;">שמירות פעילות</div>
+            <div class="list">
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>השלמת סדרות</strong>
+                    <p class="muted">כיתה ח׳ · נענו 6 מתוך 10</p>
+                  </div>
+                  <div class="score">60%</div>
+                </div>
+                <div class="buttons">
+                  <button class="soft primary">המשך מהמקום האחרון</button>
+                  <button class="soft">התחלה מחדש</button>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>אינטליגנציה כללית</strong>
+                    <p class="muted">אתגר מחשבתי · נענו 9 מתוך 15</p>
+                  </div>
+                  <div class="score">61%</div>
+                </div>
+                <div class="buttons">
+                  <button class="soft primary">המשך מהמקום האחרון</button>
+                  <button class="soft">התחלה מחדש</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-wrap">
+          <div class="glass">
+            <div class="eyebrow" style="margin-bottom:14px;">תוצאות והתקדמות</div>
+            <div class="list">
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>אוצר מילים</strong>
+                    <p class="muted">תרגול · 13 מתוך 15</p>
+                  </div>
+                  <div class="score">87%</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>דינים</strong>
+                    <p class="muted">מבחן · 9 מתוך 10</p>
+                  </div>
+                  <div class="score">90%</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-top">
+                  <div>
+                    <strong>שאלון הולנד</strong>
+                    <p class="muted">קוד מוביל · ASE</p>
+                  </div>
+                  <div class="score">95%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass">
+            <div class="eyebrow" style="margin-bottom:14px;">כרטיס אישי</div>
+            <p class="muted">
+              במוקאפּ הזה האזור האישי נראה כמו לוח מסע: יותר שכבות, יותר תחושת תנועה, ופחות הפרדה “משרדית” בין אזורי המידע.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

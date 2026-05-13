@@ -62,8 +62,15 @@ export function seedAdmin() {
 // --- משתמשים (ServerDB בלבד) ---
 export function serverGetUsers() { return rS().users }
 
-export function serverFindUser(username) {
-  return rS().users.find(u => u.username === username) || null
+export function serverFindUser(identifier) {
+  const normalizedIdentifier = identifier?.trim().toLowerCase()
+  if (!normalizedIdentifier) return null
+
+  return rS().users.find(u => {
+    const username = u.username?.trim().toLowerCase()
+    const email = u.email?.trim().toLowerCase()
+    return username === normalizedIdentifier || email === normalizedIdentifier
+  }) || null
 }
 
 export function serverSaveUser(user) {

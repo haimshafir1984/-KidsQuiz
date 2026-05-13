@@ -152,9 +152,6 @@ export default function ProfilePage() {
             <h1 className="text-4xl font-bold leading-tight text-slate-950 sm:text-5xl">
               {userDisplayName || 'מרכז התקדמות אישי'}
             </h1>
-            <p className="max-w-2xl text-lg leading-relaxed text-slate-600">
-              אותו סגנון נקי של עמוד הפתיחה, רק עם כל מה שחשוב לך במקום אחד: פרטים אישיים, שמירות פעילות, ציונים והיסטוריית עבודה.
-            </p>
           </div>
 
           {!profileComplete && (
