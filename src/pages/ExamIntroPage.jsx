@@ -1,5 +1,6 @@
-﻿import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { GENERAL_EXAM_SUBJECT } from '../data/learningTracks'
 
 export default function ExamIntroPage() {
   const navigate = useNavigate()
@@ -8,6 +9,9 @@ export default function ExamIntroPage() {
   if (!quizQuestions || quizQuestions.length === 0) {
     return <Navigate to="/track" replace />
   }
+
+  const isGeneralExam = selectedSubject === GENERAL_EXAM_SUBJECT
+  const timeLabel = isGeneralExam ? '20 דקות' : '3 דקות'
 
   function handleStartExam() {
     beginExamSession()
@@ -22,7 +26,9 @@ export default function ExamIntroPage() {
         </div>
         <h1 className="section-title">המבחן יתחיל בעוד רגע</h1>
         <p className="section-subtitle mt-3">
-          במסלול זה הזמן למענה הוא 3 דקות. מרגע הלחיצה על כפתור ההתחלה יופיע שעון עצר בראש המסך.
+          {isGeneralExam
+            ? 'במבחן הכללי הזמן למענה הוא 20 דקות. בכל עמוד יוצגו 5 שאלות, ובסיום תקבלו ציון מלא ופירוט תשובות.'
+            : 'במסלול זה הזמן למענה הוא 3 דקות. מרגע הלחיצה על כפתור ההתחלה יופיע שעון עצר בראש המסך.'}
         </p>
       </section>
 
@@ -38,14 +44,14 @@ export default function ExamIntroPage() {
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="text-sm font-semibold text-slate-500">זמן מוקצב</div>
-            <div className="mt-2 text-xl font-extrabold text-slate-950">3 דקות</div>
+            <div className="mt-2 text-xl font-extrabold text-slate-950">{timeLabel}</div>
           </div>
         </div>
 
         <div className="mt-6 rounded-2xl border border-amber-100 bg-amber-50 p-5 text-amber-800">
           <div className="text-lg font-bold">לפני שמתחילים</div>
           <ul className="mt-2 space-y-2 text-sm leading-6">
-            <li>ענו ברצף ושמרו על קצב עבודה יציב.</li>
+            <li>{isGeneralExam ? 'המבחן מתקדם בקפיצות של 5 שאלות בכל עמוד.' : 'ענו ברצף ושמרו על קצב עבודה יציב.'}</li>
             <li>כאשר הזמן יסתיים, המערכת תעביר אתכם אוטומטית למסך הסיכום.</li>
             <li>מספר השאלות במבחן הנוכחי: {quizQuestions.length}.</li>
           </ul>

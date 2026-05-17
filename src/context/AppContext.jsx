@@ -22,11 +22,14 @@ import {
   clearStoredMode,
 } from '../utils/db'
 import seedQuestions, { normalizeImportedQuestionStructure } from '../data/seedQuestions'
-import { BASE_VISIBLE_TRACKS, GRADES } from '../data/learningTracks'
+import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
 import { normalizeSubjectName } from '../data/subjectCatalog'
 import { getUserDisplayName, isProfileComplete } from '../utils/userProfile'
 
 const AppContext = createContext(null)
+const GENERAL_EXAM_QUESTION_COUNT = 30
+const GENERAL_EXAM_TIME_LIMIT_SECONDS = 20 * 60
+const STANDARD_EXAM_TIME_LIMIT_SECONDS = 180
 const HOLLAND_SUBJECT = 'שאלון הולנד'
 const LEGACY_SUBJECTS = new Set([
   'ידע יהודי - תנ״ך',
@@ -178,6 +181,22 @@ function getQuestionCountForSelection(questions, selection) {
       && (question.level || null) === (selection.level || null)
       && question.activityType === selection.activityType
   }).length
+}
+
+function shuffleItems(items) {
+  const nextItems = [...items]
+
+  for (let index = nextItems.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[nextItems[index], nextItems[swapIndex]] = [nextItems[swapIndex], nextItems[index]]
+  }
+
+  return nextItems
+}
+
+function getExamTimeLimitSeconds(subject, activityType) {
+  if (activityType !== 'exam') return null
+  return subject === GENERAL_EXAM_SUBJECT ? GENERAL_EXAM_TIME_LIMIT_SECONDS : STANDARD_EXAM_TIME_LIMIT_SECONDS
 }
 
 export function AppProvider({ children }) {
@@ -748,18 +767,38 @@ export function AppProvider({ children }) {
     setHollandAnswers({})
     setHollandResults(null)
 
-    const filteredQuestions = sortQuestionsByPosition(questions.filter(question => {
-      const sameGrade = question.grade === grade
-      const sameSubject = question.subject === subject
-      const sameActivity = question.activityType === activityType
-      const sameLevel = (question.level || null) === (level || null)
-      return sameGrade && sameSubject && sameActivity && sameLevel
-    }))
+    const selection = { grade, subject, level, activityType }
+    const savedProgress = restart ? null : getSavedQuizProgress(selection)
+
+    const filteredQuestions = subject === GENERAL_EXAM_SUBJECT
+      ? (() => {
+          const allGradeQuestions = sortQuestionsByPosition(questions.filter(question => {
+            return question.grade === grade
+              && question.subject !== HOLLAND_SUBJECT
+              && question.subject !== GENERAL_EXAM_SUBJECT
+              && question.activityType === 'practice'
+          }))
+
+          if (savedProgress?.questionIds?.length) {
+            const questionMap = new Map(allGradeQuestions.map(question => [question.id, question]))
+            return savedProgress.questionIds
+              .map(questionId => questionMap.get(questionId))
+              .filter(Boolean)
+          }
+
+          return shuffleItems(allGradeQuestions).slice(0, GENERAL_EXAM_QUESTION_COUNT)
+        })()
+      : sortQuestionsByPosition(questions.filter(question => {
+          const sameGrade = question.grade === grade
+          const sameSubject = question.subject === subject
+          const sameActivity = question.activityType === activityType
+          const sameLevel = (question.level || null) === (level || null)
+          return sameGrade && sameSubject && sameActivity && sameLevel
+        }))
 
     setQuizQuestions(filteredQuestions)
     setQuizResults(null)
-    const selection = { grade, subject, level, activityType }
-    const savedProgress = restart ? null : getSavedQuizProgress(selection)
+
     if (restart) {
       clearQuizProgress(selection)
     } else {
@@ -769,7 +808,7 @@ export function AppProvider({ children }) {
       activityType === 'exam' && savedProgress?.quizSession
         ? savedProgress.quizSession
         : {
-            timeLimitSeconds: activityType === 'exam' ? 180 : null,
+            timeLimitSeconds: getExamTimeLimitSeconds(subject, activityType),
             startedAt: null,
             deadlineAt: null,
           },
@@ -828,10 +867,11 @@ export function AppProvider({ children }) {
 
   function beginExamSession() {
     const now = Date.now()
+    const timeLimitSeconds = getExamTimeLimitSeconds(selectedSubject, selectedActivity)
     const nextSession = {
-      timeLimitSeconds: 180,
+      timeLimitSeconds,
       startedAt: now,
-      deadlineAt: now + 180000,
+      deadlineAt: now + ((timeLimitSeconds || 0) * 1000),
     }
     setQuizSession(nextSession)
 
@@ -850,6 +890,8 @@ export function AppProvider({ children }) {
           selectedAnswer: null,
           isCorrect: null,
           quizSession: nextSession,
+          questionCount: quizQuestions.length,
+          questionIds: quizQuestions.map(question => question.id),
         },
       )
     }
@@ -864,7 +906,7 @@ export function AppProvider({ children }) {
       totalQuestions,
       answeredQuestions: results.length,
       correctAnswers: score,
-      incorrectAnswers: results.length - score,
+      incorrectAnswers: totalQuestions - score,
       percent,
       timedOut: Boolean(meta.timedOut),
       secondsLeft: meta.secondsLeft ?? null,

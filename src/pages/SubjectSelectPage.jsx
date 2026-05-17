@@ -1,6 +1,6 @@
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { getGradeConfig, SUBJECT_TONES } from '../data/learningTracks'
+import { GENERAL_EXAM_SUBJECT, getGradeConfig, SUBJECT_TONES } from '../data/learningTracks'
 import { HOLLAND_QUESTIONS } from '../data/hollandQuestionnaire'
 
 export default function SubjectSelectPage() {
@@ -16,6 +16,23 @@ export default function SubjectSelectPage() {
 
   function handleSubjectSelect(track) {
     chooseSubject(track.subject)
+
+    if (track.subject === GENERAL_EXAM_SUBJECT) {
+      const prepared = prepareQuiz({
+        grade: selectedGrade,
+        subject: track.subject,
+        level: null,
+        activityType: 'exam',
+      })
+
+      if (prepared.length === 0) {
+        window.alert('עדיין אין מספיק שאלות זמינות עבור המבחן הכללי.')
+        return
+      }
+
+      navigate('/exam-intro')
+      return
+    }
 
     const hasLevels = track.levels.length > 0
     const hasOnlyPractice = track.activities.length === 1 && track.activities[0] === 'practice'
@@ -41,6 +58,10 @@ export default function SubjectSelectPage() {
   }
 
   function countForTrack(subject) {
+    if (subject === GENERAL_EXAM_SUBJECT) {
+      return 30
+    }
+
     if (subject === 'שאלון הולנד') {
       return HOLLAND_QUESTIONS.length
     }
@@ -68,9 +89,13 @@ export default function SubjectSelectPage() {
             emoji: '📚',
           }
           const total = countForTrack(track.subject)
-          const activityLabel = track.activities.length > 1 ? 'תרגול ומבחן' : 'תרגול'
+          const activityLabel = track.subject === GENERAL_EXAM_SUBJECT
+            ? 'מבחן מסכם'
+            : track.activities.length > 1
+              ? 'תרגול ומבחן'
+              : 'תרגול'
           const levelLabel = track.levels.length > 0 ? `${track.levels.length} רמות` : 'ללא חלוקה לרמות'
-          const savedPractice = track.subject !== 'שאלון הולנד'
+          const savedPractice = track.subject !== 'שאלון הולנד' && track.subject !== GENERAL_EXAM_SUBJECT
             ? getSavedQuizProgress({
                 grade: selectedGrade,
                 subject: track.subject,
@@ -87,7 +112,7 @@ export default function SubjectSelectPage() {
             >
               <div className="flex items-start gap-4">
                 <div className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl text-4xl ${styling.tone}`}>
-                  {styling.emoji}
+                  {track.subject === GENERAL_EXAM_SUBJECT ? '📝' : styling.emoji}
                 </div>
                 <div className="flex-1">
                   <div className="mb-2 flex items-center justify-between gap-3">
@@ -103,13 +128,17 @@ export default function SubjectSelectPage() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm leading-6 text-slate-600">סוגי שאלות: {track.questionTypes}</p>
+                  <p className="text-sm leading-6 text-slate-600">
+                    {track.subject === GENERAL_EXAM_SUBJECT
+                      ? '30 שאלות אקראיות מכלל הנושאים הקיימים בכיתה, ללא משוב במהלך המבחן.'
+                      : `סוגי שאלות: ${track.questionTypes}`}
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                       {activityLabel}
                     </span>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                      {levelLabel}
+                      {track.subject === GENERAL_EXAM_SUBJECT ? '20 דקות' : levelLabel}
                     </span>
                   </div>
                 </div>

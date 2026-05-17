@@ -1,5 +1,13 @@
 import { getCatalogTracksForGrade, HOLLAND_TRACK, SUBJECT_TONES } from './subjectCatalog'
 
+export const GENERAL_EXAM_SUBJECT = 'מבחן כללי'
+export const GENERAL_EXAM_TRACK = {
+  subject: GENERAL_EXAM_SUBJECT,
+  questionTypes: 'מבחן רב-נושאי',
+  levels: [],
+  activities: ['exam'],
+}
+
 export const GRADES = [
   {
     value: 'grade-8',
@@ -44,14 +52,17 @@ export const TEMP_IMPORTED_TRACKS = {
 
 export const BASE_VISIBLE_TRACKS = {
   'grade-8': [
+    GENERAL_EXAM_TRACK,
     ...TEMP_IMPORTED_TRACKS['grade-8'],
     { subject: HOLLAND_TRACK.label, questionTypes: HOLLAND_TRACK.questionTypes, levels: [], activities: ['practice'] },
   ],
   'grade-12': [
+    GENERAL_EXAM_TRACK,
     ...TEMP_IMPORTED_TRACKS['grade-12'],
     { subject: HOLLAND_TRACK.label, questionTypes: HOLLAND_TRACK.questionTypes, levels: [], activities: ['practice'] },
   ],
   'thinking-challenge': [
+    GENERAL_EXAM_TRACK,
     ...TEMP_IMPORTED_TRACKS['thinking-challenge'],
   ],
 }

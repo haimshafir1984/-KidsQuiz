@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { getActivityLabel, SUBJECT_TONES } from '../data/learningTracks'
+import { GENERAL_EXAM_SUBJECT, getActivityLabel, SUBJECT_TONES } from '../data/learningTracks'
 
 export default function TrackSelectPage() {
   const navigate = useNavigate()
@@ -28,6 +28,7 @@ export default function TrackSelectPage() {
   }
 
   const isHolland = selectedSubject === 'שאלון הולנד'
+  const isGeneralExam = selectedSubject === GENERAL_EXAM_SUBJECT
   const styling = SUBJECT_TONES[selectedSubject] || {
     tone: 'bg-slate-100 text-slate-700',
     hover: 'hover:border-slate-300',
@@ -39,7 +40,11 @@ export default function TrackSelectPage() {
 
   const helperText = useMemo(() => {
     if (isHolland) {
-      return 'השאלון בנוי מסדרת היגדים בדירוג 0 עד 3, ובסיום יופיע ניתוח של הטיפוס המוביל והשילוב הדומיננטי.'
+      return 'השאלון בנוי כסדרת היגדים בדירוג 0 עד 3, ובסיומו יופיע ניתוח של הטיפוס המוביל והשילוב הדומיננטי.'
+    }
+
+    if (isGeneralExam) {
+      return 'זהו מבחן מסכם כללי לכיתה ח׳. המערכת בוחרת 30 שאלות באקראי מתוך כלל נושאי הכיתה ומציגה 5 שאלות בכל עמוד.'
     }
 
     if (track.activities.length > 1) {
@@ -47,9 +52,9 @@ export default function TrackSelectPage() {
     }
 
     return 'בחרו רמה כדי להתחיל תרגול מותאם למסלול שנבחר.'
-  }, [isHolland, track.activities.length])
+  }, [isGeneralExam, isHolland, track.activities.length])
 
-  const currentPracticeProgress = !isHolland
+  const currentPracticeProgress = !isHolland && !isGeneralExam
     ? getSavedQuizProgress({
         grade: selectedGrade,
         subject: selectedSubject,
@@ -123,7 +128,7 @@ export default function TrackSelectPage() {
         <p className="section-subtitle mt-3">{helperText}</p>
       </section>
 
-      {!isHolland && (
+      {!isHolland && !isGeneralExam && (
         <section className="edu-card">
           <div className="flex items-start gap-4">
             <div className={`flex h-16 w-16 items-center justify-center rounded-2xl text-4xl ${styling.tone}`}>
@@ -167,9 +172,11 @@ export default function TrackSelectPage() {
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {isHolland
               ? 'זהו שאלון הכוונה אישיותי. בסיום המערכת תציג ניתוח של הטיפוס המוביל ושל שני הטיפוסים הבולטים ביותר.'
-              : track.activities.includes('exam')
-                ? 'במסלול הזה אפשר לבחור בין תרגול שוטף לבין מבחן מדוד של 3 דקות.'
-                : 'במסלול הזה מוגדר כרגע תרגול בלבד.'}
+              : isGeneralExam
+                ? 'המבחן הכללי פועל על זמן של 20 דקות, מציג 5 שאלות בכל עמוד, ונותן ציון מלא רק בסיום.'
+                : track.activities.includes('exam')
+                  ? 'במסלול הזה אפשר לבחור בין תרגול שוטף לבין מבחן מדוד של 3 דקות.'
+                  : 'במסלול הזה מוגדר כרגע תרגול בלבד.'}
           </p>
         </div>
 
@@ -203,7 +210,7 @@ export default function TrackSelectPage() {
                         : 'border-blue-200 bg-blue-50/70 hover:border-blue-300'
                   }`}
                 >
-                  <div className="text-3xl">{isHolland ? '🧭' : isExam ? '⏱️' : '📚'}</div>
+                  <div className="text-3xl">{isHolland ? '🧭' : isExam ? '📝' : '📚'}</div>
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <div className="text-xl font-extrabold text-slate-950">
                       {isHolland ? 'התחלת שאלון הולנד' : getActivityLabel(activityType)}
@@ -217,9 +224,11 @@ export default function TrackSelectPage() {
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {isHolland
                       ? '24 היגדים בדירוג אישי, עם ניתוח מסכם של הטיפוס המוביל והשילוב המרכזי.'
-                      : isExam
-                        ? 'מבחן מוקצב ל-3 דקות עם שעון חי בראש המסך וסיום אוטומטי כאשר הזמן מסתיים.'
-                        : 'תרגול חופשי עם משוב מיידי, בלי מגבלת זמן ועם אפשרות ללמוד בקצב אישי.'}
+                      : isGeneralExam
+                        ? '30 שאלות אקראיות מכלל נושאי כיתה ח׳, 5 שאלות בכל עמוד, ללא משוב מיידי ובזמן של 20 דקות.'
+                        : isExam
+                          ? 'מבחן מוקצב ל-3 דקות עם שעון חי בראש המסך וסיום אוטומטי כאשר הזמן מסתיים.'
+                          : 'תרגול חופשי עם משוב מיידי, בלי מגבלת זמן ועם אפשרות ללמוד בקצב אישי.'}
                   </p>
                 </button>
 

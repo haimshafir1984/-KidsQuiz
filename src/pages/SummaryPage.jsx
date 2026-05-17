@@ -1,12 +1,59 @@
-﻿import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { getActivityLabel, getGradeConfig } from '../data/learningTracks'
+import { GENERAL_EXAM_SUBJECT, getActivityLabel, getGradeConfig } from '../data/learningTracks'
 
 function getGradeEmoji(percent) {
   if (percent === 100) return '💎'
   if (percent >= 80) return '🌟'
   if (percent >= 60) return '👏'
   return '💪'
+}
+
+function AnswerSection({ title, tone, items }) {
+  return (
+    <section className="edu-card">
+      <div className="mb-5 text-right">
+        <h2 className="text-2xl font-extrabold text-slate-950">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          כאן אפשר לראות בדיוק איך עניתם ומה הייתה התשובה הנכונה בכל שאלה.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {items.map((result, index) => {
+          const answer = Array.isArray(result.question.correct_answer)
+            ? result.question.correct_answer[0]
+            : result.question.correct_answer
+
+          return (
+            <article key={`${result.question.id}-${index}`} className={`rounded-xl border p-4 text-right ${tone}`}>
+              {result.question.groupTitle && (
+                <div className="mb-2 text-xs font-bold text-slate-500">{result.question.groupTitle}</div>
+              )}
+              <h3 className="font-bold text-slate-900">{result.question.text}</h3>
+              {result.question.image && (
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-3">
+                  <img
+                    src={result.question.image}
+                    alt={result.question.text}
+                    className="mx-auto h-auto max-h-56 max-w-full rounded-xl object-contain"
+                  />
+                </div>
+              )}
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+                  <span className="font-semibold">התשובה שנבחרה:</span> {result.userAnswer || 'לא נענתה שאלה זו'}
+                </div>
+                <div className="rounded-xl bg-white px-3 py-2 text-sm text-emerald-700 shadow-sm">
+                  <span className="font-semibold">התשובה הנכונה:</span> {answer}
+                </div>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </section>
+  )
 }
 
 export default function SummaryPage() {
@@ -27,9 +74,11 @@ export default function SummaryPage() {
   const total = quizResults.totalQuestions
   const answered = quizResults.answeredQuestions
   const correct = quizResults.correctAnswers
-  const incorrect = answered - correct
+  const incorrect = quizResults.incorrectAnswers
   const percent = quizResults.percent
   const mistakes = quizResults.items.filter(result => !result.correct)
+  const successes = quizResults.items.filter(result => result.correct)
+  const isGeneralExam = quizResults.subject === GENERAL_EXAM_SUBJECT
   const gradeEmoji = getGradeEmoji(percent)
   const gradeConfig = getGradeConfig(selectedGrade)
 
@@ -39,6 +88,7 @@ export default function SummaryPage() {
       subject: selectedSubject,
       level: selectedLevel,
       activityType: selectedActivity,
+      restart: true,
     })
 
     if (quiz.length === 0) {
@@ -101,49 +151,32 @@ export default function SummaryPage() {
         ))}
       </section>
 
-      {mistakes.length > 0 && (
-        <section className="edu-card">
-          <div className="mb-5 text-right">
-            <h2 className="text-2xl font-extrabold text-slate-950">שאלות לחיזוק נוסף 🧠</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              להלן המקומות שבהם כדאי לעצור, לדייק את ההבנה ולחזור לסבב נוסף מוכנים יותר.
-            </p>
-          </div>
+      {isGeneralExam ? (
+        <>
+          {successes.length > 0 && (
+            <AnswerSection
+              title="תשובות נכונות"
+              tone="border-emerald-100 bg-emerald-50"
+              items={successes}
+            />
+          )}
 
-          <div className="space-y-3">
-            {mistakes.map((result, index) => {
-              const answer = Array.isArray(result.question.correct_answer)
-                ? result.question.correct_answer[0]
-                : result.question.correct_answer
-
-              return (
-                <article key={`${result.question.text}-${index}`} className="rounded-xl border border-red-100 bg-red-50 p-4 text-right">
-                  {result.question.groupTitle && (
-                    <div className="mb-2 text-xs font-bold text-slate-500">{result.question.groupTitle}</div>
-                  )}
-                  <h3 className="font-bold text-slate-900">{result.question.text}</h3>
-                  {result.question.image && (
-                    <div className="mt-3 rounded-2xl border border-red-100 bg-white p-3">
-                      <img
-                        src={result.question.image}
-                        alt={result.question.text}
-                        className="mx-auto h-auto max-h-56 max-w-full rounded-xl object-contain"
-                      />
-                    </div>
-                  )}
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    <div className="rounded-xl bg-white px-3 py-2 text-sm text-red-700 shadow-sm">
-                      <span className="font-semibold">התשובה שנבחרה:</span> {result.userAnswer}
-                    </div>
-                    <div className="rounded-xl bg-white px-3 py-2 text-sm text-emerald-700 shadow-sm">
-                      <span className="font-semibold">התשובה הנכונה:</span> {answer}
-                    </div>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </section>
+          {mistakes.length > 0 && (
+            <AnswerSection
+              title="תשובות שגויות"
+              tone="border-red-100 bg-red-50"
+              items={mistakes}
+            />
+          )}
+        </>
+      ) : (
+        mistakes.length > 0 && (
+          <AnswerSection
+            title="שאלות לחיזוק נוסף 🧠"
+            tone="border-red-100 bg-red-50"
+            items={mistakes}
+          />
+        )
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row">

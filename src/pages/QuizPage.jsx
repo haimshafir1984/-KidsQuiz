@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { GENERAL_EXAM_SUBJECT } from '../data/learningTracks'
 import { fuzzyMatch } from '../utils/fuzzyMatch'
 
 const LETTER_BADGES = [
@@ -30,7 +31,23 @@ function VisualImage({ src, alt, className = '' }) {
   )
 }
 
-function MultipleChoice({ options, optionImages, onAnswer, answered, selectedAnswer, isCorrect }) {
+function evaluateAnswer(question, userAnswer) {
+  if (question.type === 'multiple' || question.type === 'sentence_completion') {
+    return question.correct_answer.includes(userAnswer)
+  }
+
+  return fuzzyMatch(userAnswer, question.correct_answer)
+}
+
+function MultipleChoice({
+  options,
+  optionImages,
+  onAnswer,
+  answered,
+  selectedAnswer,
+  isCorrect,
+  reviewMode = false,
+}) {
   const hasOptionImages = Array.isArray(optionImages) && optionImages.length > 0
 
   return (
@@ -39,7 +56,11 @@ function MultipleChoice({ options, optionImages, onAnswer, answered, selectedAns
         const isSelected = selectedAnswer === option
         let stateClass = 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 hover:-translate-x-1'
 
-        if (answered && isSelected && isCorrect) {
+        if (reviewMode) {
+          stateClass = isSelected
+            ? 'border-blue-300 bg-blue-50 text-blue-700'
+            : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 hover:-translate-x-1'
+        } else if (answered && isSelected && isCorrect) {
           stateClass = 'border-emerald-300 bg-emerald-50 text-emerald-700'
         } else if (answered && isSelected && !isCorrect) {
           stateClass = 'border-red-300 bg-red-50 text-red-700'
@@ -50,8 +71,10 @@ function MultipleChoice({ options, optionImages, onAnswer, answered, selectedAns
         return (
           <button
             key={option}
-            onClick={() => !answered && onAnswer(option)}
-            disabled={answered}
+            onClick={() => {
+              if (!answered || reviewMode) onAnswer(option)
+            }}
+            disabled={!reviewMode && answered}
             className={`quiz-option flex ${hasOptionImages ? 'flex-col items-stretch p-3' : 'items-center gap-4'} text-lg font-semibold ${stateClass}`}
           >
             <div className={`flex ${hasOptionImages ? 'w-full items-center justify-between gap-3' : 'items-center gap-4'}`}>
@@ -72,13 +95,29 @@ function MultipleChoice({ options, optionImages, onAnswer, answered, selectedAns
   )
 }
 
-function OpenText({ onAnswer, answered }) {
-  const [text, setText] = useState('')
+function OpenText({ onAnswer, answered, reviewMode = false, value = '', onChangeText }) {
+  const [text, setText] = useState(value)
+
+  useEffect(() => {
+    setText(value)
+  }, [value])
 
   function handleSubmit(event) {
     event.preventDefault()
     if (!text.trim() || answered) return
     onAnswer(text)
+  }
+
+  if (reviewMode) {
+    return (
+      <input
+        type="text"
+        value={value}
+        onChange={event => onChangeText(event.target.value)}
+        placeholder="כתבו את תשובתכם כאן"
+        className="input-field"
+      />
+    )
   }
 
   return (
@@ -145,6 +184,9 @@ export default function QuizPage() {
   } = useApp()
   const navigate = useNavigate()
 
+  const isGeneralExam = selectedActivity === 'exam' && selectedSubject === GENERAL_EXAM_SUBJECT
+  const pageSize = isGeneralExam ? 5 : 1
+
   const [currentIdx, setCurrentIdx] = useState(0)
   const [answered, setAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(null)
@@ -157,6 +199,16 @@ export default function QuizPage() {
 
   const resultsRef = useRef([])
   const completedRef = useRef(false)
+
+  const pageQuestions = useMemo(() => {
+    return isGeneralExam
+      ? quizQuestions.slice(currentIdx, currentIdx + pageSize)
+      : quizQuestions.slice(currentIdx, currentIdx + 1)
+  }, [currentIdx, isGeneralExam, pageSize, quizQuestions])
+
+  const answerMap = useMemo(() => {
+    return Object.fromEntries(results.map(result => [result.question.id, result.userAnswer]))
+  }, [results])
 
   function buildSelection() {
     return {
@@ -177,6 +229,7 @@ export default function QuizPage() {
       isCorrect: nextState.isCorrect ?? isCorrect,
       quizSession,
       questionCount: quizQuestions.length,
+      questionIds: quizQuestions.map(question => question.id),
       results: (nextState.results ?? resultsRef.current).map(result => ({
         questionId: result.question.id,
         userAnswer: result.userAnswer,
@@ -220,10 +273,10 @@ export default function QuizPage() {
     resultsRef.current = restoredResults
     setResults(restoredResults)
     setCurrentIdx(safeIndex)
-    setAnswered(Boolean(activeQuizProgress.answered))
-    setIsCorrect(activeQuizProgress.isCorrect ?? null)
-    setSelectedAnswer(activeQuizProgress.selectedAnswer ?? null)
-  }, [activeQuizProgress, quizQuestions])
+    setAnswered(isGeneralExam ? false : Boolean(activeQuizProgress.answered))
+    setIsCorrect(isGeneralExam ? null : (activeQuizProgress.isCorrect ?? null))
+    setSelectedAnswer(isGeneralExam ? null : (activeQuizProgress.selectedAnswer ?? null))
+  }, [activeQuizProgress, isGeneralExam, quizQuestions])
 
   useEffect(() => {
     if (selectedActivity !== 'exam') return
@@ -251,21 +304,24 @@ export default function QuizPage() {
   if (!quizQuestions || quizQuestions.length === 0) return null
 
   const question = quizQuestions[currentIdx]
-  const progress = ((currentIdx + 1) / quizQuestions.length) * 100
-  const isOptionQuestion = question.type === 'multiple' || question.type === 'sentence_completion'
-  const correctAnswer = Array.isArray(question.correct_answer)
-    ? question.correct_answer[0]
-    : question.correct_answer
+  const progress = isGeneralExam
+    ? (Math.min(currentIdx + pageSize, quizQuestions.length) / quizQuestions.length) * 100
+    : ((currentIdx + 1) / quizQuestions.length) * 100
+  const correctAnswer = question
+    ? Array.isArray(question.correct_answer) ? question.correct_answer[0] : question.correct_answer
+    : ''
   const isLastQuestion = currentIdx === quizQuestions.length - 1
+  const isLastPage = currentIdx + pageSize >= quizQuestions.length
+
+  function completeQuiz(meta = {}) {
+    if (completedRef.current) return
+    completedRef.current = true
+    finishQuiz(resultsRef.current, meta)
+    navigate('/summary')
+  }
 
   function handleAnswer(userAnswer) {
-    let correct = false
-
-    if (isOptionQuestion) {
-      correct = question.correct_answer.includes(userAnswer)
-    } else {
-      correct = fuzzyMatch(userAnswer, question.correct_answer)
-    }
+    const correct = evaluateAnswer(question, userAnswer)
 
     const nextResults = [...resultsRef.current, { question, userAnswer, correct }]
     resultsRef.current = nextResults
@@ -282,11 +338,26 @@ export default function QuizPage() {
     })
   }
 
-  function completeQuiz(meta = {}) {
-    if (completedRef.current) return
-    completedRef.current = true
-    finishQuiz(resultsRef.current, meta)
-    navigate('/summary')
+  function handleGeneralExamAnswer(targetQuestion, userAnswer) {
+    const correct = evaluateAnswer(targetQuestion, userAnswer)
+    const nextResults = [...resultsRef.current]
+    const existingIndex = nextResults.findIndex(result => result.question.id === targetQuestion.id)
+
+    if (existingIndex >= 0) {
+      nextResults[existingIndex] = { question: targetQuestion, userAnswer, correct }
+    } else {
+      nextResults.push({ question: targetQuestion, userAnswer, correct })
+    }
+
+    resultsRef.current = nextResults
+    setResults(nextResults)
+    persistProgress({
+      currentIdx,
+      answered: false,
+      selectedAnswer: null,
+      isCorrect: null,
+      results: nextResults,
+    })
   }
 
   function handleNext() {
@@ -311,6 +382,23 @@ export default function QuizPage() {
     })
   }
 
+  function handleNextExamPage() {
+    if (isLastPage) {
+      completeQuiz({ timedOut: false, secondsLeft })
+      return
+    }
+
+    const nextIndex = currentIdx + pageSize
+    setCurrentIdx(nextIndex)
+    persistProgress({
+      currentIdx: nextIndex,
+      answered: false,
+      selectedAnswer: null,
+      isCorrect: null,
+      results: resultsRef.current,
+    })
+  }
+
   function handleSaveAndExit() {
     persistProgress()
     navigate('/subject')
@@ -323,13 +411,19 @@ export default function QuizPage() {
           {selectedActivity === 'exam' ? 'מבחן פעיל' : 'תרגול פעיל'} | {selectedSubject}
         </div>
         <h1 className="section-title font-extrabold">
-          {selectedActivity === 'exam' ? 'שומרים על קצב ומסיימים בזמן' : 'ממשיכים לצבור הצלחות שאלה אחר שאלה'}
+          {isGeneralExam
+            ? 'מבחן כללי על זמן, עם מעבר מסודר בין עמודים'
+            : selectedActivity === 'exam'
+              ? 'שומרים על קצב ומסיימים בזמן'
+              : 'ממשיכים לצבור הצלחות שאלה אחר שאלה'}
         </h1>
         <p className="section-subtitle mt-3">
           {selectedLevel ? `רמה נוכחית: ${selectedLevel}. ` : ''}
-          {selectedActivity === 'exam'
-            ? 'השעון פועל כעת. אפשר לענות ברצף ולקבל סיכום מלא עם סיום המבחן.'
-            : 'אפשר לענות בקצב אישי, לקבל משוב מיידי ולהתקדם בביטחון.'}
+          {isGeneralExam
+            ? 'בכל עמוד יוצגו 5 שאלות. אין משוב במהלך המבחן, ובסיום יופיע ציון מלא עם פירוט תשובות.'
+            : selectedActivity === 'exam'
+              ? 'השעון פועל כעת. אפשר לענות ברצף ולקבל סיכום מלא עם סיום המבחן.'
+              : 'אפשר לענות בקצב אישי, לקבל משוב מיידי ולהתקדם בביטחון.'}
         </p>
       </section>
 
@@ -343,7 +437,9 @@ export default function QuizPage() {
               </span>
             )}
             <span className="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-700">
-              {currentIdx + 1} / {quizQuestions.length}
+              {isGeneralExam
+                ? `עמוד ${Math.floor(currentIdx / pageSize) + 1} / ${Math.ceil(quizQuestions.length / pageSize)}`
+                : `${currentIdx + 1} / ${quizQuestions.length}`}
             </span>
           </div>
         </div>
@@ -359,50 +455,116 @@ export default function QuizPage() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
-              שאלה {currentIdx + 1}
+              {isGeneralExam
+                ? `שאלות ${currentIdx + 1}-${Math.min(currentIdx + pageSize, quizQuestions.length)}`
+                : `שאלה ${currentIdx + 1}`}
             </div>
-            {question.groupTitle && (
+            {!isGeneralExam && question?.groupTitle && (
               <div className="mb-3 text-sm font-bold tracking-wide text-slate-500">
                 {question.groupTitle}
               </div>
             )}
-            <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950">
-              {question.text}
-            </p>
+            {!isGeneralExam && (
+              <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950">
+                {question.text}
+              </p>
+            )}
           </div>
           <button onClick={handleSaveAndExit} className="btn-muted self-start">
             שמירה ויציאה
           </button>
         </div>
 
-        {question.image && (
-          <div className="mb-6 rounded-[28px] border border-slate-200 bg-slate-50 p-3 sm:p-5">
-            <VisualImage src={question.image} alt={question.text} className="max-h-[320px]" />
+        {isGeneralExam ? (
+          <div className="space-y-5">
+            {pageQuestions.map((pageQuestion, index) => {
+              const currentAnswer = answerMap[pageQuestion.id] || ''
+              const isOptionQuestion = pageQuestion.type === 'multiple' || pageQuestion.type === 'sentence_completion'
+
+              return (
+                <article key={pageQuestion.id} className="rounded-[26px] border border-slate-200 bg-slate-50/70 p-5">
+                  <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm">
+                    שאלה {currentIdx + index + 1}
+                  </div>
+                  {pageQuestion.groupTitle && (
+                    <div className="mb-2 text-sm font-bold tracking-wide text-slate-500">
+                      {pageQuestion.groupTitle}
+                    </div>
+                  )}
+                  <p className="mb-5 text-right text-xl font-extrabold leading-relaxed text-slate-950">
+                    {pageQuestion.text}
+                  </p>
+
+                  {pageQuestion.image && (
+                    <div className="mb-6 rounded-[28px] border border-slate-200 bg-white p-3 sm:p-5">
+                      <VisualImage src={pageQuestion.image} alt={pageQuestion.text} className="max-h-[280px]" />
+                    </div>
+                  )}
+
+                  {isOptionQuestion ? (
+                    <MultipleChoice
+                      options={pageQuestion.options}
+                      optionImages={pageQuestion.optionImages}
+                      onAnswer={(value) => handleGeneralExamAnswer(pageQuestion, value)}
+                      answered={false}
+                      selectedAnswer={currentAnswer}
+                      isCorrect={null}
+                      reviewMode
+                    />
+                  ) : (
+                    <OpenText
+                      onAnswer={() => {}}
+                      answered={false}
+                      reviewMode
+                      value={currentAnswer}
+                      onChangeText={(value) => handleGeneralExamAnswer(pageQuestion, value)}
+                    />
+                  )}
+                </article>
+              )
+            })}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <div className="text-sm font-semibold text-slate-500">
+                ניתן להשאיר שאלה ריקה ולחזור אליה בהמשך המבחן, כל עוד לא סיימתם.
+              </div>
+              <button onClick={handleNextExamPage} className="btn-primary">
+                {isLastPage ? 'סיום מבחן' : 'לעמוד הבא'}
+              </button>
+            </div>
           </div>
-        )}
-
-        {isOptionQuestion ? (
-          <MultipleChoice
-            key={question.id}
-            options={question.options}
-            optionImages={question.optionImages}
-            onAnswer={handleAnswer}
-            answered={answered}
-            selectedAnswer={selectedAnswer}
-            isCorrect={isCorrect}
-          />
         ) : (
-          <OpenText key={question.id} onAnswer={handleAnswer} answered={answered} />
-        )}
+          <>
+            {question.image && (
+              <div className="mb-6 rounded-[28px] border border-slate-200 bg-slate-50 p-3 sm:p-5">
+                <VisualImage src={question.image} alt={question.text} className="max-h-[320px]" />
+              </div>
+            )}
 
-        {answered && (
-          <FeedbackMessage
-            isCorrect={isCorrect}
-            correctAnswer={correctAnswer}
-            explanation={question.explanation}
-            isLastQuestion={isLastQuestion}
-            onNext={handleNext}
-          />
+            {(question.type === 'multiple' || question.type === 'sentence_completion') ? (
+              <MultipleChoice
+                key={question.id}
+                options={question.options}
+                optionImages={question.optionImages}
+                onAnswer={handleAnswer}
+                answered={answered}
+                selectedAnswer={selectedAnswer}
+                isCorrect={isCorrect}
+              />
+            ) : (
+              <OpenText key={question.id} onAnswer={handleAnswer} answered={answered} />
+            )}
+
+            {answered && (
+              <FeedbackMessage
+                isCorrect={isCorrect}
+                correctAnswer={correctAnswer}
+                explanation={question.explanation}
+                isLastQuestion={isLastQuestion}
+                onNext={handleNext}
+              />
+            )}
+          </>
         )}
       </section>
     </div>
