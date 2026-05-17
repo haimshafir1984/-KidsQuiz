@@ -11,7 +11,7 @@ export const GENERAL_EXAM_TRACK = {
 export const GRADES = [
   {
     value: 'grade-8',
-    label: 'כיתה ח׳',
+    label: 'הכנה למבחני כניסה לסמינר',
     shortLabel: 'ח׳',
     description: 'מסלול יסודי-מתקדם עם תרגול שפה, חשיבה, יהדות וכישורי למידה.',
     emoji: '📘',
@@ -20,7 +20,7 @@ export const GRADES = [
   },
   {
     value: 'grade-12',
-    label: 'כיתה י״ב',
+    label: 'הכנה למבחני תי"ל',
     shortLabel: 'י״ב',
     description: 'מסלול בוגר וממוקד עם תרגול, מבחנים ולמידה לקראת יעדים מתקדמים.',
     emoji: '🎓',
