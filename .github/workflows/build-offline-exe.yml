@@ -1,0 +1,70 @@
+name: Build offline EXE
+
+# בונה מחדש את קובץ ההתקנה של גרסת האופליין בכל שינוי בקוד,
+# ומחליף את הקובץ ב-Release הקבוע "offline-latest".
+# הקישור הקבוע להורדה:
+# https://github.com/haimshafir1984/-KidsQuiz/releases/latest/download/KidsQuizOfflineSetup.exe
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'electron/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - 'tailwind.config.js'
+      - 'postcss.config.js'
+      - '.github/workflows/build-offline-exe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-offline-exe
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build web + installer
+        run: |
+          npx vite build
+          npx electron-builder --win nsis --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Rename installer
+        shell: bash
+        run: |
+          mkdir -p out
+          cp "release/KidsQuiz Offline Setup 1.0.0.exe" out/KidsQuizOfflineSetup.exe
+          ls -la out
+
+      - name: Publish to release offline-latest
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view offline-latest >/dev/null 2>&1; then
+            gh release create offline-latest --target "$GITHUB_SHA" --latest \
+              --title "KidsQuiz Offline (latest)" \
+              --notes "קובץ התקנה לגרסת האופליין. מתעדכן אוטומטית בכל שינוי בקוד."
+          fi
+          gh release upload offline-latest out/KidsQuizOfflineSetup.exe --clobber
+          gh release edit offline-latest --latest \
+            --notes "עודכן מ-commit ${GITHUB_SHA::7} בתאריך $(date -u +%Y-%m-%d)"
