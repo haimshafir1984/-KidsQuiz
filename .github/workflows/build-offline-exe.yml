@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p out
-          cp "release/KidsQuiz Offline Setup 1.0.0.exe" out/KidsQuizOfflineSetup.exe
+          cp release/*Setup*.exe out/KidsQuizOfflineSetup.exe
           ls -la out
 
       - name: Publish to release offline-latest
