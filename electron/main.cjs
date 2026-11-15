@@ -240,6 +240,20 @@ async function importLicenseFromDialog() {
   }
 }
 
+function isAllowedNavigationUrl(targetUrl) {
+  try {
+    const target = new URL(targetUrl)
+    if (target.protocol === 'file:') return true
+
+    const devServerUrl = process.env.ELECTRON_START_URL
+    if (devServerUrl && target.origin === new URL(devServerUrl).origin) return true
+
+    return false
+  } catch {
+    return false
+  }
+}
+
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     width: 1440,
@@ -256,6 +270,14 @@ function createMainWindow() {
   })
 
   mainWindow.once('ready-to-show', () => mainWindow.show())
+
+  // חוסם פתיחת חלונות חדשים וניווט לכתובות חיצוניות - האפליקציה אינה זקוקה לאף אחד מהם
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+  mainWindow.webContents.on('will-navigate', (event, targetUrl) => {
+    if (!isAllowedNavigationUrl(targetUrl)) {
+      event.preventDefault()
+    }
+  })
 
   const devServerUrl = process.env.ELECTRON_START_URL
   if (devServerUrl) {

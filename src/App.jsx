@@ -40,7 +40,7 @@ function DesktopGate({ desktopState, children }) {
       <div className="flex min-h-[70vh] items-center justify-center">
         <div className="edu-card max-w-lg text-center">
           <div className="text-4xl">🖥️</div>
-          <h1 className="mt-4 text-2xl font-extrabold text-slate-950">טוענים את סביבת העבודה המקומית</h1>
+          <h1 className="mt-4 text-2xl font-bold text-slate-950">טוענים את סביבת העבודה המקומית</h1>
           <p className="mt-2 text-slate-600">בודקים תצורת דסקטופ ורישיון מקומי לפני המשך העבודה.</p>
         </div>
       </div>

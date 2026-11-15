@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Dot, GraduationCap, Rocket } from 'lucide-react'
+import { ArrowLeft, Dot, GraduationCap, LineChart, Rocket } from 'lucide-react'
 import DemoPresentation from '../components/shared/DemoPresentation'
 
 const FEATURE_CARDS = [
@@ -14,7 +14,7 @@ const FEATURE_CARDS = [
     description: 'משימות ממוקדות ומשוב מיידי ששומרים על קצב ומוטיבציה.',
   },
   {
-    icon: Dot,
+    icon: LineChart,
     title: 'תמונה ברורה להורים',
     description: 'אזור אישי שמרכז תוצאות, שמירות והתקדמות לאורך זמן.',
   },
@@ -43,10 +43,10 @@ export default function WelcomePage() {
           </div>
 
           <div className="rounded-3xl border border-blue-100 bg-gradient-to-l from-blue-50/70 via-white to-violet-50/70 p-5 shadow-sm">
-            <div className="mb-2 text-sm font-semibold text-blue-700">מצגת חיה בתוך עמוד הפתיחה</div>
+            <div className="mb-2 text-sm font-semibold text-blue-700">הדגמה חיה בתוך עמוד הפתיחה</div>
             <p className="text-sm leading-7 text-slate-600">
-              בצד ימין מחכה הדגמה שמציגה איך נראית הכניסה למערכת, איך נראית שאלה לדוגמה,
-              ואיך נראה האזור האישי. זאת נקודת פתיחה טובה למצגת מכירתית שנלטש יחד בהמשך.
+              בצד ימין אפשר לראות איך נראית הכניסה למערכת, איך נראית שאלה לדוגמה, ואיך נראה האזור האישי -
+              הכול לפני שנרשמים.
             </p>
           </div>
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, ChevronLeft, ChevronRight, Users, BarChart3, ShieldCheck } from 'lucide-react'
 import { serverGetStats, checkSubscription } from '../utils/db'
+import { useDialogA11y } from '../components/shared/useDialogA11y'
 
 const COLUMNS = [
   { key: 'username', label: 'שם משתמש' },
@@ -77,6 +78,7 @@ export default function AdminUsers() {
   const safePage = Math.min(page, totalPages)
   const pagedStudents = sortedStudents.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
   const selectedUser = sortedStudents.find(user => user.id === selectedUserId) || null
+  const dialogRef = useDialogA11y(Boolean(selectedUser), () => setSelectedUserId(null))
 
   const averageScore = preparedStudents.filter(user => user.average !== null)
   const averageValue = averageScore.length > 0
@@ -230,14 +232,24 @@ export default function AdminUsers() {
       </section>
 
       {selectedUser && (
-        <div className="fixed inset-y-0 right-0 z-[115] flex w-full justify-end bg-slate-950/35 md:w-auto">
-          <div className="h-full w-full max-w-lg overflow-y-auto border-l border-slate-200 bg-white p-6 text-right shadow-xl">
+        <div
+          className="fixed inset-y-0 right-0 z-[115] flex w-full justify-end bg-slate-950/35 md:w-auto"
+          onClick={() => setSelectedUserId(null)}
+        >
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="student-panel-title"
+            className="h-full w-full max-w-lg overflow-y-auto border-l border-slate-200 bg-white p-6 text-right shadow-xl"
+            onClick={event => event.stopPropagation()}
+          >
             <div className="flex items-start justify-between gap-3">
               <button type="button" onClick={() => setSelectedUserId(null)} className="btn-muted px-3 py-2">
                 סגירה
               </button>
               <div>
-                <h3 className="text-2xl font-bold text-slate-950">{selectedUser.username}</h3>
+                <h3 id="student-panel-title" className="text-2xl font-bold text-slate-950">{selectedUser.username}</h3>
                 <p className="mt-1 text-sm text-slate-600">
                   נרשם בתאריך {formatDate(selectedUser.subscription_date)} | {selectedUser.valid ? `${selectedUser.daysLeft} ימים למנוי` : 'המנוי פג'}
                 </p>

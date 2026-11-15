@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { CheckCircle2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { GENERAL_EXAM_SUBJECT } from '../data/learningTracks'
 import { fuzzyMatch } from '../utils/fuzzyMatch'
+import ConfirmDialog from '../components/shared/ConfirmDialog'
+
+const GENERAL_EXAM_PERSIST_DEBOUNCE_MS = 800
 
 const LETTER_BADGES = [
   'bg-sky-50 text-sky-600',
@@ -11,7 +15,19 @@ const LETTER_BADGES = [
   'bg-indigo-50 text-indigo-600',
   'bg-rose-50 text-rose-600',
   'bg-cyan-50 text-cyan-600',
+  'bg-teal-50 text-teal-600',
+  'bg-fuchsia-50 text-fuchsia-600',
 ]
+
+const OPTION_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח']
+
+function getOptionBadgeClass(index) {
+  return LETTER_BADGES[index % LETTER_BADGES.length]
+}
+
+function getOptionLetter(index) {
+  return OPTION_LETTERS[index] ?? String(index + 1)
+}
 
 function formatTime(secondsLeft) {
   const safeSeconds = Math.max(secondsLeft, 0)
@@ -78,8 +94,8 @@ function MultipleChoice({
             className={`quiz-option flex ${hasOptionImages ? 'flex-col items-stretch p-3' : 'items-center gap-4'} text-lg font-semibold ${stateClass}`}
           >
             <div className={`flex ${hasOptionImages ? 'w-full items-center justify-between gap-3' : 'items-center gap-4'}`}>
-              <span className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${LETTER_BADGES[index]}`}>
-                {['א', 'ב', 'ג', 'ד', 'ה', 'ו'][index]}
+              <span className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${getOptionBadgeClass(index)}`}>
+                {getOptionLetter(index)}
               </span>
               <span className={`${hasOptionImages ? 'text-base' : 'flex-1 text-right'}`}>{option}</span>
             </div>
@@ -144,9 +160,10 @@ function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion
   const tone = isCorrect
     ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
     : 'border-red-200 bg-red-50 text-red-700'
+  const motionClass = isCorrect ? 'animate-pop' : 'animate-shake'
 
   return (
-    <div className={`mt-5 flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${tone}`}>
+    <div className={`mt-5 flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${tone} ${motionClass} motion-reduce:animate-none`}>
       <div className="flex items-start gap-3 text-right">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl">
           {isCorrect ? '🎉' : '❌'}
@@ -156,7 +173,7 @@ function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion
           <div className="mt-1 text-sm opacity-90">
             {isCorrect ? 'אפשר להמשיך בביטחון לשלב הבא.' : `התשובה הנכונה היא: ${correctAnswer}`}
           </div>
-          {isCorrect && explanation && (
+          {explanation && (
             <div className="mt-2 rounded-2xl bg-white/70 px-3 py-2 text-sm font-medium text-slate-700">
               הסבר: {explanation}
             </div>
@@ -197,8 +214,22 @@ export default function QuizPage() {
     return Math.max(0, Math.ceil((quizSession.deadlineAt - Date.now()) / 1000))
   })
 
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+
   const resultsRef = useRef([])
   const completedRef = useRef(false)
+  const finishQuizRef = useRef(finishQuiz)
+  const persistTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    finishQuizRef.current = finishQuiz
+  }, [finishQuiz])
+
+  useEffect(() => {
+    return () => {
+      if (persistTimeoutRef.current) window.clearTimeout(persistTimeoutRef.current)
+    }
+  }, [])
 
   const pageQuestions = useMemo(() => {
     return isGeneralExam
@@ -291,7 +322,7 @@ export default function QuizPage() {
 
       if (remaining === 0 && !completedRef.current) {
         completedRef.current = true
-        finishQuiz(resultsRef.current, { timedOut: true, secondsLeft: 0 })
+        finishQuizRef.current(resultsRef.current, { timedOut: true, secondsLeft: 0 })
         navigate('/summary')
       }
     }
@@ -299,7 +330,7 @@ export default function QuizPage() {
     tick()
     const timer = window.setInterval(tick, 1000)
     return () => window.clearInterval(timer)
-  }, [finishQuiz, navigate, quizSession.deadlineAt, quizSession.startedAt, selectedActivity])
+  }, [navigate, quizSession.deadlineAt, quizSession.startedAt, selectedActivity])
 
   if (!quizQuestions || quizQuestions.length === 0) return null
 
@@ -312,6 +343,10 @@ export default function QuizPage() {
     : ''
   const isLastQuestion = currentIdx === quizQuestions.length - 1
   const isLastPage = currentIdx + pageSize >= quizQuestions.length
+  const answeredExamCount = isGeneralExam
+    ? quizQuestions.filter(item => (answerMap[item.id] || '').toString().trim().length > 0).length
+    : 0
+  const unansweredExamCount = quizQuestions.length - answeredExamCount
 
   function completeQuiz(meta = {}) {
     if (completedRef.current) return
@@ -351,13 +386,17 @@ export default function QuizPage() {
 
     resultsRef.current = nextResults
     setResults(nextResults)
-    persistProgress({
-      currentIdx,
-      answered: false,
-      selectedAnswer: null,
-      isCorrect: null,
-      results: nextResults,
-    })
+
+    if (persistTimeoutRef.current) window.clearTimeout(persistTimeoutRef.current)
+    persistTimeoutRef.current = window.setTimeout(() => {
+      persistProgress({
+        currentIdx,
+        answered: false,
+        selectedAnswer: null,
+        isCorrect: null,
+        results: nextResults,
+      })
+    }, GENERAL_EXAM_PERSIST_DEBOUNCE_MS)
   }
 
   function handleNext() {
@@ -384,6 +423,10 @@ export default function QuizPage() {
 
   function handleNextExamPage() {
     if (isLastPage) {
+      if (unansweredExamCount > 0) {
+        setShowFinishConfirm(true)
+        return
+      }
       completeQuiz({ timedOut: false, secondsLeft })
       return
     }
@@ -399,7 +442,13 @@ export default function QuizPage() {
     })
   }
 
+  function handleConfirmFinishExam() {
+    setShowFinishConfirm(false)
+    completeQuiz({ timedOut: false, secondsLeft })
+  }
+
   function handleSaveAndExit() {
+    if (persistTimeoutRef.current) window.clearTimeout(persistTimeoutRef.current)
     persistProgress()
     navigate('/subject')
   }
@@ -432,7 +481,13 @@ export default function QuizPage() {
           <span className="text-sm font-semibold text-slate-600">{selectedSubject}</span>
           <div className="flex items-center gap-3">
             {selectedActivity === 'exam' && (
-              <span className="rounded-full bg-amber-50 px-4 py-2 text-sm font-bold text-amber-700">
+              <span
+                className={`rounded-full px-4 py-2 text-sm font-bold ${
+                  (secondsLeft ?? Infinity) <= 60
+                    ? 'animate-pulse bg-red-50 text-red-700 motion-reduce:animate-none'
+                    : 'bg-amber-50 text-amber-700'
+                }`}
+              >
                 זמן נותר: {formatTime(secondsLeft || 0)}
               </span>
             )}
@@ -445,7 +500,7 @@ export default function QuizPage() {
         </div>
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-3 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all duration-200"
+            className="h-3 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -480,11 +535,20 @@ export default function QuizPage() {
             {pageQuestions.map((pageQuestion, index) => {
               const currentAnswer = answerMap[pageQuestion.id] || ''
               const isOptionQuestion = pageQuestion.type === 'multiple' || pageQuestion.type === 'sentence_completion'
+              const isAnswered = currentAnswer.toString().trim().length > 0
 
               return (
-                <article key={pageQuestion.id} className="rounded-[26px] border border-slate-200 bg-slate-50/70 p-5">
-                  <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm">
-                    שאלה {currentIdx + index + 1}
+                <article key={pageQuestion.id} className="rounded-card border border-slate-200 bg-slate-50/70 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm">
+                      שאלה {currentIdx + index + 1}
+                    </div>
+                    {isAnswered && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        נענתה
+                      </span>
+                    )}
                   </div>
                   {pageQuestion.groupTitle && (
                     <div className="mb-2 text-sm font-bold tracking-wide text-slate-500">
@@ -524,9 +588,11 @@ export default function QuizPage() {
               )
             })}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm font-semibold text-slate-500">
-                ניתן להשאיר שאלה ריקה ולחזור אליה בהמשך המבחן, כל עוד לא סיימתם.
+                {isLastPage
+                  ? `נענו ${answeredExamCount} מתוך ${quizQuestions.length} שאלות.`
+                  : 'ניתן להשאיר שאלה ריקה ולחזור אליה בהמשך המבחן, כל עוד לא סיימתם.'}
               </div>
               <button onClick={handleNextExamPage} className="btn-primary">
                 {isLastPage ? 'סיום מבחן' : 'לעמוד הבא'}
@@ -534,7 +600,7 @@ export default function QuizPage() {
             </div>
           </div>
         ) : (
-          <>
+          <div key={question.id} className="animate-fade-slide-in motion-reduce:animate-none">
             {question.image && (
               <div className="mb-6 rounded-[28px] border border-slate-200 bg-slate-50 p-3 sm:p-5">
                 <VisualImage src={question.image} alt={question.text} className="max-h-[320px]" />
@@ -564,9 +630,20 @@ export default function QuizPage() {
                 onNext={handleNext}
               />
             )}
-          </>
+          </div>
         )}
       </section>
+
+      <ConfirmDialog
+        open={showFinishConfirm}
+        title="לסיים את המבחן?"
+        message={`נותרו ${unansweredExamCount} שאלות ללא מענה. אפשר לחזור ולהשלים אותן, או לסיים את המבחן כפי שהוא.`}
+        confirmLabel="סיום מבחן"
+        cancelLabel="חזרה למבחן"
+        tone="primary"
+        onConfirm={handleConfirmFinishExam}
+        onCancel={() => setShowFinishConfirm(false)}
+      />
     </div>
   )
 }

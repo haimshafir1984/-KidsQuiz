@@ -41,7 +41,7 @@ export default function DesktopLicensePage({ licenseStatus, onRefresh }) {
         <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-4xl text-amber-600">
           🔐
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-950">נדרש רישיון מקומי להפעלת גרסת האופליין</h1>
+        <h1 className="text-3xl font-bold text-slate-950">נדרש רישיון מקומי להפעלת גרסת האופליין</h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
           האפליקציה המקומית בודקת קובץ רישיון שנשמר על המחשב. בלי רישיון תקין, הגישה למערכת האופליין תישאר נעולה.
         </p>

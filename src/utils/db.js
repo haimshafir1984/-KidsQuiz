@@ -13,13 +13,20 @@ function rS() {
   try { return JSON.parse(localStorage.getItem(KEYS.SERVER)) || { users: [], results: [] } }
   catch { return { users: [], results: [] } }
 }
-function wS(d) { localStorage.setItem(KEYS.SERVER, JSON.stringify(d)) }
+// כתיבה בטוחה: מחזירה false כשנגמר מקום האחסון (QuotaExceededError) במקום לזרוק בשקט
+function wS(d) {
+  try { localStorage.setItem(KEYS.SERVER, JSON.stringify(d)); return true }
+  catch { return false }
+}
 
 function rL() {
   try { return JSON.parse(localStorage.getItem(KEYS.LOCAL)) || { results: [] } }
   catch { return { results: [] } }
 }
-function wL(d) { localStorage.setItem(KEYS.LOCAL, JSON.stringify(d)) }
+function wL(d) {
+  try { localStorage.setItem(KEYS.LOCAL, JSON.stringify(d)); return true }
+  catch { return false }
+}
 
 // --- מיגרציה חד-פעמית: kq_users ישן → ServerDB ---
 // מבטיחה תאימות לאחור עם נתוני Phase 1
@@ -73,11 +80,15 @@ export function serverFindUser(identifier) {
   }) || null
 }
 
+export function serverFindUserById(id) {
+  return rS().users.find(u => u.id === id) || null
+}
+
 export function serverSaveUser(user) {
   const db = rS()
   const idx = db.users.findIndex(u => u.id === user.id)
   if (idx >= 0) db.users[idx] = user; else db.users.push(user)
-  wS(db)
+  return wS(db)
 }
 
 // --- תוצאות חידון ---
@@ -86,12 +97,12 @@ export function saveResult(result, mode) {
   if (mode === 'online') {
     const db = rS()
     db.results = [...(db.results || []), result]
-    wS(db)
-  } else {
-    const db = rL()
-    db.results = [...(db.results || []), result]
-    wL(db)
+    return wS(db)
   }
+
+  const db = rL()
+  db.results = [...(db.results || []), result]
+  return wL(db)
 }
 
 // --- ניהול: קריאת סטטיסטיקות מ-ServerDB בלבד ---

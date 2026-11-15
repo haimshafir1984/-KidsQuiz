@@ -135,7 +135,7 @@ export default function TrackSelectPage() {
               {styling.emoji}
             </div>
             <div className="flex-1 text-right">
-              <h2 className="text-2xl font-extrabold text-slate-950">בחירת רמה</h2>
+              <h2 className="text-2xl font-bold text-slate-950">בחירת רמה</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 {track.levels.length > 0 ? 'המסלול מחולק לרמות כדי להתאים את עומק התרגול.' : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
               </p>
@@ -168,7 +168,7 @@ export default function TrackSelectPage() {
 
       <section className="edu-card">
         <div className="text-right">
-          <h2 className="text-2xl font-extrabold text-slate-950">{isHolland ? 'פתיחת השאלון' : 'בחירת סוג פעילות'}</h2>
+          <h2 className="text-2xl font-bold text-slate-950">{isHolland ? 'פתיחת השאלון' : 'בחירת סוג פעילות'}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {isHolland
               ? 'זהו שאלון הכוונה אישיותי. בסיום המערכת תציג ניתוח של הטיפוס המוביל ושל שני הטיפוסים הבולטים ביותר.'
@@ -202,7 +202,7 @@ export default function TrackSelectPage() {
               <div key={activityType} className="space-y-2">
                 <button
                   onClick={() => handleStart(activityType)}
-                  className={`w-full rounded-[20px] border-2 p-6 text-right shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
+                  className={`w-full rounded-card border-2 p-6 text-right shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${
                     isHolland
                       ? 'border-rose-200 bg-rose-50/70 hover:border-rose-300'
                       : isExam
@@ -212,7 +212,7 @@ export default function TrackSelectPage() {
                 >
                   <div className="text-3xl">{isHolland ? '🧭' : isExam ? '📝' : '📚'}</div>
                   <div className="mt-4 flex items-center justify-between gap-3">
-                    <div className="text-xl font-extrabold text-slate-950">
+                    <div className="text-xl font-bold text-slate-950">
                       {isHolland ? 'התחלת שאלון הולנד' : getActivityLabel(activityType)}
                     </div>
                     {activitySavedProgress && (

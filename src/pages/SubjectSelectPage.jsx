@@ -116,7 +116,7 @@ export default function SubjectSelectPage() {
                 </div>
                 <div className="flex-1">
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <h2 className="text-xl font-extrabold text-slate-950">{track.subject}</h2>
+                    <h2 className="text-xl font-bold text-slate-950">{track.subject}</h2>
                     <div className="flex flex-wrap items-center gap-2">
                       {savedPractice && (
                         <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">

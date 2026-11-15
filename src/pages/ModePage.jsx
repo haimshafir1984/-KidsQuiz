@@ -77,7 +77,7 @@ export default function ModePage() {
             <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-4xl ${mode.tone}`}>
               {mode.emoji}
             </div>
-            <div className="mb-2 text-2xl font-extrabold text-slate-950">{mode.label}</div>
+            <div className="mb-2 text-2xl font-bold text-slate-950">{mode.label}</div>
             <p className="mb-3 text-base leading-7 text-slate-600">{mode.desc}</p>
             <p className="text-sm leading-6 text-slate-600">{mode.details}</p>
             {mode.value === 'offline' && !desktop && (

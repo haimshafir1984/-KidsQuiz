@@ -8,7 +8,7 @@ function ModeBadge({ mode }) {
 
   return (
     <span className={`hidden rounded-full px-3 py-1 text-xs font-semibold sm:inline-flex ${
-      mode === 'online' ? 'bg-sky-50 text-sky-700' : 'bg-amber-50 text-amber-700'
+      mode === 'online' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'
     }`}>
       {mode === 'online' ? 'מחובר' : 'מקומי'}
     </span>
@@ -38,9 +38,14 @@ export default function Header() {
   }
 
   const links = [
-    { label: 'בחירת כיתה', path: '/age', icon: BookOpen },
-    { label: 'אזור אישי', path: '/profile', icon: GraduationCap },
-    { label: 'ניהול', path: '/admin', icon: UserCircle2 },
+    {
+      label: 'בחירת כיתה',
+      path: '/age',
+      icon: BookOpen,
+      activePaths: ['/age', '/subject', '/track', '/exam-intro', '/quiz', '/summary', '/holland-questionnaire', '/holland-result'],
+    },
+    { label: 'אזור אישי', path: '/profile', icon: GraduationCap, activePaths: ['/profile'] },
+    { label: 'ניהול', path: '/admin', icon: UserCircle2, activePaths: ['/admin'] },
   ]
 
   const showBackButton = !['/welcome', '/age'].includes(location.pathname)
@@ -84,13 +89,14 @@ export default function Header() {
             <nav className="flex flex-wrap items-center gap-2">
               {links.map(link => {
                 const Icon = link.icon
+                const isActive = link.activePaths.includes(location.pathname)
 
                 return (
                   <button
                     key={link.path}
                     onClick={() => navigate(link.path)}
                     className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
-                      location.pathname === link.path
+                      isActive
                         ? 'border border-blue-200 bg-blue-50 text-blue-700'
                         : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}

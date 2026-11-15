@@ -36,15 +36,15 @@ export default function ExamIntroPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="text-sm font-semibold text-slate-500">נושא</div>
-            <div className="mt-2 text-xl font-extrabold text-slate-950">{selectedSubject}</div>
+            <div className="mt-2 text-xl font-bold text-slate-950">{selectedSubject}</div>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="text-sm font-semibold text-slate-500">רמה</div>
-            <div className="mt-2 text-xl font-extrabold text-slate-950">{selectedLevel || 'ללא רמה'}</div>
+            <div className="mt-2 text-xl font-bold text-slate-950">{selectedLevel || 'ללא רמה'}</div>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="text-sm font-semibold text-slate-500">זמן מוקצב</div>
-            <div className="mt-2 text-xl font-extrabold text-slate-950">{timeLabel}</div>
+            <div className="mt-2 text-xl font-bold text-slate-950">{timeLabel}</div>
           </div>
         </div>
 

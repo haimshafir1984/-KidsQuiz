@@ -14,6 +14,7 @@
         "license:generate": "node scripts/generate-license.mjs"
     },
     "dependencies": {
+        "@fontsource/assistant": "^5.2.9",
         "lucide-react": "^1.11.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",

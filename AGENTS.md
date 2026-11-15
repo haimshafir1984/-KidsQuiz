@@ -1,8 +1,10 @@
 # KidsQuiz — תיעוד פרויקט
 
 ## סקירה כללית
-אפליקציית חידון אינטראקטיבית לילדים, בנויה עם React (Vite) + Tailwind CSS.
+אפליקציית חידון אינטראקטיבית ללמידה ותרגול (הכנה למבחני כניסה לסמינר, מבחני תי"ל, ואתגר מחשבתי), בנויה עם React (Vite) + Tailwind CSS, וזמינה גם כאפליקציית דסקטופ (Electron) לעבודה אופליין.
 כל ה-UI, הערות הקוד והתשובות שלך **חייבים להיות בעברית**.
+
+**שלב הפרויקט:** דמו. מסך הניהול (`/admin`) פתוח במכוון לכל משתמש מחובר, ללא הגבלת תפקיד, כדי להקל על הצגת המערכת ללקוחות. אין backend אמיתי - כל הנתונים נשמרים ב-localStorage בדפדפן/במכשיר.
 
 ---
 
@@ -10,66 +12,113 @@
 
 ```
 KidsQuiz/
-├── index.html                    # נקודת כניסה HTML עם dir="rtl"
+├── index.html                    # נקודת כניסה HTML עם dir="rtl" ו-CSP
 ├── package.json
 ├── vite.config.js
-├── tailwind.config.js
+├── tailwind.config.js            # טוקנים: radius/shadow/אנימציות
 ├── postcss.config.js
-├── AGENTS.md                     # קובץ זה
+├── Dockerfile / nginx.conf / .dockerignore  # פריסה ב-Dokploy (build ב-node, הגשה ב-nginx)
+├── CLAUDE.md / AGENTS.md         # קובץ זה (זהים)
+├── docs/                          # דוחות QA, עיצוב ותיעוד נלווה
+├── electron/
+│   ├── main.cjs                  # תהליך ראשי + בדיקת רישיון אופליין
+│   └── preload.cjs               # גישור contextBridge ל-desktopAPI
+├── scripts/
+│   ├── generate-license.mjs      # יצירת קובץ רישיון לגרסת האופליין
+│   └── import-demo-questions.cjs
 └── src/
-    ├── main.jsx                  # אתחול React + BrowserRouter
-    ├── App.jsx                   # ניתוב ראשי + ProtectedRoute
-    ├── index.css                 # Tailwind + סגנונות גלובליים
+    ├── main.jsx                  # אתחול React + Router (Browser/Hash) + ErrorBoundary
+    ├── App.jsx                   # ניתוב ראשי + AuthRoute/ModeRoute/DesktopGate
+    ├── index.css                 # ייבוא פונט מקומי + Tailwind + סגנונות גלובליים
     │
     ├── context/
-    │   └── AppContext.jsx        # ניהול מצב גלובלי (Auth, שאלות, חידון)
+    │   └── AppContext.jsx        # ניהול מצב גלובלי (Auth, שאלות, מסלולים, חידון, הולנד)
     │
     ├── utils/
-    │   ├── storage.js            # גישה ל-LocalStorage (משתמשים, שאלות)
-    │   └── fuzzyMatch.js        # Levenshtein distance להתאמה מטושטשת
+    │   ├── storage.js            # גישה ל-localStorage (שאלות, מסלולים, התקדמות) + safeParse
+    │   ├── db.js                 # שכבת "ServerDB/LocalDB" מדומה: משתמשים, תוצאות, מנוי
+    │   ├── fuzzyMatch.js         # Levenshtein distance עם סף מדורג להתאמת תשובות פתוחות
+    │   ├── runtime.js            # זיהוי סביבת דסקטופ (window.desktopAPI) וסטטוס רישיון
+    │   └── userProfile.js        # שם תצוגה ובדיקת שלמות פרופיל
     │
     ├── data/
-    │   └── seedQuestions.json   # 15 שאלות לדוגמה
+    │   ├── seedQuestions.js      # איחוד כל מאגרי השאלות + נרמול מבנה/נושאים
+    │   ├── learningTracks.js     # הגדרת הקטגוריות (GRADES) והמסלולים הבסיסיים
+    │   ├── subjectCatalog.js     # קטלוג נושאים לכל קטגוריה (צבע, אימוג'י, סוגי שאלות)
+    │   ├── importedDemoQuestions.js / importedChallengeQuestions.js / seriesCompletionQuestions.js
+    │   └── hollandQuestionnaire.js  # שאלון הולנד (RIASEC) לכיתות ח'/י"ב
     │
     ├── components/
     │   └── shared/
-    │       └── Header.jsx       # כותרת עם כפתור ניהול + יציאה
+    │       ├── Header.jsx           # כותרת עם ניווט, מצב חיבור וכפתור יציאה
+    │       ├── ErrorBoundary.jsx    # תפיסת קריסות + איפוס נתונים מקומיים
+    │       ├── ConfirmDialog.jsx    # מודאל אישור נגיש (role=dialog, Escape, focus-trap)
+    │       ├── ToastViewport.jsx    # הודעות מסך זמניות (success/warning/info/error)
+    │       ├── useDialogA11y.js     # הוק שיתופי לנגישות מודאלים
+    │       └── DemoPresentation.jsx # מצגת הדגמה בעמוד הפתיחה
     │
     └── pages/
-        ├── AuthPage.jsx         # כניסה / הרשמה
-        ├── AgeSelectPage.jsx    # בחירת כיתה (א-ג / ד-ו)
-        ├── SubjectSelectPage.jsx # בחירת נושא
-        ├── QuizPage.jsx         # מסך חידון (שאלה אחת בכל פעם)
-        ├── SummaryPage.jsx      # סיכום תוצאות + טעויות
-        └── AdminPage.jsx        # פאנל ניהול CRUD לשאלות
+        ├── WelcomePage.jsx       # עמוד נחיתה עם מצגת הדגמה
+        ├── AuthPage.jsx          # כניסה / הרשמה
+        ├── ModePage.jsx          # בחירת מצב עבודה (מקוון/מקומי)
+        ├── ProfilePage.jsx       # השלמת/עדכון פרופיל אישי
+        ├── AgeSelectPage.jsx     # בחירת קטגוריה (GRADES)
+        ├── SubjectSelectPage.jsx # בחירת נושא בתוך הקטגוריה
+        ├── TrackSelectPage.jsx   # בחירת רמה + סוג פעילות (תרגול/מבחן)
+        ├── ExamIntroPage.jsx     # מסך פתיחה למבחן מתוזמן
+        ├── QuizPage.jsx          # מסך חידון (שאלה בודדת / מבחן כללי מרובה-עמודים)
+        ├── SummaryPage.jsx       # סיכום תוצאות, פילוח לפי נושא, טעויות
+        ├── HollandQuestionnairePage.jsx / HollandResultPage.jsx  # שאלון אישיותי
+        ├── AdminPage.jsx         # פאנל ניהול: שאלות / נושאים / משתמשים
+        ├── AdminUsers.jsx        # טבלת משתמשים ותוצאות (מוצג בתוך AdminPage)
+        ├── OfflineDownloadPage.jsx / DesktopLicensePage.jsx  # הורדת גרסת אופליין ורישיון
 ```
 
 ---
 
 ## ניתוב (React Router v6)
 
-| נתיב       | רכיב               | הגנה        |
-|------------|-------------------|-------------|
-| `/auth`    | AuthPage          | ציבורי      |
-| `/age`     | AgeSelectPage     | מחובר       |
-| `/subject` | SubjectSelectPage | מחובר       |
-| `/quiz`    | QuizPage          | מחובר       |
-| `/summary` | SummaryPage       | מחובר       |
-| `/admin`   | AdminPage         | מחובר       |
+| נתיב                     | רכיב                   | הגנה                              |
+|--------------------------|------------------------|------------------------------------|
+| `/welcome`                | WelcomePage            | ציבורי                             |
+| `/auth`                   | AuthPage               | ציבורי                             |
+| `/desktop-license`        | DesktopLicensePage     | רק בגרסת דסקטופ ללא רישיון תקין    |
+| `/mode`                    | ModePage               | מחובר                              |
+| `/profile`                 | ProfilePage            | מחובר                              |
+| `/offline-download`       | OfflineDownloadPage    | מחובר                              |
+| `/age`                     | AgeSelectPage          | מחובר + פרופיל מלא + מצב עבודה נבחר |
+| `/subject`                 | SubjectSelectPage      | כנ"ל                               |
+| `/track`                   | TrackSelectPage        | כנ"ל                               |
+| `/exam-intro`              | ExamIntroPage          | כנ"ל                               |
+| `/quiz`                    | QuizPage               | כנ"ל                               |
+| `/summary`                 | SummaryPage            | כנ"ל                               |
+| `/holland-questionnaire`   | HollandQuestionnairePage | כנ"ל                              |
+| `/holland-result`          | HollandResultPage      | כנ"ל                               |
+| `/admin`                   | AdminPage              | מחובר בלבד (ללא הגבלת תפקיד - ר' הערת שלב הדמו למעלה) |
+
+`ModeRoute` דורש: משתמש מחובר → פרופיל מלא (שם פרטי, שם משפחה, עיר) אם לא אדמין → מצב עבודה (online/offline) נבחר.
+`DesktopGate` מפנה לעדכון רישיון כשהאפליקציה רצה כדסקטופ ללא רישיון תקין.
 
 ---
 
 ## סכמת שאלה
 
-```json
+```js
 {
-  "id": "string (unique)",
-  "text": "string — טקסט השאלה",
-  "type": "multiple | open",
-  "options": ["string", ...],       // רלוונטי ל-multiple בלבד
-  "correct_answer": ["string", ...], // מערך תשובות מקובלות
-  "age_group": "1-3 | 4-6",
-  "subject": "תנ\"ך | חשבון | הסקת מסקנות | לשון | ידע כללי"
+  id: 'string (unique)',
+  text: 'string — טקסט השאלה',
+  type: 'multiple | open | sentence_completion',
+  options: ['string', ...],          // רלוונטי ל-multiple/sentence_completion
+  optionImages: ['url', ...],        // אופציונלי, תמונה לכל אפשרות
+  image: 'url',                      // אופציונלי, תמונת השאלה עצמה
+  correct_answer: ['string', ...],    // מערך תשובות מקובלות
+  explanation: 'string',             // אופציונלי, מוצג במסך התשובה (גם בטעות)
+  groupTitle: 'string',              // אופציונלי, כותרת משנה לקבוצת שאלות
+  grade: 'grade-8 | grade-12 | thinking-challenge',
+  subject: 'string',                 // שם הנושא (ר' subjectCatalog.js)
+  level: 'string | null',            // רמת קושי בתוך הנושא, אם קיימת
+  activityType: 'practice | exam',
+  position: 'number',                // סדר הצגה בתוך קבוצת (grade, subject, level, activityType)
 }
 ```
 
@@ -77,22 +126,27 @@ KidsQuiz/
 
 ## LocalStorage — מפתחות
 
-| מפתח              | תוכן                          |
-|-------------------|-------------------------------|
-| `kq_users`        | מערך משתמשים (id, username, password, role) |
-| `kq_current_user` | אובייקט המשתמש הנוכחי          |
-| `kq_questions`    | מערך כל השאלות                 |
+| מפתח               | תוכן                                          | קובץ אחראי |
+|---------------------|-----------------------------------------------|------------|
+| `kq_current_user`   | המשתמש המחובר (ללא שדה סיסמה)                 | storage.js |
+| `kq_questions`      | מערך כל השאלות                                | storage.js |
+| `kq_tracks`         | נושאים מותאמים אישית שנוספו דרך הניהול         | storage.js |
+| `kq_quiz_progress`  | מפת התקדמות שמורה לפי משתמש/מסלול              | storage.js |
+| `kq_server_db`      | משתמשים + תוצאות במצב "מקוון" (שרת מדומה)      | db.js      |
+| `kq_local_db`       | תוצאות במצב "מקומי/אופליין"                   | db.js      |
+| `kq_mode`           | מצב עבודה שנבחר (online/offline)              | db.js      |
 
-> בטעינה ראשונה: אם `kq_questions` ריק, נטענות שאלות מ-`seedQuestions.json`
+> בטעינה ראשונה: אם `kq_questions` ריק, נטענות שאלות מ-`seedQuestions.js` (שמאחד את כל קובצי `data/imported*` ו-`seriesCompletionQuestions`).
+> כל קריאה/כתיבה עוברת דרך `safeParse`/`safeSetItem` כדי לשרוד JSON פגום וחריגת נפח אחסון (QuotaExceededError) בלי לקרוס.
 
 ---
 
 ## לוגיקת התאמה מטושטשת (fuzzyMatch.js)
 
 - אלגוריתם: **Levenshtein Distance**
-- ניקוי: `trim() + toLowerCase() + collapse whitespace`
-- סף: `max(2, floor(correctAnswer.length * 0.2))`
-- כלומר: שאלה עם תשובה בת 10 תווים — מקבלת עד 2 שגיאות
+- ניקוי: `trim() + toLowerCase() + collapse whitespace` + הסרת מקפים/פיסוק
+- סף מדורג לפי אורך התשובה הנכונה: עד 3 תווים - התאמה מדויקת בלבד; 4-6 תווים - שגיאה אחת; מעל - `floor(length * 0.2)`
+- תשובות מספריות (למשל שאלות חשבון) - השוואה מדויקת בלבד, ללא סובלנות למרחק
 
 ---
 
@@ -100,15 +154,22 @@ KidsQuiz/
 
 ```js
 const {
-  // Auth
-  user, login(u,p), register(u,p), logout(),
-  // שאלות (CRUD לאדמין)
-  questions, addQuestion(q), updateQuestion(id, data), deleteQuestion(id),
+  // Auth (המשתמש הנשמר במצב הלקוח אינו כולל שדה סיסמה)
+  user, userDisplayName, profileComplete,
+  login(identifier, password), register(profileData), updateUserProfile(profileData), logout(),
+  mode, setMode(mode),
+  // שאלות ומסלולים (CRUD לניהול)
+  questions, addQuestion(q), updateQuestion(id, data), duplicateQuestionToTargets(id, targets),
+  deleteQuestion(id), deleteQuestions(ids), moveQuestion(id, direction),
+  trackCatalog, addTrack(track), assignTrackToGrade(...), renameTrack(...), deleteTrack(...),
+  storageError, clearStorageError,   // התראה כשנכשלה שמירה (למשל נפח אחסון מלא)
   // חידון
-  selectedAge, selectedSubject,
-  quizQuestions, quizResults,
-  startQuiz(age, subject),  // מחזיר מערך שאלות מסוננות ומעורבבות
-  finishQuiz(results),
+  selectedGrade, selectedSubject, selectedLevel, selectedActivity,
+  quizQuestions, quizResults, userResults, savedQuizProgress, activeQuizProgress, quizSession,
+  chooseGrade(grade), chooseSubject(subject), prepareQuiz({...}), beginExamSession(), finishQuiz(results, meta),
+  getSavedQuizProgress(selection), saveQuizProgress(selection, data), clearQuizProgress(selection),
+  // שאלון הולנד
+  hollandAnswers, hollandResults, beginHollandQuestionnaire(grade), updateHollandAnswer(id, value), finishHollandQuestionnaire(summary),
 } = useApp()
 ```
 
@@ -120,7 +181,7 @@ const {
 # 1. התקנת תלויות
 npm install
 
-# 2. הרצה בסביבת פיתוח
+# 2. הרצה בסביבת פיתוח (דפדפן)
 npm run dev
 
 # 3. בניה לייצור
@@ -128,36 +189,59 @@ npm run build
 
 # 4. תצוגה מקדימה של גרסת ייצור
 npm run preview
+
+# 5. הרצה כאפליקציית דסקטופ (Electron)
+npm run desktop
+
+# 6. יצירת קובץ רישיון לגרסת אופליין
+npm run license:generate -- --customerName="שם הלקוח"
 ```
+
+---
+
+## פריסה (Dokploy על Contabo)
+
+האתר סטטי בלבד. פריסה דרך `Dockerfile` (ר' `docs/DEPLOY_DOKPLOY.md`). המשתנה `VITE_OFFLINE_DOWNLOAD_URL` נאפה בזמן build ולכן חייב להיות מוגדר גם כ-Build Arg. הפריסה הישנה (Render) הוחלפה.
+
+---
+
+## גרסת דסקטופ (Electron) ורישיון אופליין
+
+- `window.desktopAPI` (נחשף דרך `preload.cjs`) קיים רק בגרסת הדסקטופ; `runtime.js` בודק את קיומו.
+- הרישיון (`license.json`) נחתם ב-HMAC ונבדק ב-`electron/main.cjs`; תוקף ברירת מחדל 180 יום מהפעלה ראשונה.
+- אבטחה: CSP מוגדר ב-`index.html`, וחלון ה-Electron חוסם פתיחת חלונות חדשים וניווט לכתובות חיצוניות (`setWindowOpenHandler` + `will-navigate`).
 
 ---
 
 ## הוספת שאלות חדשות
 
 **דרך ממשק הניהול (מומלץ):**
-1. לחץ על "⚙️ ניהול" בכותרת
-2. לחץ "➕ שאלה חדשה"
+1. לחץ על "ניהול" בכותרת
+2. בטאב "שאלות" לחץ "שאלה חדשה", או "שאלה" ליד נושא ספציפי בטאב "נושאים"
 3. מלא את הפרטים ושמור
 
 **דרך הקוד:**
-הוסף לקובץ `src/data/seedQuestions.json` — יטען בפעם הבאה שה-LocalStorage ריק.
+הוסף שאלות לאחד מקובצי `src/data/imported*.js` או `seriesCompletionQuestions.js` - ייטענו בפעם הבאה שה-LocalStorage ריק, ויתמזגו עם שאלות קיימות לפי `id`.
 
 ---
 
 ## סגנון ועיצוב
 
 - כיוון: RTL (right-to-left) בכל האפליקציה
-- ספריית עיצוב: Tailwind CSS v3
-- פלטת צבעים: סגול ראשי, צהוב לכפתורים, ירוק/אדום לפידבק
-- אנימציות: `bounceIn`, `shake`, `pop` — מוגדרות ב-`tailwind.config.js`
-- כיתות עזר ב-`index.css`: `.btn-primary`, `.btn-secondary`, `.card`, `.input-field`
+- ספריית עיצוב: Tailwind CSS v3, אייקונים מ-`lucide-react`
+- פונט: Assistant, טעון מקומית דרך `@fontsource/assistant` (ללא תלות באינטרנט - נדרש לגרסת האופליין)
+- טיפוגרפיה: `font-bold` לכל הכותרות; `font-extrabold` שמור רק ל-hero של מסך החידון ולנוסח השאלה עצמו
+- טוקנים ב-`tailwind.config.js`: `rounded-card`/`rounded-card-lg` לפינות, `shadow-card`/`shadow-float`/`shadow-modal` לצללים, ואנימציות `pop`/`shake`/`fade-slide-in`/`confetti-fall` (מכבדות `prefers-reduced-motion`)
+- כיתות עזר ב-`index.css`: `.btn-primary` (פעולה ראשית), `.btn-secondary` (משנית עם גבול), `.btn-muted` (שקופה, טקסט בלבד), `.btn-danger`, `.edu-card`, `.edu-card-quiz`, `.input-field`
+- מודאלים (Drawer, ConfirmDialog, פאנל משתמש) נגישים דרך ה-hook המשותף `useDialogA11y`: `role="dialog"`, סגירה ב-Escape, focus-trap ושחזור פוקוס
 
 ---
 
 ## תכניות לעתיד
 
-- [ ] גישה מבוססת תפקיד (admin vs student)
-- [ ] עטיפה כ-PWA/אפליקציה לאופליין
+- [ ] backend אמיתי לאימות, מנויים ותוצאות (כרגע הכול מדומה ב-localStorage)
+- [ ] הגבלת גישה למסך הניהול לפי תפקיד (מתוכנן לאחר שלב הדמו)
+- [ ] פיצול `AppContext.jsx` ו-`AdminPage.jsx` הגדולים למודולים נפרדים
+- [ ] בדיקות אוטומטיות (Vitest) ו-lint ב-CI
 - [ ] מערכת ניקוד ולוח מובילים
-- [ ] תמיכה בשאלות עם תמונות
 - [ ] סטטיסטיקות למידה לאורך זמן

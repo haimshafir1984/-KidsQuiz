@@ -21,6 +21,7 @@ import AdminUsers from './AdminUsers'
 import { GRADES, getGradeConfig } from '../data/learningTracks'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import ToastViewport from '../components/shared/ToastViewport'
+import { useDialogA11y } from '../components/shared/useDialogA11y'
 import { serverGetStats } from '../utils/db'
 
 const PAGE_SIZE = 25
@@ -701,11 +702,20 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
 }
 
 function Drawer({ open, title, subtitle, onClose, children }) {
+  const dialogRef = useDialogA11y(open, onClose)
+
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[110] bg-slate-950/40">
-      <div className="absolute inset-y-0 right-0 w-full max-w-2xl overflow-y-auto border-l border-slate-200 bg-slate-50 shadow-2xl">
+    <div className="fixed inset-0 z-[110] bg-slate-950/40" onClick={onClose}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="admin-drawer-title"
+        className="absolute inset-y-0 right-0 w-full max-w-2xl overflow-y-auto border-l border-slate-200 bg-slate-50 shadow-2xl"
+        onClick={event => event.stopPropagation()}
+      >
         <div className="sticky top-0 z-10 border-b border-slate-200 bg-white px-6 py-4">
           <div className="flex items-start justify-between gap-3">
             <button type="button" onClick={onClose} className="btn-muted px-3 py-2">
@@ -713,7 +723,7 @@ function Drawer({ open, title, subtitle, onClose, children }) {
               סגירה
             </button>
             <div className="text-right">
-              <h2 className="text-xl font-bold text-slate-950">{title}</h2>
+              <h2 id="admin-drawer-title" className="text-xl font-bold text-slate-950">{title}</h2>
               {subtitle && <p className="mt-1 text-sm text-slate-600">{subtitle}</p>}
             </div>
           </div>
@@ -728,7 +738,7 @@ function BulkActionsBar({ selectedCount, onDeleteSelected, onClear }) {
   if (selectedCount === 0) return null
 
   return (
-    <div className="sticky top-24 z-20 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 shadow-sm">
+    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-right text-sm font-semibold text-blue-800">
           {selectedCount} שאלות נבחרו
@@ -744,189 +754,6 @@ function BulkActionsBar({ selectedCount, onDeleteSelected, onClear }) {
         </div>
       </div>
     </div>
-  )
-}
-
-function QuestionsTable({
-  questions,
-  selectedIds,
-  onToggleSelect,
-  onToggleSelectPage,
-  onMove,
-  onDelete,
-  onEdit,
-  onQuickUpdate,
-  trackCatalog,
-}) {
-  const [editingCell, setEditingCell] = useState(null)
-  const pageSelected = questions.length > 0 && questions.every(question => selectedIds.has(question.id))
-
-  function getTracksForGrade(grade) {
-    return trackCatalog[grade] || []
-  }
-
-  function getTrackForSubject(grade, subject) {
-    return getTracksForGrade(grade).find(track => track.subject === subject) || null
-  }
-
-  function closeEditingCell() {
-    setEditingCell(null)
-  }
-
-  function updateSubject(question, nextSubject) {
-    const targetTrack = getTrackForSubject(question.grade, nextSubject)
-    const nextLevels = targetTrack?.levels || []
-    const nextActivities = targetTrack?.activities || ['practice']
-
-    onQuickUpdate(question.id, {
-      subject: nextSubject,
-      level: nextLevels.length === 0
-        ? null
-        : nextLevels.includes(question.level)
-          ? question.level
-          : nextLevels[0],
-      activityType: nextActivities.includes(question.activityType)
-        ? question.activityType
-        : nextActivities[0],
-    })
-
-    closeEditingCell()
-  }
-
-  function updateLevel(question, nextLevel) {
-    onQuickUpdate(question.id, { level: nextLevel === 'no-level' ? null : nextLevel })
-    closeEditingCell()
-  }
-
-  function updateActivity(question, nextActivity) {
-    onQuickUpdate(question.id, { activityType: nextActivity })
-    closeEditingCell()
-  }
-
-  function renderInlineSelect({ value, options, onChange, ariaLabel }) {
-    return (
-      <select
-        autoFocus
-        value={value}
-        onChange={event => onChange(event.target.value)}
-        onBlur={closeEditingCell}
-        className="input-field h-10 min-w-[140px] py-2 text-sm"
-        aria-label={ariaLabel}
-      >
-        {options.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    )
-  }
-
-  return (
-    <section className="edu-card overflow-hidden p-0">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[1080px] text-right text-sm">
-          <thead className="bg-slate-50">
-            <tr className="border-b border-slate-200">
-              <th className="px-4 py-3">
-                <input type="checkbox" checked={pageSelected} onChange={() => onToggleSelectPage(pageSelected)} />
-              </th>
-              <th className="px-4 py-3 font-semibold text-slate-700">שאלה</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">ניהול</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">מיקום</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">נושא</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">רמה</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">סוג</th>
-              <th className="px-4 py-3 font-semibold text-slate-700">סוג פעילות</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map(question => {
-              const gradeLabel = getGradeConfig(question.grade)?.label || question.grade
-              const typeLabel = question.type === 'multiple'
-                ? 'אמריקאית'
-                : question.type === 'sentence_completion'
-                  ? 'השלמת משפטים'
-                  : 'פתוחה'
-
-              return (
-                <tr key={question.id} className="border-b border-slate-100 transition hover:bg-slate-50">
-                  <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(question.id)}
-                      onChange={() => onToggleSelect(question.id)}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="max-w-[400px]">
-                      <div className="font-semibold text-slate-900">{question.text}</div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        תשובה: {question.correct_answer.join(' / ')} | {gradeLabel} | מיקום {question.position || 1}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex min-w-[280px] flex-wrap items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        title="עריכה"
-                        onClick={() => onEdit(question)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-                      >
-                        <Pencil className="h-4 w-4" />
-                        עריכה
-                      </button>
-                      <button
-                        type="button"
-                        title="עריכה מלאה"
-                        onClick={() => onFullEdit(question)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-                      >
-                        <Plus className="h-4 w-4" />
-                        עריכה מלאה
-                      </button>
-                      <button
-                        type="button"
-                        title="מחיקה"
-                        onClick={() => onDelete(question.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        מחיקה
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{question.subject}</span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">{question.level || 'ללא רמה'}</td>
-                  <td className="px-4 py-3 text-slate-600">{typeLabel}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      question.activityType === 'exam' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'
-                    }`}>
-                      {question.activityType === 'exam' ? 'מבחן' : 'תרגול'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex min-w-[120px] items-center justify-end gap-2 whitespace-nowrap">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-                        {question.position || 1}
-                      </span>
-                      <button type="button" title="הזזה למעלה" onClick={() => onMove(question.id, 'up')} className="rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900">
-                        <ArrowUp className="h-4 w-4" />
-                      </button>
-                      <button type="button" title="הזזה למטה" onClick={() => onMove(question.id, 'down')} className="rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900">
-                        <ArrowDown className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    </section>
   )
 }
 
@@ -1010,7 +837,12 @@ function InlineQuestionsTable({
           <thead className="bg-slate-50">
             <tr className="border-b border-slate-200">
               <th className="px-4 py-3">
-                <input type="checkbox" checked={pageSelected} onChange={() => onToggleSelectPage(pageSelected)} />
+                <input
+                  type="checkbox"
+                  checked={pageSelected}
+                  onChange={() => onToggleSelectPage(pageSelected)}
+                  aria-label="בחירת כל השאלות בעמוד"
+                />
               </th>
               <th className="px-4 py-3 font-semibold text-slate-700">שאלה</th>
               <th className="px-4 py-3 font-semibold text-slate-700">נושא</th>
@@ -1041,6 +873,7 @@ function InlineQuestionsTable({
                       type="checkbox"
                       checked={selectedIds.has(question.id)}
                       onChange={() => onToggleSelect(question.id)}
+                      aria-label={`בחירת השאלה: ${question.text}`}
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -1048,7 +881,7 @@ function InlineQuestionsTable({
                       {question.groupTitle && (
                         <div className="mb-1 text-xs font-bold text-slate-500">{question.groupTitle}</div>
                       )}
-                      <div className="font-semibold text-slate-900">{question.text}</div>
+                      <div className="line-clamp-2 font-semibold text-slate-900" title={question.text}>{question.text}</div>
                       <div className="mt-1 text-xs text-slate-500">
                         תשובה: {question.correct_answer.join(' / ')} | {gradeLabel}
                       </div>
@@ -1119,32 +952,36 @@ function InlineQuestionsTable({
                       <button
                         type="button"
                         title="מחיקה"
+                        aria-label="מחיקת השאלה"
                         onClick={() => onDelete(question.id)}
-                        className="rounded-md p-1 text-red-500 transition hover:bg-red-50"
+                        className="rounded-md p-2 text-red-500 transition hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
                         title="עריכה"
+                        aria-label="עריכת השאלה"
                         onClick={() => onEdit(question)}
-                        className="rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                        className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
                         title="הזזה למטה"
+                        aria-label="הזזת השאלה למטה"
                         onClick={() => onMove(question.id, 'down')}
-                        className="rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                        className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                       >
                         <ArrowDown className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
                         title="הזזה למעלה"
+                        aria-label="הזזת השאלה למעלה"
                         onClick={() => onMove(question.id, 'up')}
-                        className="rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                        className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                       >
                         <ArrowUp className="h-4 w-4" />
                       </button>
@@ -1174,6 +1011,8 @@ export default function AdminPage() {
     assignTrackToGrade,
     renameTrack,
     deleteTrack,
+    storageError,
+    clearStorageError,
   } = useApp()
 
   const [activeTab, setActiveTab] = useState('questions')
@@ -1203,6 +1042,12 @@ export default function AdminPage() {
   function closeConfirmation() {
     setConfirmState({ open: false, title: '', message: '', onConfirm: null })
   }
+
+  useEffect(() => {
+    if (!storageError) return
+    setToasts(previous => [...previous, { ...createToast(storageError, 'error', 'שגיאת שמירה'), duration: 7000 }])
+    clearStorageError()
+  }, [storageError])
 
   const topicsCount = useMemo(
     () => Object.values(trackCatalog).flatMap(items => items).length,

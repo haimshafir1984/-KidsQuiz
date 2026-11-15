@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KidsQuiz — מוקאפ עיצוב חדש</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Assistant', 'system-ui', 'sans-serif'] },
+        colors: {
+          brand: {
+            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6',
+            600: '#2563eb', 700: '#1d4ed8'
+          }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Assistant', sans-serif;
+    color: #0f172a;
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #faf5ff 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  /* תיקוני RTL לאייקוני קו */
+  .icon { width: 18px; height: 18px; stroke-width: 1.75; flex-shrink: 0; }
+  .icon-sm { width: 14px; height: 14px; stroke-width: 1.75; }
+  .icon-lg { width: 22px; height: 22px; stroke-width: 1.75; }
+
+  /* קומפוננטות במוקאפ */
+  .m-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .m-btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #2563eb; color: #fff; font-weight: 600;
+    padding: 10px 18px; border-radius: 8px; font-size: 14px;
+    transition: background-color .15s;
+  }
+  .m-btn-primary:hover { background: #1d4ed8; }
+  .m-btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: #0f172a; font-weight: 600;
+    padding: 10px 18px; border-radius: 8px; font-size: 14px;
+    border: 1px solid #cbd5e1; transition: background-color .15s;
+  }
+  .m-btn-secondary:hover { background: #f8fafc; }
+  .m-btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #475569; font-weight: 500; padding: 8px 12px;
+    border-radius: 8px; font-size: 14px; transition: background-color .15s;
+  }
+  .m-btn-ghost:hover { background: #f1f5f9; color: #0f172a; }
+  .m-btn-danger {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #b91c1c; font-weight: 500; padding: 8px 12px;
+    border-radius: 8px; font-size: 14px; transition: background-color .15s;
+  }
+  .m-btn-danger:hover { background: #fef2f2; }
+  .m-input {
+    width: 100%; border: 1px solid #cbd5e1; border-radius: 8px;
+    padding: 9px 12px; font-size: 14px; outline: none; background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .m-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .m-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500;
+    background: #f1f5f9; color: #475569;
+  }
+  .m-quiz-option {
+    display: flex; align-items: center; gap: 14px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 16px 18px; text-align: right; font-size: 16px; font-weight: 500;
+    color: #0f172a; cursor: pointer; transition: border-color .15s, background-color .15s;
+  }
+  .m-quiz-option:hover { border-color: #94a3b8; background: #f8fafc; }
+  .m-quiz-option .badge {
+    width: 32px; height: 32px; display: flex; align-items: center;
+    justify-content: center; border-radius: 8px;
+    background: #f1f5f9; color: #334155; font-weight: 600; font-size: 14px;
+  }
+
+  /* גלילה חלקה בין הסקציות בהשוואה */
+  html { scroll-behavior: smooth; }
+
+  /* כותרת מוקאפ */
+  .mockup-banner {
+    background: linear-gradient(90deg, #1e293b, #0f172a);
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<!-- באנר עליון של המוקאפ -->
+<div class="mockup-banner">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+      <div>
+        <div class="font-bold text-base">מוקאפ עיצוב חדש — KidsQuiz</div>
+        <div class="text-xs text-slate-300">תצוגה בלבד · אינו האתר החי · גלול למטה לראות את כל המסכים</div>
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-2 text-sm">
+      <a href="#welcome" class="px-3 py-1.5 rounded-md hover:bg-white/10">עמוד נחיתה</a>
+      <a href="#quiz" class="px-3 py-1.5 rounded-md hover:bg-white/10">חידון</a>
+      <a href="#admin" class="px-3 py-1.5 rounded-md hover:bg-white/10">פאנל ניהול</a>
+      <a href="#tokens" class="px-3 py-1.5 rounded-md hover:bg-white/10">מערכת עיצוב</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1. עמוד נחיתה -->
+<!-- ============================================ -->
+<section id="welcome" class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-6 pt-8 pb-3">
+    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">1 / 3 · מסך נחיתה</div>
+  </div>
+
+  <!-- Header חדש -->
+  <header class="max-w-6xl mx-auto px-6">
+    <div class="m-card flex items-center justify-between px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        </div>
+        <div>
+          <div class="font-bold text-base text-slate-900">מערכת למידה</div>
+          <div class="text-xs text-slate-500">מסלולים, רמות, תרגול ומבחנים</div>
+        </div>
+      </div>
+      <nav class="flex items-center gap-1">
+        <button class="m-btn-ghost">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          בחירת כיתה
+        </button>
+        <button class="m-btn-ghost">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          ניהול
+        </button>
+        <div class="w-px h-6 bg-slate-200 mx-1"></div>
+        <button class="m-btn-ghost text-slate-500">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          התנתקות
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="max-w-6xl mx-auto px-6 py-14">
+    <div class="grid lg:grid-cols-[1.15fr_0.85fr] gap-12 items-center">
+      <div class="space-y-6">
+        <div class="inline-flex items-center gap-2 text-xs font-medium text-brand-700 bg-brand-50 border border-brand-100 px-3 py-1 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+          פלטפורמת למידה ותרגול
+        </div>
+        <h1 class="text-4xl lg:text-5xl font-bold text-slate-900 leading-tight">
+          לומדים, מתרגלים<br>ומתקדמים בקצב שלכם.
+        </h1>
+        <p class="text-lg text-slate-600 leading-relaxed max-w-xl">
+          סביבת תרגול נקייה עם משוב מיידי, מסלולים מובנים וניהול מסודר של נושאים ושאלות. בלי הסחות דעת.
+        </p>
+
+        <div class="grid sm:grid-cols-3 gap-3 pt-2">
+          <!-- Feature card 1 -->
+          <div class="m-card p-5">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 mb-3">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div class="font-semibold text-slate-900 mb-1">תוכן מובנה</div>
+            <p class="text-sm text-slate-600 leading-6">מסלולים לפי כיתות ונושאים, ברמות מתקדמות.</p>
+          </div>
+          <div class="m-card p-5">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 mb-3">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="font-semibold text-slate-900 mb-1">משוב מיידי</div>
+            <p class="text-sm text-slate-600 leading-6">תשובה ברורה לכל שאלה, עם הסבר במקום הנכון.</p>
+          </div>
+          <div class="m-card p-5">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 mb-3">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div class="font-semibold text-slate-900 mb-1">מעקב התקדמות</div>
+            <p class="text-sm text-slate-600 leading-6">סיכום ברור של הצלחות, טעויות, וזמני מבחן.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button class="m-btn-primary">
+            יצירת חשבון
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <button class="m-btn-secondary">כניסה לחשבון קיים</button>
+        </div>
+      </div>
+
+      <!-- Demo question card -->
+      <div class="m-card p-7">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="m-pill">שאלת הדגמה</span>
+          <span class="text-xs text-slate-500">חשבון · כיתה ה</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">כמה ימים יש בשבוע?</h2>
+        <p class="text-sm text-slate-500 mb-5">בחר את התשובה הנכונה כדי להתקדם.</p>
+
+        <div class="grid grid-cols-2 gap-2.5 mb-4">
+          <button class="m-quiz-option">
+            <span class="badge">א</span><span>5</span>
+          </button>
+          <button class="m-quiz-option">
+            <span class="badge">ב</span><span>6</span>
+          </button>
+          <button class="m-quiz-option" style="border-color:#10b981;background:#ecfdf5;">
+            <span class="badge" style="background:#d1fae5;color:#047857;">ג</span>
+            <span style="color:#047857;">7</span>
+            <svg class="icon mr-auto" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="m-quiz-option">
+            <span class="badge">ד</span><span>8</span>
+          </button>
+        </div>
+
+        <div class="flex items-start gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+          <svg class="icon mt-0.5" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+          <div class="flex-1 text-sm">
+            <div class="font-semibold text-emerald-800">תשובה נכונה</div>
+            <div class="text-emerald-700 mt-0.5">אפשר להמשיך בביטחון לשלב הבא.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- 2. מסך חידון — נשאר כמו בעיצוב הקיים -->
+<!-- ============================================ -->
+<section id="quiz" class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-6 pt-8 pb-3">
+    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">2 / 3 · מסך חידון <span class="font-normal normal-case text-slate-400">(נשאר כמו היום)</span></div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-6 pb-14">
+    <!-- Header עם הסגנון הקיים -->
+    <header class="rounded-2xl border border-slate-100 bg-white/90 px-6 py-4 shadow-sm backdrop-blur-sm mb-10">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg">
+            חזרה ↩️
+          </button>
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-3xl">✨</div>
+            <div>
+              <div class="text-xl font-extrabold text-slate-950 sm:text-2xl">מערכת<span class="text-blue-600">למידה</span></div>
+              <div class="hidden text-sm text-slate-600 sm:block">מסלולים, רמות, תרגול ומבחנים באותו ממשק</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">מחובר 🌐</span>
+          <div class="hidden text-right lg:block">
+            <div class="text-sm font-semibold text-slate-900">חיים שפיר</div>
+            <div class="text-xs text-slate-600">כיתה ה | חשבון</div>
+          </div>
+          <button class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg">
+            התנתק 🚪
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero של החידון -->
+    <section class="mx-auto max-w-3xl text-center mb-8">
+      <div class="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-slate-100">
+        תרגול פעיל | חשבון
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+        ממשיכים לצבור הצלחות שאלה אחר שאלה
+      </h1>
+      <p class="text-base leading-7 text-slate-600 sm:text-lg mt-3">
+        רמה נוכחית: רמה 2. אפשר לענות בקצב אישי, לקבל משוב מיידי ולהתקדם בביטחון.
+      </p>
+    </section>
+
+    <!-- כרטיס פס התקדמות -->
+    <section class="rounded-[20px] border-2 border-slate-100 bg-white p-6 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)] mb-5">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <span class="text-sm font-semibold text-slate-600">חשבון</span>
+        <div class="flex items-center gap-3">
+          <span class="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-700">4 / 10</span>
+        </div>
+      </div>
+      <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+        <div class="h-3 rounded-full" style="width:40%; background: linear-gradient(to right, #2563eb, #7c3aed);"></div>
+      </div>
+    </section>
+
+    <!-- כרטיס שאלה -->
+    <section class="rounded-[20px] border-2 border-slate-100 bg-white p-6 sm:p-8 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)]">
+      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div class="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+            שאלה 4
+          </div>
+          <p class="text-right text-2xl font-extrabold leading-relaxed text-slate-950">
+            כמה זה 247 + 158?
+          </p>
+        </div>
+        <button class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3 text-slate-700 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg self-start">
+          חזרה למסלול ↩️
+        </button>
+      </div>
+
+      <!-- אופציות עם LETTER_BADGES צבעוניים -->
+      <div class="grid grid-cols-1 gap-3">
+        <button class="rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:border-slate-300 hover:bg-slate-50 flex items-center gap-4 text-lg font-semibold bg-white">
+          <span class="flex h-10 w-10 items-center justify-center rounded-full font-bold bg-sky-50 text-sky-600">א</span>
+          <span class="flex-1 text-right">395</span>
+        </button>
+        <button class="rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:border-slate-300 hover:bg-slate-50 flex items-center gap-4 text-lg font-semibold bg-white">
+          <span class="flex h-10 w-10 items-center justify-center rounded-full font-bold bg-emerald-50 text-emerald-600">ב</span>
+          <span class="flex-1 text-right">405</span>
+        </button>
+        <button class="rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:border-slate-300 hover:bg-slate-50 flex items-center gap-4 text-lg font-semibold bg-white">
+          <span class="flex h-10 w-10 items-center justify-center rounded-full font-bold bg-amber-50 text-amber-600">ג</span>
+          <span class="flex-1 text-right">415</span>
+        </button>
+        <button class="rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:border-slate-300 hover:bg-slate-50 flex items-center gap-4 text-lg font-semibold bg-white">
+          <span class="flex h-10 w-10 items-center justify-center rounded-full font-bold bg-indigo-50 text-indigo-600">ד</span>
+          <span class="flex-1 text-right">425</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- הערה -->
+    <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white/60 p-4 text-center">
+      <div class="text-sm text-slate-600">
+        <span class="font-semibold text-slate-700">מסך החידון נשאר כמו בעיצוב הקיים</span> — Letter badges צבעוניים, פס התקדמות עם גרדיאנט כחול‑סגול, פילים בולטים, פינות 20px.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- 3. פאנל ניהול -->
+<!-- ============================================ -->
+<section id="admin" class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-6 pt-8 pb-3">
+    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">3 / 3 · פאנל ניהול</div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-6 pb-14">
+    <!-- כותרת + פעולות עליונות -->
+    <div class="flex items-end justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">ניהול תוכן</h1>
+        <p class="text-sm text-slate-600 mt-1">ניהול שאלות, נושאים ומשתמשים במערכת.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="m-btn-secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          ייבוא
+        </button>
+        <button class="m-btn-secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          ייצוא
+        </button>
+        <button class="m-btn-primary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          שאלה חדשה
+        </button>
+      </div>
+    </div>
+
+    <!-- טאבים -->
+    <div class="border-b border-slate-200 mb-6">
+      <nav class="flex items-center gap-1">
+        <button class="px-4 py-2.5 text-sm font-semibold text-brand-700 border-b-2 border-brand-600 -mb-px">
+          שאלות <span class="text-slate-400 font-normal mr-1">142</span>
+        </button>
+        <button class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900">
+          נושאים <span class="text-slate-400 mr-1">18</span>
+        </button>
+        <button class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900">
+          משתמשים <span class="text-slate-400 mr-1">47</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- שורת סינון + חיפוש (sticky-style) -->
+    <div class="m-card p-4 mb-4">
+      <div class="grid md:grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-2.5 items-center">
+        <div class="relative">
+          <svg class="icon absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="m-input pr-10" placeholder="חיפוש בנוסח השאלה או בתשובה..." value="">
+        </div>
+        <select class="m-input">
+          <option>כל הכיתות</option>
+          <option>כיתה ה</option>
+          <option>כיתה ו</option>
+        </select>
+        <select class="m-input">
+          <option>כל הנושאים</option>
+          <option>חיבור</option>
+          <option>חיסור</option>
+          <option>שברים</option>
+        </select>
+        <select class="m-input">
+          <option>כל הפעילויות</option>
+          <option>תרגול</option>
+          <option>מבחן</option>
+        </select>
+        <button class="m-btn-ghost text-slate-500 text-xs whitespace-nowrap">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          איפוס
+        </button>
+      </div>
+    </div>
+
+    <!-- פס פעולות bulk (כשנבחרו שאלות) -->
+    <div class="m-card px-4 py-2.5 mb-4 flex items-center justify-between bg-brand-50 border-brand-100">
+      <div class="flex items-center gap-3 text-sm">
+        <span class="font-semibold text-brand-700">3 שאלות נבחרו</span>
+        <span class="text-slate-500">·</span>
+        <button class="text-brand-700 hover:underline">בחר הכל בעמוד</button>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="m-btn-ghost text-sm">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          העברה לנושא
+        </button>
+        <button class="m-btn-ghost text-sm">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          שכפול
+        </button>
+        <button class="m-btn-danger text-sm">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          מחיקה
+        </button>
+      </div>
+    </div>
+
+    <!-- טבלת שאלות -->
+    <div class="m-card overflow-hidden">
+      <table class="w-full text-right text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr class="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <th class="px-4 py-3 w-10"><input type="checkbox" class="rounded"></th>
+            <th class="px-4 py-3">שאלה</th>
+            <th class="px-4 py-3 w-32">נושא</th>
+            <th class="px-4 py-3 w-24">רמה</th>
+            <th class="px-4 py-3 w-24">סוג</th>
+            <th class="px-4 py-3 w-32">פעולות</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- שורה 1 -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3.5"><input type="checkbox" checked class="rounded"></td>
+            <td class="px-4 py-3.5">
+              <div class="font-medium text-slate-900">כמה זה 247 + 158?</div>
+              <div class="text-xs text-slate-500 mt-0.5">תשובה: 405</div>
+            </td>
+            <td class="px-4 py-3.5"><span class="m-pill">חיבור</span></td>
+            <td class="px-4 py-3.5 text-slate-600">רמה 2</td>
+            <td class="px-4 py-3.5">
+              <span class="m-pill" style="background:#eff6ff;color:#1d4ed8;">תרגול</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-0.5">
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500" title="הזזה למעלה">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500" title="הזזה למטה">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500" title="עריכה">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                </button>
+                <button class="p-1.5 rounded hover:bg-red-50 text-red-600" title="מחיקה">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- שורה 2 -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3.5"><input type="checkbox" checked class="rounded"></td>
+            <td class="px-4 py-3.5">
+              <div class="font-medium text-slate-900">איזו מילה לא שייכת לקבוצה: עט, מחק, מחברת, גזר?</div>
+              <div class="text-xs text-slate-500 mt-0.5">תשובה: גזר</div>
+            </td>
+            <td class="px-4 py-3.5"><span class="m-pill">הסקת מסקנות</span></td>
+            <td class="px-4 py-3.5 text-slate-600">רמה 1</td>
+            <td class="px-4 py-3.5">
+              <span class="m-pill" style="background:#eff6ff;color:#1d4ed8;">תרגול</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-0.5">
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-red-50 text-red-600"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <!-- שורה 3 -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3.5"><input type="checkbox" checked class="rounded"></td>
+            <td class="px-4 py-3.5">
+              <div class="font-medium text-slate-900">השלם: ___ הוא מחבר התנ"ך הראשון על פי המסורת.</div>
+              <div class="text-xs text-slate-500 mt-0.5">תשובה: משה רבנו</div>
+            </td>
+            <td class="px-4 py-3.5"><span class="m-pill">תנ"ך</span></td>
+            <td class="px-4 py-3.5 text-slate-600">—</td>
+            <td class="px-4 py-3.5">
+              <span class="m-pill" style="background:#fef3c7;color:#92400e;">מבחן</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-0.5">
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-red-50 text-red-600"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <!-- שורה 4 -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3.5"><input type="checkbox" class="rounded"></td>
+            <td class="px-4 py-3.5">
+              <div class="font-medium text-slate-900">מהו ההיקף של ריבוע שאורך צלעו 6 ס"מ?</div>
+              <div class="text-xs text-slate-500 mt-0.5">תשובה: 24 / 24 ס"מ</div>
+            </td>
+            <td class="px-4 py-3.5"><span class="m-pill">גאומטריה</span></td>
+            <td class="px-4 py-3.5 text-slate-600">רמה 3</td>
+            <td class="px-4 py-3.5">
+              <span class="m-pill" style="background:#eff6ff;color:#1d4ed8;">תרגול</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-0.5">
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-red-50 text-red-600"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+              </div>
+            </td>
+          </tr>
+          <!-- שורה 5 -->
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3.5"><input type="checkbox" class="rounded"></td>
+            <td class="px-4 py-3.5">
+              <div class="font-medium text-slate-900">מי המציא את הנורה החשמלית?</div>
+              <div class="text-xs text-slate-500 mt-0.5">תשובה: תומאס אדיסון</div>
+            </td>
+            <td class="px-4 py-3.5"><span class="m-pill">ידע כללי</span></td>
+            <td class="px-4 py-3.5 text-slate-600">—</td>
+            <td class="px-4 py-3.5">
+              <span class="m-pill" style="background:#eff6ff;color:#1d4ed8;">תרגול</span>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-0.5">
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-slate-100 text-slate-500"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+                <button class="p-1.5 rounded hover:bg-red-50 text-red-600"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- pagination -->
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border-t border-slate-200 text-sm">
+        <div class="text-slate-600">מציג 1–5 מתוך 142</div>
+        <div class="flex items-center gap-1">
+          <button class="m-btn-ghost text-xs px-2 py-1.5">קודם</button>
+          <button class="px-2.5 py-1 rounded text-xs font-semibold bg-brand-600 text-white">1</button>
+          <button class="px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100">2</button>
+          <button class="px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100">3</button>
+          <span class="text-slate-400 px-1">...</span>
+          <button class="px-2.5 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100">29</button>
+          <button class="m-btn-ghost text-xs px-2 py-1.5">הבא</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- הערות עיצוב לפאנל ניהול -->
+    <div class="mt-6 m-card p-5 bg-slate-50 border-dashed">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">השינויים בעמוד</div>
+      <ul class="text-sm text-slate-700 space-y-1.5">
+        <li>• מעבר מתצוגת כרטיסים גדולים לטבלה צפופה — קל יותר לאתר שאלות.</li>
+        <li>• <strong>חיפוש טקסט חופשי</strong> בנוסח השאלה / התשובה.</li>
+        <li>• <strong>בחירה מרובה + פעולות bulk</strong> (העברה / שכפול / מחיקה).</li>
+        <li>• כפתורי פעולה כאייקונים בלבד בטבלה (חוסך מקום), עם tooltip.</li>
+        <li>• כפתורי <strong>ייבוא / ייצוא JSON</strong> בכותרת.</li>
+        <li>• Pagination מסודר במקום גלילה אינסופית של כרטיסים.</li>
+        <li>• 3 טאבים ברורים — שאלות / נושאים / משתמשים — עם ספירה לכל אחד.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- 4. מערכת עיצוב — Design Tokens -->
+<!-- ============================================ -->
+<section id="tokens">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">מערכת עיצוב</div>
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">Design Tokens</h2>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <!-- צבעים -->
+      <div class="m-card p-5">
+        <div class="font-semibold text-slate-900 mb-3">פלטת צבעים</div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-brand-600"></div>
+            <div class="text-sm"><div class="font-medium">brand‑600</div><div class="text-xs text-slate-500">#2563eb · ראשי</div></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-slate-900"></div>
+            <div class="text-sm"><div class="font-medium">slate‑900</div><div class="text-xs text-slate-500">טקסט ראשי</div></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-slate-600"></div>
+            <div class="text-sm"><div class="font-medium">slate‑600</div><div class="text-xs text-slate-500">טקסט משני</div></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-600"></div>
+            <div class="text-sm"><div class="font-medium">emerald‑600</div><div class="text-xs text-slate-500">הצלחה</div></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-500"></div>
+            <div class="text-sm"><div class="font-medium">amber‑500</div><div class="text-xs text-slate-500">אזהרה / מבחן</div></div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-red-600"></div>
+            <div class="text-sm"><div class="font-medium">red‑600</div><div class="text-xs text-slate-500">שגיאה / מחיקה</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- טיפוגרפיה -->
+      <div class="m-card p-5">
+        <div class="font-semibold text-slate-900 mb-3">טיפוגרפיה</div>
+        <div class="space-y-3">
+          <div>
+            <div class="text-3xl font-bold text-slate-900">כותרת ראשית</div>
+            <div class="text-xs text-slate-500 mt-1">3xl · bold · slate‑900</div>
+          </div>
+          <div>
+            <div class="text-xl font-semibold text-slate-900">כותרת משנה</div>
+            <div class="text-xs text-slate-500 mt-1">xl · semibold</div>
+          </div>
+          <div>
+            <div class="text-base text-slate-700">טקסט גוף רגיל לקריאה רציפה.</div>
+            <div class="text-xs text-slate-500 mt-1">base · regular · slate‑700</div>
+          </div>
+          <div>
+            <div class="text-sm text-slate-600">טקסט עזר ותיאורים.</div>
+            <div class="text-xs text-slate-500 mt-1">sm · regular · slate‑600</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- כפתורים -->
+      <div class="m-card p-5">
+        <div class="font-semibold text-slate-900 mb-3">כפתורים</div>
+        <div class="space-y-3">
+          <div><button class="m-btn-primary">פעולה ראשית</button></div>
+          <div><button class="m-btn-secondary">פעולה משנית</button></div>
+          <div><button class="m-btn-ghost">פעולה רכה</button></div>
+          <div><button class="m-btn-danger">מחיקה</button></div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-200">
+          <div class="text-xs text-slate-500 mb-2">פינות:</div>
+          <div class="flex items-center gap-2">
+            <div class="w-12 h-12 bg-white border border-slate-300" style="border-radius: 8px;"></div>
+            <div class="text-xs text-slate-600">כפתורים: 8px</div>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <div class="w-12 h-12 bg-white border border-slate-300" style="border-radius: 12px;"></div>
+            <div class="text-xs text-slate-600">כרטיסים: 12px</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- השוואה -->
+    <div class="mt-6 m-card p-5">
+      <div class="font-semibold text-slate-900 mb-3">לפני / אחרי — השוואה מהירה</div>
+      <div class="grid md:grid-cols-2 gap-6 text-sm">
+        <div>
+          <div class="text-xs font-semibold text-red-600 uppercase tracking-wider mb-2">לפני</div>
+          <ul class="space-y-1.5 text-slate-700">
+            <li>• אימוג'י בכל כפתור ניווט (✨ 🎯 📚 👤 🚪)</li>
+            <li>• <span class="font-extrabold">font‑extrabold</span> בכותרות הנחיתה</li>
+            <li>• Border 2px, פינות 20px+ גם בכרטיסי תוכן</li>
+            <li>• Hover מקפיץ (translate) בכרטיסי נחיתה</li>
+            <li>• כרטיסים ענקיים בניהול עם הרבה צבעים</li>
+            <li>• אין חיפוש ואין פעולות bulk בניהול</li>
+            <li>• alert/confirm OS לא מעוצבים</li>
+            <li>• AdminUsers בשפת עיצוב ישנה (purple/indigo)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">אחרי</div>
+          <ul class="space-y-1.5 text-slate-700">
+            <li>• אייקוני קו (lucide) בנווט; אימוג'י נשארים במשוב חידון</li>
+            <li>• <span class="font-bold">font‑bold</span> לכותרות הנחיתה (extrabold רק ל‑Hero)</li>
+            <li>• Border 1px, פינות 12px בכרטיסי הנחיתה והניהול</li>
+            <li>• רקע גרדיאנט עדין שומר על אופי חם</li>
+            <li>• <strong>מסך החידון נשאר כמו היום</strong> — ללא שינוי</li>
+            <li>• ניהול כטבלה עם חיפוש + bulk actions + ייבוא/ייצוא</li>
+            <li>• Toasts ומודאלים מעוצבים במקום alerts</li>
+            <li>• שפת עיצוב אחידה בכל המסכים</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t border-slate-200 bg-white">
+  <div class="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-500">
+    מוקאפ עיצוב · KidsQuiz · אפריל 2026
+  </div>
+</footer>
+
+</body>
+</html>

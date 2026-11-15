@@ -12,6 +12,7 @@ import {
 import {
   seedAdmin,
   serverFindUser,
+  serverFindUserById,
   serverGetUsers,
   serverSaveUser,
   saveResult,
@@ -199,6 +200,13 @@ function getExamTimeLimitSeconds(subject, activityType) {
   return subject === GENERAL_EXAM_SUBJECT ? GENERAL_EXAM_TIME_LIMIT_SECONDS : STANDARD_EXAM_TIME_LIMIT_SECONDS
 }
 
+// מסיר את שדה הסיסמה לפני שמירת המשתמש במצב הלקוח - הסיסמה נחוצה רק בשכבת השרת המדומה
+function sanitizeUser(user) {
+  if (!user) return user
+  const { password, ...sanitized } = user
+  return sanitized
+}
+
 export function AppProvider({ children }) {
   const gradeValues = useMemo(() => GRADES.map(grade => grade.value), [])
 
@@ -238,6 +246,7 @@ export function AppProvider({ children }) {
   })
   const [hollandAnswers, setHollandAnswers] = useState({})
   const [hollandResults, setHollandResults] = useState(null)
+  const [storageError, setStorageError] = useState(null)
 
   const trackCatalog = useMemo(() => {
     const groupedTracks = Object.fromEntries(gradeValues.map(grade => [grade, new Map()]))
@@ -308,9 +317,29 @@ export function AppProvider({ children }) {
       .sort((first, second) => new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime())
   }, [questions, quizProgressMap, user])
 
+  const STORAGE_FULL_MESSAGE = 'לא ניתן היה לשמור את השינוי - נפח האחסון המקומי מלא. מומלץ למחוק תוכן ישן או תמונות כבדות.'
+
+  function reportPersistResult(succeeded) {
+    setStorageError(succeeded ? null : STORAGE_FULL_MESSAGE)
+  }
+
+  function clearStorageError() {
+    setStorageError(null)
+  }
+
+  function persistQuestionsList(list) {
+    setQuestions(list)
+    reportPersistResult(saveQuestions(list))
+  }
+
+  function persistTracks(tracks) {
+    setCustomTracks(tracks)
+    reportPersistResult(saveCustomTracks(tracks))
+  }
+
   function persistQuizProgress(nextMap) {
     setQuizProgressState(nextMap)
-    saveQuizProgressMap(nextMap)
+    reportPersistResult(saveQuizProgressMap(nextMap))
   }
 
   useEffect(() => {
@@ -357,30 +386,39 @@ export function AppProvider({ children }) {
     if (!valid) return { error: 'פג תוקף המנוי שלך', expired: true }
     clearStoredMode()
     setModeState(null)
-    setCurrentUser(found)
-    setUser(found)
-    return { success: true, user: found }
+    const sanitizedUser = sanitizeUser(found)
+    setCurrentUser(sanitizedUser)
+    setUser(sanitizedUser)
+    return { success: true, user: sanitizedUser }
   }
 
   function register(profileData) {
-    const normalizedUsername = profileData.username?.trim().replace(/\s+/g, ' ') || ''
+    const baseUsername = profileData.username?.trim().replace(/\s+/g, ' ') || ''
     const normalizedEmail = profileData.email?.trim().toLowerCase() || ''
     const users = serverGetUsers()
-    if (!normalizedUsername || !profileData.password?.trim()) {
+    if (!baseUsername || !profileData.password?.trim()) {
       return { error: 'יש למלא שם משתמש וסיסמה' }
-    }
-
-    if (users.find(existingUser => existingUser.username?.trim().toLowerCase() === normalizedUsername.toLowerCase())) {
-      return { error: 'שם המשתמש כבר קיים' }
     }
 
     if (normalizedEmail && users.find(existingUser => existingUser.email?.trim().toLowerCase() === normalizedEmail)) {
       return { error: 'כבר קיים חשבון עם כתובת המייל הזו' }
     }
 
+    // מספר תלמידים עם אותו שם פרטי ושם משפחה יקבלו שם משתמש ייחודי במספר סידורי, במקום להיחסם מהרשמה
+    function isUsernameTaken(candidate) {
+      return users.some(existingUser => existingUser.username?.trim().toLowerCase() === candidate.toLowerCase())
+    }
+
+    let uniqueUsername = baseUsername
+    let suffix = 2
+    while (isUsernameTaken(uniqueUsername)) {
+      uniqueUsername = `${baseUsername} ${suffix}`
+      suffix += 1
+    }
+
     const newUser = {
-      id: Date.now().toString(),
-      username: normalizedUsername,
+      id: crypto.randomUUID(),
+      username: uniqueUsername,
       password: profileData.password,
       role: 'student',
       subscription_date: new Date().toISOString(),
@@ -395,16 +433,18 @@ export function AppProvider({ children }) {
     serverSaveUser(newUser)
     clearStoredMode()
     setModeState(null)
-    setCurrentUser(newUser)
-    setUser(newUser)
-    return { success: true, user: newUser }
+    const sanitizedUser = sanitizeUser(newUser)
+    setCurrentUser(sanitizedUser)
+    setUser(sanitizedUser)
+    return { success: true, user: sanitizedUser }
   }
 
   function updateUserProfile(profileData) {
     if (!user) return { error: 'לא נמצא משתמש פעיל.' }
 
+    const fullUser = serverFindUserById(user.id) || user
     const nextUser = {
-      ...user,
+      ...fullUser,
       firstName: profileData.firstName?.trim() || '',
       lastName: profileData.lastName?.trim() || '',
       city: profileData.city?.trim() || '',
@@ -417,9 +457,10 @@ export function AppProvider({ children }) {
     }
 
     serverSaveUser(nextUser)
-    setCurrentUser(nextUser)
-    setUser(nextUser)
-    return { success: true, user: nextUser }
+    const sanitizedUser = sanitizeUser(nextUser)
+    setCurrentUser(sanitizedUser)
+    setUser(sanitizedUser)
+    return { success: true, user: sanitizedUser }
   }
 
   function resetLearningFlow() {
@@ -451,10 +492,9 @@ export function AppProvider({ children }) {
   function addQuestion(question) {
     const relatedQuestions = questions.filter(existing => getQuestionGroupKey(existing) === getQuestionGroupKey(question))
     const nextPosition = question.position || (relatedQuestions.length > 0 ? Math.max(...relatedQuestions.map(item => item.position || 0)) + 1 : 1)
-    const newQuestion = { ...question, id: `custom-${Date.now()}`, position: nextPosition }
+    const newQuestion = { ...question, id: `custom-${crypto.randomUUID()}`, position: nextPosition }
     const updatedQuestions = [...questions, newQuestion]
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
+    persistQuestionsList(updatedQuestions)
     return newQuestion
   }
 
@@ -487,8 +527,7 @@ export function AppProvider({ children }) {
 
     const updatedQuestions = questions.map(question => (question.id === id ? updatedQuestion : question))
     const { normalized } = ensureQuestionPositions(updatedQuestions)
-    setQuestions(normalized)
-    saveQuestions(normalized)
+    persistQuestionsList(normalized)
   }
 
   function duplicateQuestionToTargets(id, targets) {
@@ -516,22 +555,19 @@ export function AppProvider({ children }) {
 
     if (createdQuestions.length === 0) return []
 
-    setQuestions(workingQuestions)
-    saveQuestions(workingQuestions)
+    persistQuestionsList(workingQuestions)
     return createdQuestions
   }
 
   function deleteQuestion(id) {
     const updatedQuestions = questions.filter(question => question.id !== id)
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
+    persistQuestionsList(updatedQuestions)
   }
 
   function deleteQuestions(ids) {
     const idSet = new Set(ids)
     const updatedQuestions = questions.filter(question => !idSet.has(question.id))
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
+    persistQuestionsList(updatedQuestions)
   }
 
   function moveQuestion(id, direction) {
@@ -553,13 +589,12 @@ export function AppProvider({ children }) {
       return question
     })
 
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
+    persistQuestionsList(updatedQuestions)
   }
 
   function addTrack(track) {
     const normalizedTrack = {
-      id: `track-${Date.now()}`,
+      id: `track-${crypto.randomUUID()}`,
       subject: track.subject.trim(),
       questionTypes: track.questionTypes.trim() || 'מותאם אישית',
       levels: track.levels || [],
@@ -571,8 +606,7 @@ export function AppProvider({ children }) {
       [track.grade]: [...(customTracks[track.grade] || []), normalizedTrack],
     }
 
-    setCustomTracks(nextTracks)
-    saveCustomTracks(nextTracks)
+    persistTracks(nextTracks)
     return normalizedTrack
   }
 
@@ -598,8 +632,7 @@ export function AppProvider({ children }) {
         [targetGrade]: [...(customTracks[targetGrade] || []), normalizedTrack],
       }
 
-      setCustomTracks(nextTracks)
-      saveCustomTracks(nextTracks)
+      persistTracks(nextTracks)
       createdTrack = true
     }
 
@@ -637,8 +670,7 @@ export function AppProvider({ children }) {
     })
 
     if (copiedQuestions > 0) {
-      setQuestions(workingQuestions)
-      saveQuestions(workingQuestions)
+      persistQuestionsList(workingQuestions)
     }
 
     return { createdTrack, copiedQuestions }
@@ -661,10 +693,8 @@ export function AppProvider({ children }) {
       )),
     }
 
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
-    setCustomTracks(nextTracks)
-    saveCustomTracks(nextTracks)
+    persistQuestionsList(updatedQuestions)
+    persistTracks(nextTracks)
   }
 
   function deleteTrack(grade, subject) {
@@ -674,10 +704,8 @@ export function AppProvider({ children }) {
       [grade]: (customTracks[grade] || []).filter(track => track.subject !== subject),
     }
 
-    setQuestions(updatedQuestions)
-    saveQuestions(updatedQuestions)
-    setCustomTracks(nextTracks)
-    saveCustomTracks(nextTracks)
+    persistQuestionsList(updatedQuestions)
+    persistTracks(nextTracks)
 
     if (selectedGrade === grade && selectedSubject === subject) {
       setSelectedSubject(null)
@@ -847,7 +875,7 @@ export function AppProvider({ children }) {
 
     if (user) {
       saveResult({
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         userId: user.id,
         subject: HOLLAND_SUBJECT,
         age: selectedGrade,
@@ -901,8 +929,12 @@ export function AppProvider({ children }) {
     const totalQuestions = quizQuestions.length
     const score = results.filter(result => result.correct).length
     const percent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
+    const answeredIds = new Set(results.map(result => result.question.id))
+    const unansweredItems = quizQuestions
+      .filter(question => !answeredIds.has(question.id))
+      .map(question => ({ question, userAnswer: null, correct: false }))
     const summary = {
-      items: results,
+      items: [...results, ...unansweredItems],
       totalQuestions,
       answeredQuestions: results.length,
       correctAnswers: score,
@@ -927,7 +959,7 @@ export function AppProvider({ children }) {
 
     if (user) {
       saveResult({
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         userId: user.id,
         subject: selectedSubject,
         age: selectedGrade,
@@ -993,6 +1025,8 @@ export function AppProvider({ children }) {
         beginExamSession,
         finishQuiz,
         resetLearningFlow,
+        storageError,
+        clearStorageError,
       }}
     >
       {children}

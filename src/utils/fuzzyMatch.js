@@ -18,11 +18,28 @@ function levenshtein(a, b) {
 
 // ניקוי מחרוזת: הסרת רווחים מיותרים, המרה לאותיות קטנות
 function normalize(str) {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ')
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/["'׳״`]/g, '')
+    .replace(/[-–—]/g, ' ')
+    .replace(/[.,!?():]/g, ' ')
+    .replace(/\s+/g, ' ')
+}
+
+// בודקת אם מחרוזת מייצגת מספר בלבד (כולל שברים עשרוניים עם נקודה או פסיק)
+function isNumeric(str) {
+  return /^-?\d+([.,]\d+)?$/.test(str)
+}
+
+// סף מדורג לפי אורך התשובה הנכונה: ככל שהתשובה קצרה יותר, כך יש לדרוש התאמה מדויקת יותר
+function getThreshold(length) {
+  if (length <= 3) return 0
+  if (length <= 6) return 1
+  return Math.floor(length * 0.2)
 }
 
 // בדיקה אם תשובת המשתמש תואמת אחת מהתשובות הנכונות
-// סף: מרחק עד 2 תווים, או עד 20% מאורך התשובה (הגדול מביניהם)
 export function fuzzyMatch(userAnswer, correctAnswers) {
   const cleaned = normalize(userAnswer)
   if (!cleaned) return false
@@ -31,9 +48,11 @@ export function fuzzyMatch(userAnswer, correctAnswers) {
     const cleanedCorrect = normalize(correct)
     // התאמה מדויקת
     if (cleaned === cleanedCorrect) return true
+    // תשובות מספריות - השוואה מדויקת בלבד, בלי סובלנות למרחק
+    if (isNumeric(cleanedCorrect) || isNumeric(cleaned)) return false
     // חישוב מרחק
     const dist = levenshtein(cleaned, cleanedCorrect)
-    const threshold = Math.max(2, Math.floor(cleanedCorrect.length * 0.2))
+    const threshold = getThreshold(cleanedCorrect.length)
     return dist <= threshold
   })
 }

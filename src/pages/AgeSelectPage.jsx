@@ -36,7 +36,7 @@ export default function AgeSelectPage() {
               </div>
               <div className="flex-1">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <h2 className="text-2xl font-extrabold text-slate-950">{grade.label}</h2>
+                  <h2 className="text-2xl font-bold text-slate-950">{grade.label}</h2>
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
                     מסלול פעיל
                   </span>

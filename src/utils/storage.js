@@ -1,7 +1,6 @@
 import { GRADES } from '../data/learningTracks'
 
 const KEYS = {
-  USERS: 'kq_users',
   CURRENT_USER: 'kq_current_user',
   QUESTIONS: 'kq_questions',
   TRACKS: 'kq_tracks',
@@ -12,51 +11,79 @@ function getTrackDefaults() {
   return Object.fromEntries(GRADES.map(grade => [grade.value, []]))
 }
 
+// קריאה בטוחה מ-localStorage: מגנה מפני JSON פגום כדי שהאפליקציה לא תקרוס בטעינה
+function safeParse(raw, fallback) {
+  if (!raw) return fallback
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return fallback
+  }
+}
+
+// כתיבה בטוחה ל-localStorage: מחזירה false כשנגמר מקום האחסון (QuotaExceededError) במקום לזרוק בשקט
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function getQuestions() {
-  const raw = localStorage.getItem(KEYS.QUESTIONS)
-  return raw ? JSON.parse(raw) : null
+  return safeParse(localStorage.getItem(KEYS.QUESTIONS), null)
 }
 
 export function saveQuestions(questions) {
-  localStorage.setItem(KEYS.QUESTIONS, JSON.stringify(questions))
+  return safeSetItem(KEYS.QUESTIONS, questions)
 }
 
 export function getCustomTracks() {
-  const raw = localStorage.getItem(KEYS.TRACKS)
-  return raw ? { ...getTrackDefaults(), ...JSON.parse(raw) } : getTrackDefaults()
+  const parsed = safeParse(localStorage.getItem(KEYS.TRACKS), null)
+  return parsed ? { ...getTrackDefaults(), ...parsed } : getTrackDefaults()
 }
 
 export function saveCustomTracks(tracks) {
-  localStorage.setItem(KEYS.TRACKS, JSON.stringify(tracks))
+  return safeSetItem(KEYS.TRACKS, tracks)
 }
 
 export function getQuizProgressMap() {
-  const raw = localStorage.getItem(KEYS.QUIZ_PROGRESS)
-  return raw ? JSON.parse(raw) : {}
+  return safeParse(localStorage.getItem(KEYS.QUIZ_PROGRESS), {})
 }
 
 export function saveQuizProgressMap(progressMap) {
-  localStorage.setItem(KEYS.QUIZ_PROGRESS, JSON.stringify(progressMap))
-}
-
-export function getUsers() {
-  const raw = localStorage.getItem(KEYS.USERS)
-  return raw ? JSON.parse(raw) : []
-}
-
-export function saveUsers(users) {
-  localStorage.setItem(KEYS.USERS, JSON.stringify(users))
+  return safeSetItem(KEYS.QUIZ_PROGRESS, progressMap)
 }
 
 export function getCurrentUser() {
-  const raw = localStorage.getItem(KEYS.CURRENT_USER)
-  return raw ? JSON.parse(raw) : null
+  return safeParse(localStorage.getItem(KEYS.CURRENT_USER), null)
 }
 
 export function setCurrentUser(user) {
   if (user) {
-    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user))
-  } else {
+    return safeSetItem(KEYS.CURRENT_USER, user)
+  }
+
+  try {
     localStorage.removeItem(KEYS.CURRENT_USER)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function getSchemaVersion() {
+  const raw = localStorage.getItem(KEYS.SCHEMA_VERSION)
+  const parsed = raw ? Number(raw) : 0
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+export function setSchemaVersion(version) {
+  try {
+    localStorage.setItem(KEYS.SCHEMA_VERSION, String(version))
+    return true
+  } catch {
+    return false
   }
 }

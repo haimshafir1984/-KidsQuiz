@@ -1,6 +1,9 @@
+import { useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { GENERAL_EXAM_SUBJECT, getActivityLabel, getGradeConfig } from '../data/learningTracks'
+
+const CONFETTI_COLORS = ['bg-blue-500', 'bg-violet-500', 'bg-amber-400', 'bg-emerald-500', 'bg-rose-400']
 
 function getGradeEmoji(percent) {
   if (percent === 100) return '💎'
@@ -9,11 +12,32 @@ function getGradeEmoji(percent) {
   return '💪'
 }
 
+function Confetti() {
+  const pieces = useMemo(() => Array.from({ length: 18 }, (_, index) => ({
+    id: index,
+    left: Math.round(Math.random() * 96),
+    delay: Math.round(Math.random() * 300),
+    color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+  })), [])
+
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-0 h-40 overflow-hidden motion-reduce:hidden" aria-hidden="true">
+      {pieces.map(piece => (
+        <span
+          key={piece.id}
+          className={`absolute top-0 h-2 w-2 rounded-sm ${piece.color} animate-confetti-fall`}
+          style={{ left: `${piece.left}%`, animationDelay: `${piece.delay}ms` }}
+        />
+      ))}
+    </div>
+  )
+}
+
 function AnswerSection({ title, tone, items }) {
   return (
     <section className="edu-card">
       <div className="mb-5 text-right">
-        <h2 className="text-2xl font-extrabold text-slate-950">{title}</h2>
+        <h2 className="text-2xl font-bold text-slate-950">{title}</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           כאן אפשר לראות בדיוק איך עניתם ומה הייתה התשובה הנכונה בכל שאלה.
         </p>
@@ -79,8 +103,23 @@ export default function SummaryPage() {
   const mistakes = quizResults.items.filter(result => !result.correct)
   const successes = quizResults.items.filter(result => result.correct)
   const isGeneralExam = quizResults.subject === GENERAL_EXAM_SUBJECT
+  const isExam = quizResults.activityType === 'exam'
   const gradeEmoji = getGradeEmoji(percent)
   const gradeConfig = getGradeConfig(selectedGrade)
+
+  const subjectBreakdown = isGeneralExam
+    ? Object.values(
+        quizResults.items.reduce((accumulator, item) => {
+          const subject = item.question.subject || 'ללא נושא'
+          if (!accumulator[subject]) accumulator[subject] = { subject, correct: 0, total: 0 }
+          accumulator[subject].total += 1
+          if (item.correct) accumulator[subject].correct += 1
+          return accumulator
+        }, {}),
+      )
+        .map(entry => ({ ...entry, percent: Math.round((entry.correct / entry.total) * 100) }))
+        .sort((first, second) => first.subject.localeCompare(second.subject, 'he'))
+    : []
 
   function handleRetry() {
     const quiz = prepareQuiz({
@@ -113,13 +152,14 @@ export default function SummaryPage() {
 
   return (
     <div className="page-shell">
-      <section className="edu-card p-6 sm:p-8">
+      <section className="edu-card relative overflow-hidden p-6 sm:p-8">
+        {percent === 100 && <Confetti />}
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="text-right">
             <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-700 ring-1 ring-slate-100">
               סיכום {getActivityLabel(quizResults.activityType)} {gradeEmoji}
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 sm:text-4xl">
+            <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">
               {quizResults.timedOut ? 'הזמן הסתיים והפעילות הושלמה' : 'הפעילות הושלמה בהצלחה'}
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -129,10 +169,10 @@ export default function SummaryPage() {
             </p>
           </div>
 
-          <div className="rounded-[20px] border-2 border-slate-100 bg-violet-50 px-8 py-6 text-center shadow-[0_10px_15px_-3px_rgba(0,0,0,0.04)]">
+          <div className="rounded-card border border-slate-100 bg-violet-50 px-8 py-6 text-center shadow-card">
             <div className="text-5xl">{gradeEmoji}</div>
             <div className="mt-2 text-sm font-semibold text-slate-600">ציון כולל</div>
-            <div className="mt-1 text-4xl font-extrabold text-slate-950">{percent}%</div>
+            <div className="mt-1 text-4xl font-bold text-slate-950">{percent}%</div>
           </div>
         </div>
       </section>
@@ -144,12 +184,39 @@ export default function SummaryPage() {
               <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl ${card.tone}`}>
                 {card.emoji}
               </div>
-              <div className="text-3xl font-extrabold text-slate-950">{card.value}</div>
+              <div className="text-3xl font-bold text-slate-950">{card.value}</div>
             </div>
             <div className="text-sm font-semibold text-slate-600">{card.label}</div>
           </div>
         ))}
       </section>
+
+      {isGeneralExam && subjectBreakdown.length > 0 && (
+        <section className="edu-card">
+          <div className="mb-5 text-right">
+            <h2 className="text-2xl font-bold text-slate-950">פילוח לפי נושא</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              כמה תשובות נכונות נאספו בכל נושא במבחן הכללי - שימושי כדי לדעת איפה כדאי להתמקד בתרגול הבא.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {subjectBreakdown.map(entry => (
+              <div key={entry.subject} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
+                <div className="text-sm font-semibold text-slate-700">{entry.subject}</div>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <span className={`text-lg font-bold ${
+                    entry.percent >= 80 ? 'text-emerald-700' : entry.percent >= 60 ? 'text-blue-700' : 'text-red-600'
+                  }`}>
+                    {entry.percent}%
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">{entry.correct} מתוך {entry.total}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {isGeneralExam ? (
         <>
@@ -180,11 +247,11 @@ export default function SummaryPage() {
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <button onClick={handleRetry} className="btn-primary">
-          התחלה מחדש
-        </button>
-        <button onClick={() => navigate('/track')} className="btn-secondary">
+        <button onClick={() => navigate('/track')} className={isExam ? 'btn-primary' : 'btn-secondary'}>
           חזרה למסלול
+        </button>
+        <button onClick={handleRetry} className={isExam ? 'btn-secondary' : 'btn-primary'}>
+          התחלה מחדש
         </button>
         <button onClick={() => navigate('/subject')} className="btn-muted">
           בחירת נושא אחר

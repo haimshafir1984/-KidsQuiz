@@ -136,6 +136,87 @@ function sanitizeQuestion(question) {
   }
 }
 
+function uniqueAnswers(values = []) {
+  const seen = new Set()
+  return values.filter(value => {
+    const normalized = value.trim()
+    if (!normalized || seen.has(normalized)) return false
+    seen.add(normalized)
+    return true
+  })
+}
+
+function removeTitlePrefix(answer) {
+  return answer.replace(/^(הרב|רבי)\s+/u, '').trim()
+}
+
+function addTitleVariants(answer) {
+  const variants = []
+  const withoutTitle = removeTitlePrefix(answer)
+  if (withoutTitle && withoutTitle !== answer) {
+    variants.push(withoutTitle)
+  }
+  if (withoutTitle && !/^(הרב|רבי)\s+/u.test(answer) && withoutTitle.split(' ').length >= 2) {
+    variants.push(`הרב ${withoutTitle}`, `רבי ${withoutTitle}`)
+  }
+  return variants
+}
+
+function buildNameShortVariant(answer) {
+  const cleanAnswer = removeTitlePrefix(answer)
+  const parts = cleanAnswer.split(' ').filter(Boolean)
+  if (parts.length >= 3 && parts.includes('בן')) {
+    const benIndex = parts.indexOf('בן')
+    return parts.slice(0, benIndex).join(' ')
+  }
+  return null
+}
+
+function buildAcronymVariants(answer) {
+  const acronymMap = {
+    'רבי משה בן מימון': ['הרמב"ם', 'הרמבם', 'רמב"ם', 'רמבם', 'משה בן מימון'],
+    'הרב משה בן מימון': ['הרמב"ם', 'הרמבם', 'רמב"ם', 'רמבם', 'משה בן מימון'],
+    'רבי יוסף קארו': ['הבית יוסף', 'בית יוסף', 'מרן הבית יוסף'],
+    'רבי שמעון פיקוס': ['הרב שמעון פיקוס'],
+    'רבי יונה גירונדי': ['רבינו יונה', 'רבנו יונה'],
+    'אליעזר עבד אברהם': ['אליעזר', 'עבד אברהם'],
+    'נחשון בן עמינדב': ['נחשון'],
+    'יהושע בן נון וכלב בן יפונה': ['יהושע וכלב', 'כלב ויהושע'],
+    'אב ובנו': ['אב ובן'],
+    'בני דודים': ['בנות דודים', 'בני דוד'],
+    'אח ואחות': ['אחיות למחצה'],
+    'אח ואחות למחצה': ['אח ואחות'],
+    'אח ואחות מאב': ['אח ואחות'],
+    'גיסים': ['גיסים זה לזה'],
+  }
+
+  return acronymMap[answer] || []
+}
+
+function buildOpenAnswerVariants(question) {
+  if (question.type !== 'open' || !Array.isArray(question.correct_answer) || question.correct_answer.length === 0) {
+    return question
+  }
+
+  const collectedAnswers = [...question.correct_answer]
+
+  question.correct_answer.forEach(answer => {
+    collectedAnswers.push(...addTitleVariants(answer))
+
+    const shortName = buildNameShortVariant(answer)
+    if (shortName) {
+      collectedAnswers.push(shortName)
+    }
+
+    collectedAnswers.push(...buildAcronymVariants(answer))
+  })
+
+  return {
+    ...question,
+    correct_answer: uniqueAnswers(collectedAnswers),
+  }
+}
+
 const HEADER_ONLY_TEXTS = new Set([
   'באיזה חודש?',
   'של איזה חודש המזלות האלה?',
@@ -307,7 +388,8 @@ function buildThinkingChallengeQuestions(items) {
 
 const normalizedDemoQuestions = makeUniqueIds(
   normalizeImportedQuestionStructure(importedDemoQuestions)
-    .map(sanitizeQuestion),
+    .map(sanitizeQuestion)
+    .map(buildOpenAnswerVariants),
 )
   .map(patchOutlierQuestion)
 

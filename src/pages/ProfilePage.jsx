@@ -166,7 +166,7 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          <section className="rounded-[28px] border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(37,99,235,0.24)] ring-1 ring-slate-100 backdrop-blur-sm">
+          <section className="rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(37,99,235,0.24)] ring-1 ring-slate-100 backdrop-blur-sm">
             <div className="mb-5 text-right">
               <div className="mb-3 inline-flex rounded-full bg-gradient-to-l from-sky-50 to-violet-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-sky-100">
                 היסטוריית מבחנים ותרגולים
@@ -235,7 +235,7 @@ export default function ProfilePage() {
         </section>
 
         <section className="space-y-6">
-          <section className="rounded-[28px] border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(124,58,237,0.22)] ring-1 ring-slate-100 backdrop-blur-sm sm:p-8">
+          <section className="rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(124,58,237,0.22)] ring-1 ring-slate-100 backdrop-blur-sm sm:p-8">
             <div className="mb-6 flex items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 text-blue-700">
                 <UserCircle2 className="h-5 w-5" />
@@ -311,7 +311,7 @@ export default function ProfilePage() {
             </form>
           </section>
 
-          <section className="rounded-[28px] border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(14,165,233,0.2)] ring-1 ring-slate-100 backdrop-blur-sm">
+          <section className="rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(14,165,233,0.2)] ring-1 ring-slate-100 backdrop-blur-sm">
             <div className="mb-5 text-right">
               <div className="mb-3 inline-flex rounded-full bg-gradient-to-l from-sky-50 to-violet-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-sky-100">
                 שמירות פעילות

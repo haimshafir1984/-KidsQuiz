@@ -175,7 +175,7 @@ export default function AuthPage() {
           <div className="mb-5 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-700">
             הגישה הסתיימה
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-950">פג תוקף המנוי</h1>
+          <h1 className="text-3xl font-bold text-slate-950">פג תוקף המנוי</h1>
           <p className="mt-3 leading-7 text-slate-600">
             תקופת הגישה למערכת הסתיימה. כדי להמשיך לתרגל ולשמור הישגים, יש ליצור קשר עם מנהל המערכת.
           </p>
@@ -236,7 +236,7 @@ export default function AuthPage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-2xl rounded-[28px] border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(37,99,235,0.28)] ring-1 ring-slate-100 backdrop-blur-sm sm:p-8">
+        <section className="mx-auto w-full max-w-2xl rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(37,99,235,0.28)] ring-1 ring-slate-100 backdrop-blur-sm sm:p-8">
           <div className="mb-6 flex items-start gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 text-blue-700">
               <KeyRound className="h-5 w-5" />
@@ -319,7 +319,9 @@ export default function AuthPage() {
                   <h3 className="mb-4 text-lg font-bold text-slate-950">פרטים אישיים</h3>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">שם פרטי</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        שם פרטי <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={registerForm.firstName}
@@ -330,7 +332,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">שם משפחה</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        שם משפחה <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={registerForm.lastName}
@@ -341,7 +345,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">עיר מגורים</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        עיר מגורים <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={registerForm.city}
@@ -352,7 +358,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">תאריך לידה</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        תאריך לידה <span className="font-normal text-slate-400">(אופציונלי)</span>
+                      </label>
                       <input
                         type="date"
                         value={registerForm.birthDate}
@@ -375,7 +383,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">סיסמה</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        סיסמה <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="password"
                         value={registerForm.password}
@@ -387,7 +397,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">חזרה על סיסמה</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        חזרה על סיסמה <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="password"
                         value={registerForm.confirmPassword}
@@ -407,7 +419,9 @@ export default function AuthPage() {
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">טלפון</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        טלפון <span className="font-normal text-slate-400">(אופציונלי)</span>
+                      </label>
                       <div className="relative">
                         <Phone className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <input
@@ -421,7 +435,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-900">מייל</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-900">
+                        מייל <span className="text-red-500">*</span>
+                      </label>
                       <div className="relative">
                         <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <input

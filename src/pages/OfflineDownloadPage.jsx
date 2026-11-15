@@ -78,7 +78,7 @@ export default function OfflineDownloadPage() {
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="edu-card space-y-5 text-right">
-          <h2 className="text-2xl font-extrabold text-slate-950">אותה מערכת, רק מקומית</h2>
+          <h2 className="text-2xl font-bold text-slate-950">אותה מערכת, רק מקומית</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               'אותו UI של המערכת הקיימת',
@@ -127,7 +127,7 @@ export default function OfflineDownloadPage() {
             <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
               <div className="text-lg font-bold text-red-700">קישור ההורדה לא הוגדר</div>
               <p className="mt-2 text-sm leading-6 text-red-700">
-                כדי להפעיל הורדת אופליין, יש להגדיר ב-Render את המשתנה VITE_OFFLINE_DOWNLOAD_URL לקובץ בשם {DEFAULT_FILE_NAME}.
+                כדי להפעיל הורדת אופליין, יש להגדיר בהגדרות הפריסה (Dokploy, כ-Build Arg) את המשתנה VITE_OFFLINE_DOWNLOAD_URL לקובץ בשם {DEFAULT_FILE_NAME}.
               </p>
               <div className="mt-4">
                 <button onClick={handleContinueOnline} className="btn-muted">
@@ -139,7 +139,7 @@ export default function OfflineDownloadPage() {
         </div>
 
         <aside className="edu-card text-right">
-          <h2 className="text-2xl font-extrabold text-slate-950">מה המשתמש צריך לעשות?</h2>
+          <h2 className="text-2xl font-bold text-slate-950">מה המשתמש צריך לעשות?</h2>
           <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
             <li>1. ללחוץ על כפתור האופליין.</li>
             <li>2. להמתין שהקובץ ירד לתיקיית ההורדות במחשב.</li>
