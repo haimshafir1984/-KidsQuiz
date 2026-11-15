@@ -1,6 +1,7 @@
 import importedDemoQuestions from './importedDemoQuestions.js'
 import importedChallengeQuestions from './importedChallengeQuestions.js'
 import seriesCompletionQuestions from './seriesCompletionQuestions.js'
+import tanakhNewQuestions from './tanakhNewQuestions.js'
 import { normalizeSubjectName } from './subjectCatalog.js'
 
 const THINKING_CHALLENGE_SUBJECT_MAP = {
@@ -405,4 +406,5 @@ export default [
   ...importedChallengeQuestions,
   ...thinkingChallengeQuestions,
   ...seriesCompletionQuestions,
+  ...tanakhNewQuestions,
 ]

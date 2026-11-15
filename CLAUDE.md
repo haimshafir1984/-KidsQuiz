@@ -45,6 +45,7 @@ KidsQuiz/
     │   ├── seedQuestions.js      # איחוד כל מאגרי השאלות + נרמול מבנה/נושאים
     │   ├── learningTracks.js     # הגדרת הקטגוריות (GRADES) והמסלולים הבסיסיים
     │   ├── subjectCatalog.js     # קטלוג נושאים לכל קטגוריה (צבע, אימוג'י, סוגי שאלות)
+    │   ├── tanakhNewQuestions.js     # נושא "תנך חדש" (grade-8): תתי-נושאים כ-levels, נוצר מ-תנך.docx
     │   ├── importedDemoQuestions.js / importedChallengeQuestions.js / seriesCompletionQuestions.js
     │   └── hollandQuestionnaire.js  # שאלון הולנד (RIASEC) לכיתות ח'/י"ב
     │
@@ -210,6 +211,12 @@ npm run license:generate -- --customerName="שם הלקוח"
 - `window.desktopAPI` (נחשף דרך `preload.cjs`) קיים רק בגרסת הדסקטופ; `runtime.js` בודק את קיומו.
 - הרישיון (`license.json`) נחתם ב-HMAC ונבדק ב-`electron/main.cjs`; תוקף ברירת מחדל 180 יום מהפעלה ראשונה.
 - אבטחה: CSP מוגדר ב-`index.html`, וחלון ה-Electron חוסם פתיחת חלונות חדשים וניווט לכתובות חיצוניות (`setWindowOpenHandler` + `will-navigate`).
+
+---
+
+## נושאים עם תתי-נושאים (levelsKind)
+
+נושא שמוגדר ב-`subjectCatalog.js` עם `levelsKind: 'subtopic'` מציג את ה-`levels` שלו כ"תתי-נושאים" (בסדר ההגדרה, לא אלפביתי) במקום "רמות קושי". כך בנוי "תנך חדש" (15 תתי-נושאים). שאלות נטענות לפי `id` יציב (`tanakh-new-<קטגוריה>-<מספר>`) ולכן מתמזגות גם ל-localStorage קיים.
 
 ---
 

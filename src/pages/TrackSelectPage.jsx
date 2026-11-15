@@ -135,9 +135,9 @@ export default function TrackSelectPage() {
               {styling.emoji}
             </div>
             <div className="flex-1 text-right">
-              <h2 className="text-2xl font-bold text-slate-950">בחירת רמה</h2>
+              <h2 className="text-2xl font-bold text-slate-950">{track.levelsKind === 'subtopic' ? 'בחירת תת-נושא' : 'בחירת רמה'}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                {track.levels.length > 0 ? 'המסלול מחולק לרמות כדי להתאים את עומק התרגול.' : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
+                {track.levels.length > 0 ? (track.levelsKind === 'subtopic' ? 'הנושא מחולק לתתי-נושאים לפי סוג השאלות.' : 'המסלול מחולק לרמות כדי להתאים את עומק התרגול.') : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
               </p>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function TrackSelectPage() {
                 >
                   <div className="text-lg font-bold">{level}</div>
                   <div className="mt-1 text-sm opacity-80">
-                    {level === 'ללא רמה' ? 'הנושא הזה פועל כיחידה אחת.' : 'רמת קושי נפרדת עם שאלות ייעודיות.'}
+                    {level === 'ללא רמה' ? 'הנושא הזה פועל כיחידה אחת.' : (track.levelsKind === 'subtopic' ? 'תרגול ממוקד בסוג שאלות זה.' : 'רמת קושי נפרדת עם שאלות ייעודיות.')}
                   </div>
                 </button>
               )

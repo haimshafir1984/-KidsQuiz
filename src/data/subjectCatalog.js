@@ -1,9 +1,22 @@
+import { TANAKH_NEW_SUBJECT, TANAKH_NEW_LEVEL_LIST } from './tanakhNewQuestions.js'
+
 const BASE_SUBJECTS = {
   tanakh: {
     label: 'תנ"ך',
     aliases: [' תנ"ך'],
     questionTypes: 'פתוחות וסגורות',
     levels: [],
+    activities: ['practice'],
+    tone: 'bg-amber-50 text-amber-600',
+    hover: 'hover:border-amber-300',
+    emoji: '📖',
+  },
+  tanakhNew: {
+    label: TANAKH_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'פתוחות וסגורות',
+    levels: TANAKH_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
     activities: ['practice'],
     tone: 'bg-amber-50 text-amber-600',
     hover: 'hover:border-amber-300',
@@ -214,6 +227,7 @@ const BASE_SUBJECTS = {
 export const SUBJECT_CATALOG = {
   'grade-8': [
     BASE_SUBJECTS.tanakh,
+    BASE_SUBJECTS.tanakhNew,
     BASE_SUBJECTS.pirkeiAvot,
     BASE_SUBJECTS.yearlyCycle,
     BASE_SUBJECTS.shabbat,
@@ -371,6 +385,7 @@ export function getCatalogTracksForGrade(grade) {
     subject: subject.label,
     questionTypes: subject.questionTypes,
     levels: [...subject.levels],
+    ...(subject.levelsKind ? { levelsKind: subject.levelsKind } : {}),
     activities: [...subject.activities],
   }))
 }

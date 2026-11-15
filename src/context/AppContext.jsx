@@ -111,9 +111,21 @@ function mergeTrackCollections(baseTracks = [], questionTracks = []) {
   })
 
   questionTracks.forEach(track => {
+    const baseTrack = merged.get(track.subject)
+    const questionLevels = [...(track.levels || [])]
+    // נושא עם תתי-נושאים: שומרים על סדר ההגדרה ועל סוג החלוקה, ולא על מיון אלפביתי
+    const keepsBaseOrder = baseTrack?.levelsKind === 'subtopic'
+    const levels = keepsBaseOrder
+      ? [
+          ...baseTrack.levels.filter(level => questionLevels.includes(level)),
+          ...questionLevels.filter(level => !baseTrack.levels.includes(level)),
+        ]
+      : questionLevels
+
     merged.set(track.subject, {
       ...track,
-      levels: [...(track.levels || [])],
+      ...(keepsBaseOrder ? { levelsKind: baseTrack.levelsKind } : {}),
+      levels,
       activities: [...(track.activities || ['practice'])],
     })
   })
