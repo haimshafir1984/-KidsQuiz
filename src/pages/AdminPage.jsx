@@ -523,6 +523,15 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
     updateField('correct_answer', nextAnswers)
   }
 
+  function addCorrectAnswer() {
+    updateField('correct_answer', [...form.correct_answer, ''])
+  }
+
+  function removeCorrectAnswer(index) {
+    const nextAnswers = form.correct_answer.filter((_, answerIndex) => answerIndex !== index)
+    updateField('correct_answer', nextAnswers.length > 0 ? nextAnswers : [''])
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
 
@@ -617,14 +626,32 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
         <div className="mt-4 space-y-2">
           <label className="block text-sm font-semibold text-slate-700">תשובות נכונות</label>
           {form.correct_answer.map((answer, index) => (
-            <input
-              key={index}
-              value={answer}
-              onChange={event => updateCorrectAnswer(index, event.target.value)}
-              className="input-field"
-              placeholder="תשובה נכונה"
-            />
+            <div key={index} className="flex items-center gap-2">
+              <input
+                value={answer}
+                onChange={event => updateCorrectAnswer(index, event.target.value)}
+                className="input-field flex-1"
+                placeholder={index === 0 ? 'תשובה נכונה' : `תשובה נוספת ${index}`}
+              />
+              {form.correct_answer.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeCorrectAnswer(index)}
+                  className="btn-muted px-3 py-2 text-red-600"
+                  aria-label={`הסרת תשובה ${index + 1}`}
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+            </div>
           ))}
+          <button type="button" onClick={addCorrectAnswer} className="btn-secondary px-4 py-2 text-sm">
+            <Plus size={16} className="ml-1 inline" />
+            הוספת תשובה נוספת
+          </button>
+          {form.type === 'open' && (
+            <p className="text-xs text-slate-500">בשאלה פתוחה כל תשובה כאן תתקבל כנכונה (למשל "יהושע" ו"יהושע בן נון").</p>
+          )}
         </div>
       </section>
 
