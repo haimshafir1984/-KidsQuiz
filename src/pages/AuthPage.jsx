@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, LineChart, Lock, Mail, Phone, UserPlus2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { isDesktopRuntime } from '../utils/runtime'
+import { TANAKH_NEW_SUBJECT } from '../data/tanakhNewQuestions'
 
 const FEATURE_CARDS = [
   {
@@ -48,6 +49,11 @@ function PasswordInput({ value, onChange, placeholder, autoComplete }) {
   )
 }
 
+// קישורי הדגמה: /auth?tab=register&start=tanakh-new מעביר אחרי ההרשמה ישר לנושא "תנך חדש"
+const START_TARGETS = {
+  'tanakh-new': { grade: 'grade-8', subject: TANAKH_NEW_SUBJECT },
+}
+
 function buildUsername(firstName, lastName) {
   return `${firstName || ''} ${lastName || ''}`.trim().replace(/\s+/g, ' ')
 }
@@ -70,7 +76,8 @@ export default function AuthPage() {
     email: '',
   })
 
-  const { login, register, setMode } = useApp()
+  const { login, register, setMode, chooseGrade, chooseSubject } = useApp()
+  const startTarget = START_TARGETS[params.get('start')] || null
   const navigate = useNavigate()
 
   const generatedUsername = useMemo(() => {
@@ -116,6 +123,14 @@ export default function AuthPage() {
   // אין יותר שלב ביניים של בחירת מצב עבודה: באתר עובדים אונליין, ובתוכנה המקומית עובדים מקומית
   function goToLearning() {
     setMode(desktop ? 'offline' : 'online')
+
+    if (startTarget) {
+      chooseGrade(startTarget.grade)
+      chooseSubject(startTarget.subject)
+      navigate('/track')
+      return
+    }
+
     navigate('/age')
   }
 

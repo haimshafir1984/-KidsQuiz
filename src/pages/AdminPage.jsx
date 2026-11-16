@@ -653,7 +653,7 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
             הוספת תשובה נוספת
           </button>
           {form.type === 'open' && (
-            <p className="text-xs text-slate-500">בשאלה פתוחה כל תשובה כאן תתקבל כנכונה (למשל "יהושע" ו"יהושע בן נון").</p>
+            <p className="text-xs text-slate-500">בשאלה פתוחה המערכת מזהה לבד טעויות כתיב קטנות, כתיב מלא וחסר, תארים (הנביא, המלך), "בן ...", מספרים במילים או בספרות (חמישים = 50) ויחידות (50 מ' = חמישים מטר). צריך להוסיף כאן רק ניסוחים שונים לגמרי.</p>
           )}
         </div>
       </section>
