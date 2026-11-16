@@ -81,8 +81,11 @@ function SummaryHeader({ activeTab, onNewQuestion, onExport }) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="text-right">
           <h1 className="text-2xl font-bold text-slate-950">מסך ניהול</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            ניהול מרוכז של שאלות, נושאים ומשתמשים, עם מבנה קל לסריקה ותואם גם לעבודה מקומית.
+          <p className="mt-2 text-base text-slate-700">
+            כאן מנהלים את השאלות, הנושאים והתלמידים.
+          </p>
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-base font-semibold text-amber-800 lg:hidden">
+            מומלץ לנהל מהמחשב. בטלפון הטבלאות רחבות וצריך לגלול הצידה.
           </p>
         </div>
 
@@ -90,7 +93,7 @@ function SummaryHeader({ activeTab, onNewQuestion, onExport }) {
           <div className="flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={onExport} className="btn-secondary">
               <Download className="h-4 w-4" />
-              ייצוא JSON
+              ייצוא כל השאלות לקובץ
             </button>
             <button type="button" onClick={onNewQuestion} className="btn-primary">
               <Plus className="h-4 w-4" />
@@ -141,7 +144,7 @@ function TopicsTab({ trackCatalog, onRename, onDelete, onAddQuestion, onAssign }
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="text-right">
             <h2 className="text-xl font-bold text-slate-950">ניהול נושאים</h2>
-            <p className="mt-1 text-sm text-slate-600">עריכה inline של שם נושא, מחיקה, או פתיחת הוספת שאלה ישירות לנושא.</p>
+            <p className="mt-1 text-sm text-slate-600">אפשר לשנות שם נושא, למחוק אותו, או להוסיף שאלה ישירות לנושא.</p>
           </div>
           <div className="w-full lg:max-w-xs">
             <label className="mb-1 block text-sm font-semibold text-slate-700">קטגוריה</label>
@@ -1049,6 +1052,7 @@ export default function AdminPage() {
   const [gradeFilter, setGradeFilter] = useState('all')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [activityFilter, setActivityFilter] = useState('all')
+  const [levelFilter, setLevelFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toasts, setToasts] = useState([])
@@ -1097,17 +1101,44 @@ export default function AdminPage() {
     }
   }, [availableSubjects, subjectFilter])
 
+  // רמות / תתי-נושאים קיימים בנושא שנבחר (בסדר ההגדרה בקטלוג, ואחר כך כל השאר)
+  const availableLevels = useMemo(() => {
+    if (subjectFilter === 'all') return []
+
+    const inQuestions = new Set(
+      questions
+        .filter(question => question.subject === subjectFilter && (gradeFilter === 'all' || question.grade === gradeFilter))
+        .map(question => question.level)
+        .filter(Boolean),
+    )
+    const catalogOrder = Object.values(trackCatalog)
+      .flatMap(tracks => tracks)
+      .find(track => track.subject === subjectFilter)?.levels || []
+
+    return [
+      ...catalogOrder.filter(level => inQuestions.has(level)),
+      ...[...inQuestions].filter(level => !catalogOrder.includes(level)),
+    ]
+  }, [gradeFilter, questions, subjectFilter, trackCatalog])
+
+  useEffect(() => {
+    if (levelFilter !== 'all' && !availableLevels.includes(levelFilter)) {
+      setLevelFilter('all')
+    }
+  }, [availableLevels, levelFilter])
+
   const filteredQuestions = useMemo(() => {
     return questions
       .filter(question => {
         const matchesGrade = gradeFilter === 'all' || question.grade === gradeFilter
         const matchesSubject = subjectFilter === 'all' || question.subject === subjectFilter
         const matchesActivity = activityFilter === 'all' || question.activityType === activityFilter
+        const matchesLevel = levelFilter === 'all' || question.level === levelFilter
         const matchesSearch = !searchQuery.trim()
           || question.text.toLowerCase().includes(searchQuery.toLowerCase())
           || question.correct_answer.some(answer => answer.toLowerCase().includes(searchQuery.toLowerCase()))
 
-        return matchesGrade && matchesSubject && matchesActivity && matchesSearch
+        return matchesGrade && matchesSubject && matchesActivity && matchesLevel && matchesSearch
       })
       .sort((first, second) => {
         if (first.grade !== second.grade) return first.grade.localeCompare(second.grade)
@@ -1115,7 +1146,7 @@ export default function AdminPage() {
         if ((first.level || '') !== (second.level || '')) return (first.level || '').localeCompare(second.level || '', 'he')
         return (first.position || 0) - (second.position || 0)
       })
-  }, [activityFilter, gradeFilter, questions, searchQuery, subjectFilter])
+  }, [activityFilter, gradeFilter, levelFilter, questions, searchQuery, subjectFilter])
 
   const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / PAGE_SIZE))
 
@@ -1270,7 +1301,7 @@ export default function AdminPage() {
     link.download = 'kidsquiz-questions-export.json'
     link.click()
     URL.revokeObjectURL(url)
-    pushToast('קובץ JSON של המאגר הורד למחשב.', 'success', 'ייצוא בוצע')
+    pushToast('קובץ השאלות נשמר במחשב.', 'success', 'ייצוא בוצע')
   }
 
   return (
@@ -1345,9 +1376,9 @@ export default function AdminPage() {
 
       {activeTab === 'questions' && (
         <>
-          <section className="sticky top-4 z-20 space-y-4">
+          <section className="space-y-4 lg:sticky lg:top-4 lg:z-20">
             <div className="edu-card p-4">
-              <div className="grid gap-3 md:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,1fr))_auto]">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 <label className="relative">
                   <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
@@ -1369,6 +1400,14 @@ export default function AdminPage() {
                     <option key={subject} value={subject}>{subject}</option>
                   ))}
                 </select>
+                {availableLevels.length > 0 && (
+                  <select value={levelFilter} onChange={event => setLevelFilter(event.target.value)} className="input-field">
+                    <option value="all">כל התתי-נושאים / הרמות</option>
+                    {availableLevels.map(level => (
+                      <option key={level} value={level}>{level}</option>
+                    ))}
+                  </select>
+                )}
                 <select value={activityFilter} onChange={event => setActivityFilter(event.target.value)} className="input-field">
                   <option value="all">כל הפעילויות</option>
                   <option value="practice">תרגול</option>
@@ -1381,6 +1420,7 @@ export default function AdminPage() {
                     setGradeFilter('all')
                     setSubjectFilter('all')
                     setActivityFilter('all')
+                    setLevelFilter('all')
                   }}
                   className="btn-secondary"
                 >

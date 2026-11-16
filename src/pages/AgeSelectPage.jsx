@@ -1,12 +1,32 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { GRADES } from '../data/learningTracks'
+import { getActivityLabel, GRADES } from '../data/learningTracks'
 import { isDesktopRuntime } from '../utils/runtime'
 
 export default function AgeSelectPage() {
   const navigate = useNavigate()
-  const { chooseGrade } = useApp()
+  const { chooseGrade, savedQuizProgress, prepareQuiz } = useApp()
   const desktop = isDesktopRuntime()
+
+  // התרגול האחרון שנשמר ועדיין לא הסתיים - מוצג בראש המסך כדי להמשיך בלחיצה אחת
+  const lastProgress = [...(savedQuizProgress || [])]
+    .sort((first, second) => new Date(second.updatedAt || 0) - new Date(first.updatedAt || 0))[0] || null
+
+  function handleResume(progress) {
+    prepareQuiz({
+      grade: progress.grade,
+      subject: progress.subject,
+      level: progress.level || null,
+      activityType: progress.activityType,
+    })
+
+    if (progress.activityType === 'exam' && !progress.quizSession?.startedAt) {
+      navigate('/exam-intro')
+      return
+    }
+
+    navigate('/quiz')
+  }
 
   function handleGradeSelect(grade) {
     chooseGrade(grade)
@@ -24,6 +44,28 @@ export default function AgeSelectPage() {
           לחצו על אחד הכרטיסים כדי להתחיל.
         </p>
       </section>
+
+      {lastProgress && (
+        <section className="rounded-card-lg border-2 border-amber-300 bg-amber-50/70 p-5 text-right shadow-card">
+          <div className="text-base font-semibold text-amber-800">עצרתם באמצע - אפשר להמשיך</div>
+          <div className="mt-1 text-2xl font-bold text-slate-950">{lastProgress.subject}</div>
+          <div className="mt-1 text-base text-slate-700">
+            {[lastProgress.level, getActivityLabel(lastProgress.activityType)].filter(Boolean).join(' | ')}
+            {' - '}
+            נענו {lastProgress.results?.length || 0} מתוך {lastProgress.questionCount} שאלות
+          </div>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <button onClick={() => handleResume(lastProgress)} className="btn-primary w-full py-3.5 text-lg sm:w-auto">
+              להמשיך מאיפה שעצרתי
+            </button>
+            {savedQuizProgress.length > 1 && (
+              <button onClick={() => navigate('/profile')} className="btn-secondary w-full py-3.5 text-lg sm:w-auto">
+                כל התרגולים הפתוחים ({savedQuizProgress.length})
+              </button>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 md:grid-cols-2">
         {GRADES.map(grade => (

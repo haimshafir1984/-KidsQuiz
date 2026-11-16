@@ -1,15 +1,23 @@
 import { useMemo, useState } from 'react'
-import { ArrowDownWideNarrow, ArrowUpWideNarrow, ChevronLeft, ChevronRight, Users, BarChart3, ShieldCheck } from 'lucide-react'
+import { ArrowDownWideNarrow, ArrowUpWideNarrow, ChevronLeft, ChevronRight, Download, Search, Users, BarChart3, ShieldCheck } from 'lucide-react'
 import { serverGetStats, checkSubscription } from '../utils/db'
 import { useDialogA11y } from '../components/shared/useDialogA11y'
 
 const COLUMNS = [
-  { key: 'username', label: 'שם משתמש' },
+  { key: 'fullName', label: 'שם' },
+  { key: 'city', label: 'עיר' },
+  { key: 'phone', label: 'טלפון' },
+  { key: 'email', label: 'מייל' },
   { key: 'subscription_date', label: 'תאריך הרשמה' },
   { key: 'daysLeft', label: 'זמן נותר למנוי' },
-  { key: 'testsCount', label: 'כמות מבחנים' },
+  { key: 'testsCount', label: 'מבחנים' },
   { key: 'average', label: 'ממוצע ציונים' },
 ]
+
+function csvCell(value) {
+  const text = String(value ?? '').replace(/"/g, '""')
+  return `"${text}"`
+}
 
 const PAGE_SIZE = 12
 
@@ -33,7 +41,8 @@ function SummaryCard({ title, value, helper, icon: Icon, tone }) {
 export default function AdminUsers() {
   const { users, results } = serverGetStats()
   const students = users.filter(user => user.role !== 'admin')
-  const [sortKey, setSortKey] = useState('username')
+  const [sortKey, setSortKey] = useState('fullName')
+  const [searchQuery, setSearchQuery] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [page, setPage] = useState(1)
@@ -48,6 +57,7 @@ export default function AdminUsers() {
 
       return {
         ...user,
+        fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
         valid,
         daysLeft,
         testsCount: userResults.length,
@@ -57,8 +67,16 @@ export default function AdminUsers() {
     })
   }, [results, students])
 
+  const filteredStudents = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return preparedStudents
+
+    return preparedStudents.filter(user => [user.fullName, user.username, user.city, user.phone, user.email]
+      .some(value => String(value || '').toLowerCase().includes(query)))
+  }, [preparedStudents, searchQuery])
+
   const sortedStudents = useMemo(() => {
-    const sorted = [...preparedStudents].sort((first, second) => {
+    const sorted = [...filteredStudents].sort((first, second) => {
       const firstValue = first[sortKey] ?? ''
       const secondValue = second[sortKey] ?? ''
 
@@ -72,7 +90,7 @@ export default function AdminUsers() {
     })
 
     return sorted
-  }, [preparedStudents, sortDirection, sortKey])
+  }, [filteredStudents, sortDirection, sortKey])
 
   const totalPages = Math.max(1, Math.ceil(sortedStudents.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -100,6 +118,31 @@ export default function AdminUsers() {
     return new Date(date).toLocaleDateString('he-IL')
   }
 
+  // ייצוא כל התלמידים לקובץ CSV שנפתח באקסל (עם BOM כדי שהעברית תוצג נכון)
+  function handleExport() {
+    const header = ['שם', 'שם משתמש', 'עיר', 'טלפון', 'מייל', 'תאריך הרשמה', 'ימים שנותרו במנוי', 'מבחנים', 'ממוצע ציונים']
+    const rows = sortedStudents.map(user => [
+      user.fullName,
+      user.username,
+      user.city || '',
+      user.phone || '',
+      user.email || '',
+      formatDate(user.subscription_date),
+      user.valid ? user.daysLeft : 'פג תוקף',
+      user.testsCount,
+      user.average !== null ? `${user.average}%` : '',
+    ])
+    const csv = '\uFEFF' + [header, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n')
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'תלמידים.csv'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <section className="grid gap-4 md:grid-cols-3">
@@ -113,14 +156,14 @@ export default function AdminUsers() {
         <SummaryCard
           title='ממוצע כללי'
           value={`${averageValue}%`}
-          helper='מחושב מתוך התוצאות ששמורות במאגר השרת המדומה.'
+          helper='מחושב מתוך כל התוצאות שנשמרו במערכת.'
           icon={BarChart3}
           tone='bg-emerald-50 text-emerald-700'
         />
         <SummaryCard
           title='מנויים פעילים'
           value={`${activeSubscriptions}/${students.length || 0}`}
-          helper='שימו לב: נתוני offline נשארים על המכשיר המקומי ואינם מוצגים כאן.'
+          helper='מי שעובד בתוכנה במחשב (בלי אינטרנט) לא מופיע כאן.'
           icon={ShieldCheck}
           tone='bg-amber-50 text-amber-700'
         />
@@ -128,18 +171,36 @@ export default function AdminUsers() {
 
       <section className="edu-card p-0 overflow-hidden">
         <div className="border-b border-slate-200 px-6 py-4 text-right">
-          <h3 className="text-2xl font-bold text-slate-950">משתמשים ותוצאות</h3>
-          <p className="mt-1 text-sm text-slate-600">
-            הנתונים כאן מבוססים על מאגר השרת המדומה בלבד. תוצאות offline נשמרות מקומית על כל מכשיר.
+          <h3 className="text-2xl font-bold text-slate-950">תלמידים ותוצאות</h3>
+          <p className="mt-1 text-base text-slate-700">
+            לחיצה על שורה פותחת את פירוט התוצאות של התלמיד.
           </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={event => { setSearchQuery(event.target.value); setPage(1) }}
+                placeholder="חיפוש לפי שם, עיר, טלפון או מייל"
+                className="input-field pr-11"
+              />
+            </div>
+            <button type="button" onClick={handleExport} className="btn-secondary" disabled={sortedStudents.length === 0}>
+              <Download className="h-5 w-5" />
+              ייצוא לאקסל
+            </button>
+          </div>
         </div>
 
-        {students.length === 0 ? (
-          <div className="px-6 py-12 text-center text-slate-500">אין תלמידים רשומים עדיין.</div>
+        {sortedStudents.length === 0 ? (
+          <div className="px-6 py-12 text-center text-lg text-slate-600">
+            {students.length === 0 ? 'אין תלמידים רשומים עדיין.' : 'לא נמצאו תלמידים שמתאימים לחיפוש.'}
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px] text-right text-sm">
+              <table className="w-full min-w-[1100px] text-right text-base">
                 <thead className="bg-slate-50">
                   <tr className="border-b border-slate-200">
                     {COLUMNS.map(column => {
@@ -168,8 +229,14 @@ export default function AdminUsers() {
                       onClick={() => setSelectedUserId(user.id)}
                       className="cursor-pointer border-b border-slate-100 transition hover:bg-slate-50"
                     >
-                      <td className="px-4 py-3 font-semibold text-slate-900">{user.username}</td>
-                      <td className="px-4 py-3 text-slate-600">{formatDate(user.subscription_date)}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-900">
+                        {user.fullName}
+                        <div className="text-sm font-normal text-slate-500">{user.username}</div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">{user.city || '—'}</td>
+                      <td className="px-4 py-3 text-slate-700" dir="ltr" style={{ textAlign: 'right' }}>{user.phone || '—'}</td>
+                      <td className="px-4 py-3 text-slate-700" dir="ltr" style={{ textAlign: 'right' }}>{user.email || '—'}</td>
+                      <td className="px-4 py-3 text-slate-700">{formatDate(user.subscription_date)}</td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           user.valid
@@ -249,8 +316,11 @@ export default function AdminUsers() {
                 סגירה
               </button>
               <div>
-                <h3 id="student-panel-title" className="text-2xl font-bold text-slate-950">{selectedUser.username}</h3>
-                <p className="mt-1 text-sm text-slate-600">
+                <h3 id="student-panel-title" className="text-2xl font-bold text-slate-950">{selectedUser.fullName}</h3>
+                <p className="mt-1 text-base text-slate-700">
+                  {[selectedUser.city, selectedUser.phone, selectedUser.email].filter(Boolean).join(' | ')}
+                </p>
+                <p className="mt-1 text-base text-slate-700">
                   נרשם בתאריך {formatDate(selectedUser.subscription_date)} | {selectedUser.valid ? `${selectedUser.daysLeft} ימים למנוי` : 'המנוי פג'}
                 </p>
               </div>
@@ -259,7 +329,7 @@ export default function AdminUsers() {
             <div className="mt-6 space-y-3">
               {selectedUser.userResults.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-                  אין עדיין מבחנים שמורים עבור המשתמש הזה במאגר המקוון.
+                  אין עדיין תוצאות שמורות לתלמיד הזה.
                 </div>
               ) : (
                 selectedUser.userResults.map(result => (

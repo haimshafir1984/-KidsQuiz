@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const {
     user,
     mode,
+    setMode,
     userDisplayName,
     userResults,
     savedQuizProgress,
@@ -84,7 +85,8 @@ export default function ProfilePage() {
 
     setMessage('הפרטים נשמרו בהצלחה.')
     if (wasIncomplete) {
-      navigate('/mode')
+      if (!mode) setMode('online')
+      navigate('/age')
     }
   }
 
@@ -135,12 +137,58 @@ export default function ProfilePage() {
 
   const statCards = [
     { label: 'מבחנים ותרגולים', value: stats.testsCount, icon: BookOpenCheck },
-    { label: 'ממוצע כללי', value: `${stats.average}%`, icon: BarChart3 },
-    { label: 'שמירות פעילות', value: savedQuizProgress.length, icon: Clock3 },
+    { label: 'ממוצע הציונים', value: `${stats.average}%`, icon: BarChart3 },
+    { label: 'תרגולים פתוחים', value: savedQuizProgress.length, icon: Clock3 },
   ]
 
   return (
     <div className="page-shell min-h-[78vh] justify-center">
+      {savedQuizProgress.length > 0 && (
+        <section className="rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(14,165,233,0.2)] ring-1 ring-slate-100 backdrop-blur-sm">
+            <div className="mb-5 text-right">
+              <div className="mb-3 inline-flex rounded-full bg-gradient-to-l from-sky-50 to-violet-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-sky-100">
+                שמירות פעילות
+              </div>
+              <h2 className="text-2xl font-bold text-slate-950">להמשיך מאיפה שעצרתם</h2>
+              <p className="mt-2 text-base leading-7 text-slate-700">
+                אפשר להמשיך בדיוק מהמקום שבו עצרת, או לאפס ולפתוח את המסלול מחדש.
+              </p>
+            </div>
+
+            {(
+              <div className="space-y-3">
+                {savedQuizProgress.map(progress => {
+                  const gradeLabel = getGradeConfig(progress.grade)?.label || progress.grade
+                  const answeredCount = progress.results?.length || 0
+
+                  return (
+                    <article key={progress.key} className="rounded-2xl border border-slate-200 bg-gradient-to-l from-white to-sky-50/50 p-4 text-right shadow-sm">
+                      <h3 className="text-lg font-bold text-slate-950">{progress.subject}</h3>
+                      <div className="mt-1 text-base text-slate-700">
+                        {gradeLabel}
+                        {progress.level ? ` | ${progress.level}` : ''}
+                        {' | '}
+                        {getActivityLabel(progress.activityType)}
+                      </div>
+                      <div className="mt-2 text-base text-slate-600">
+                        נענו {answeredCount} מתוך {progress.questionCount} שאלות | נשמר ב־{formatDate(progress.updatedAt)}
+                      </div>
+                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                        <button onClick={() => handleResume(progress)} className="btn-primary">
+                          המשך מהמקום האחרון
+                        </button>
+                        <button onClick={() => handleRestart(progress)} className="btn-secondary">
+                          התחלה מחדש
+                        </button>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+        </section>
+      )}
+
       <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
         <section className="space-y-6 text-right">
           <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-sky-50 to-violet-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-sky-100">
@@ -156,7 +204,7 @@ export default function ProfilePage() {
 
           {!profileComplete && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-sm font-semibold text-amber-800">
-              לפני שממשיכים, יש להשלים שם, שם משפחה ועיר מגורים. לאחר השמירה השם המלא יוצג בכל המערכת במקום כתובת המייל.
+              לפני שממשיכים, יש להשלים שם פרטי, שם משפחה ועיר מגורים ולשמור.
             </div>
           )}
 
@@ -172,7 +220,7 @@ export default function ProfilePage() {
                 היסטוריית מבחנים ותרגולים
               </div>
               <h2 className="text-2xl font-bold text-slate-950">תמונה מרוכזת של ההתקדמות</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-base leading-7 text-slate-700">
                 כאן מופיע אותו סיכום שמתקבל בסוף כל פעילות, רק באופן מרוכז לאורך זמן.
               </p>
             </div>
@@ -245,7 +293,7 @@ export default function ProfilePage() {
                   פרטים אישיים
                 </div>
                 <h2 className="mt-3 text-2xl font-bold text-slate-950">כרטיס המשתמש שלך</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-2 text-base leading-7 text-slate-700">
                   שדות החובה נמצאים בראש הטופס. לאחר השמירה, המערכת תציג את השם המלא במקום האימייל.
                 </p>
               </div>
@@ -254,17 +302,17 @@ export default function ProfilePage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-900">שם פרטי *</label>
+                  <label className="mb-2 block text-base font-semibold text-slate-900">שם פרטי *</label>
                   <input value={form.firstName} onChange={event => handleChange('firstName', event.target.value)} className="input-field" />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-900">שם משפחה *</label>
+                  <label className="mb-2 block text-base font-semibold text-slate-900">שם משפחה *</label>
                   <input value={form.lastName} onChange={event => handleChange('lastName', event.target.value)} className="input-field" />
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-900">עיר מגורים *</label>
+                <label className="mb-2 block text-base font-semibold text-slate-900">עיר מגורים *</label>
                 <div className="relative">
                   <MapPin className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input value={form.city} onChange={event => handleChange('city', event.target.value)} className="input-field pr-10" />
@@ -273,11 +321,11 @@ export default function ProfilePage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-900">תאריך לידה</label>
+                  <label className="mb-2 block text-base font-semibold text-slate-900">תאריך לידה</label>
                   <input type="date" value={form.birthDate} onChange={event => handleChange('birthDate', event.target.value)} className="input-field" />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-900">טלפון</label>
+                  <label className="mb-2 block text-base font-semibold text-slate-900">טלפון</label>
                   <div className="relative">
                     <Phone className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input value={form.phone} onChange={event => handleChange('phone', event.target.value)} className="input-field pr-10" />
@@ -286,8 +334,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-gradient-to-l from-white to-slate-50 px-4 py-3 text-right text-sm text-slate-600">
-                כתובת ההתחברות: <span className="font-semibold text-slate-900">{user?.username}</span>
-                <div className="mt-1 text-xs text-slate-500">מצב עבודה: {mode === 'offline' ? 'מקומי' : 'מחובר'}</div>
+                שם המשתמש שלך לכניסה: <span className="font-semibold text-slate-900">{user?.username}</span>
               </div>
 
               {error && (
@@ -309,54 +356,6 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
-          </section>
-
-          <section className="rounded-card-lg border border-white/80 bg-white/92 p-6 shadow-[0_18px_50px_-24px_rgba(14,165,233,0.2)] ring-1 ring-slate-100 backdrop-blur-sm">
-            <div className="mb-5 text-right">
-              <div className="mb-3 inline-flex rounded-full bg-gradient-to-l from-sky-50 to-violet-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-sky-100">
-                שמירות פעילות
-              </div>
-              <h2 className="text-2xl font-bold text-slate-950">המשך מאותו מקום</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                אפשר להמשיך בדיוק מהמקום שבו עצרת, או לאפס ולפתוח את המסלול מחדש.
-              </p>
-            </div>
-
-            {savedQuizProgress.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-right text-sm text-slate-600">
-                עדיין אין שמירות פעילות. ברגע שתשמור יציאה מתוך חידון, היא תופיע כאן.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {savedQuizProgress.map(progress => {
-                  const gradeLabel = getGradeConfig(progress.grade)?.label || progress.grade
-                  const answeredCount = progress.results?.length || 0
-
-                  return (
-                    <article key={progress.key} className="rounded-2xl border border-slate-200 bg-gradient-to-l from-white to-sky-50/50 p-4 text-right shadow-sm">
-                      <h3 className="text-lg font-bold text-slate-950">{progress.subject}</h3>
-                      <div className="mt-1 text-sm text-slate-600">
-                        {gradeLabel}
-                        {progress.level ? ` | ${progress.level}` : ''}
-                        {' | '}
-                        {getActivityLabel(progress.activityType)}
-                      </div>
-                      <div className="mt-2 text-sm text-slate-500">
-                        נענו {answeredCount} מתוך {progress.questionCount} שאלות | נשמר ב־{formatDate(progress.updatedAt)}
-                      </div>
-                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                        <button onClick={() => handleResume(progress)} className="btn-primary">
-                          המשך מהמקום האחרון
-                        </button>
-                        <button onClick={() => handleRestart(progress)} className="btn-secondary">
-                          התחלה מחדש
-                        </button>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            )}
           </section>
         </section>
       </section>

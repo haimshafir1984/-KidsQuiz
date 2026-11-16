@@ -34,7 +34,10 @@ export default function TrackSelectPage() {
     hover: 'hover:border-slate-300',
     emoji: '📚',
   }
-  const levelOptions = track.levels.length ? track.levels : ['ללא רמה']
+  const hasLevels = track.levels.length > 0
+  // כשיש רק תרגול (בלי מבחן), לחיצה על רמה או תת-נושא מתחילה ישר, בלי צעד נוסף
+  const levelsStartDirectly = !isHolland && !isGeneralExam && hasLevels && track.activities.length === 1 && track.activities[0] === 'practice'
+  const levelOptions = hasLevels ? track.levels : ['ללא רמה']
   const activeLevel = selectedLevel || levelOptions[0]
   const normalizedLevel = activeLevel === 'ללא רמה' ? null : activeLevel
 
@@ -47,12 +50,20 @@ export default function TrackSelectPage() {
       return 'זהו מבחן מסכם כללי לכיתה ח׳. המערכת בוחרת 30 שאלות באקראי מתוך כלל נושאי הכיתה ומציגה 5 שאלות בכל עמוד.'
     }
 
-    if (track.activities.length > 1) {
-      return 'בחרו רמה ולאחר מכן החליטו אם להתחיל תרגול או מבחן. אם קיימת שמירה, המערכת תחזיר אתכם לאותו מקום.'
+    if (levelsStartDirectly) {
+      return track.levelsKind === 'subtopic'
+        ? 'לחצו על אחד התתי-נושאים כדי להתחיל.'
+        : 'לחצו על אחת הרמות כדי להתחיל.'
     }
 
-    return 'בחרו רמה כדי להתחיל תרגול מותאם למסלול שנבחר.'
-  }, [isGeneralExam, isHolland, track.activities.length])
+    if (track.activities.length > 1) {
+      return hasLevels
+        ? 'בחרו רמה ולאחר מכן החליטו אם להתחיל תרגול או מבחן. אם קיימת שמירה, המערכת תחזיר אתכם לאותו מקום.'
+        : 'בחרו אם להתחיל תרגול או מבחן.'
+    }
+
+    return 'לחצו על "תרגול" כדי להתחיל.'
+  }, [hasLevels, isGeneralExam, isHolland, levelsStartDirectly, track.activities.length, track.levelsKind])
 
   const currentPracticeProgress = !isHolland && !isGeneralExam
     ? getSavedQuizProgress({
@@ -63,18 +74,19 @@ export default function TrackSelectPage() {
       })
     : null
 
-  function handleStart(activityType) {
+  function handleStart(activityType, levelOverride) {
     if (isHolland) {
       beginHollandQuestionnaire(selectedGrade)
       navigate('/holland-questionnaire')
       return
     }
 
-    setSelectedLevel(normalizedLevel)
+    const level = levelOverride !== undefined ? levelOverride : normalizedLevel
+    setSelectedLevel(level)
     const prepared = prepareQuiz({
       grade: selectedGrade,
       subject: selectedSubject,
-      level: normalizedLevel,
+      level,
       activityType,
     })
 
@@ -91,11 +103,13 @@ export default function TrackSelectPage() {
     navigate('/quiz')
   }
 
-  function handleRestart(activityType) {
+  function handleRestart(activityType, levelOverride) {
+    const level = levelOverride !== undefined ? levelOverride : normalizedLevel
+    setSelectedLevel(level)
     const selection = {
       grade: selectedGrade,
       subject: selectedSubject,
-      level: normalizedLevel,
+      level,
       activityType,
     }
 
@@ -128,16 +142,16 @@ export default function TrackSelectPage() {
         <p className="section-subtitle mt-3">{helperText}</p>
       </section>
 
-      {!isHolland && !isGeneralExam && (
+      {!isHolland && !isGeneralExam && hasLevels && (
         <section className="edu-card">
           <div className="flex items-start gap-4">
-            <div className={`flex h-16 w-16 items-center justify-center rounded-2xl text-4xl ${styling.tone}`}>
+            <div className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl text-4xl ${styling.tone}`}>
               {styling.emoji}
             </div>
             <div className="flex-1 text-right">
               <h2 className="text-2xl font-bold text-slate-950">{track.levelsKind === 'subtopic' ? 'בחירת תת-נושא' : 'בחירת רמה'}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                {track.levels.length > 0 ? (track.levelsKind === 'subtopic' ? 'הנושא מחולק לתתי-נושאים לפי סוג השאלות.' : 'המסלול מחולק לרמות כדי להתאים את עומק התרגול.') : 'לנושא הזה אין חלוקה לרמות, ולכן אפשר להמשיך ישירות.'}
+              <p className="mt-2 text-base leading-7 text-slate-700">
+                {levelsStartDirectly ? 'לחיצה על כרטיס מתחילה מיד.' : 'אחרי הבחירה, יש לבחור למטה תרגול או מבחן.'}
               </p>
             </div>
           </div>
@@ -145,31 +159,51 @@ export default function TrackSelectPage() {
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {levelOptions.map(level => {
               const isActive = activeLevel === level
+              const levelSaved = levelsStartDirectly
+                ? getSavedQuizProgress({
+                    grade: selectedGrade,
+                    subject: selectedSubject,
+                    level,
+                    activityType: 'practice',
+                  })
+                : null
+
               return (
-                <button
-                  key={level}
-                  onClick={() => setSelectedLevel(level === 'ללא רמה' ? null : level)}
-                  className={`rounded-2xl border-2 p-4 text-right transition-all duration-200 ${
-                    isActive
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="text-lg font-bold">{level}</div>
-                  <div className="mt-1 text-sm opacity-80">
-                    {level === 'ללא רמה' ? 'הנושא הזה פועל כיחידה אחת.' : (track.levelsKind === 'subtopic' ? 'תרגול ממוקד בסוג שאלות זה.' : 'רמת קושי נפרדת עם שאלות ייעודיות.')}
-                  </div>
-                </button>
+                <div key={level} className="space-y-2">
+                  <button
+                    onClick={() => (levelsStartDirectly ? handleStart('practice', level) : setSelectedLevel(level))}
+                    className={`w-full rounded-2xl border-2 p-4 text-right transition-all duration-200 ${
+                      isActive && !levelsStartDirectly
+                        ? 'border-blue-600 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xl font-bold">{level}</div>
+                      {levelSaved && (
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">
+                          להמשיך
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  {levelSaved && (
+                    <button onClick={() => handleRestart('practice', level)} className="btn-muted w-full justify-center py-2 text-base">
+                      להתחיל מחדש
+                    </button>
+                  )}
+                </div>
               )
             })}
           </div>
         </section>
       )}
 
+      {!levelsStartDirectly && (
       <section className="edu-card">
         <div className="text-right">
           <h2 className="text-2xl font-bold text-slate-950">{isHolland ? 'פתיחת השאלון' : 'בחירת סוג פעילות'}</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="mt-2 text-base leading-7 text-slate-700">
             {isHolland
               ? 'זהו שאלון הכוונה אישיותי. בסיום המערכת תציג ניתוח של הטיפוס המוביל ושל שני הטיפוסים הבולטים ביותר.'
               : isGeneralExam
@@ -221,7 +255,7 @@ export default function TrackSelectPage() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                  <p className="mt-2 text-base leading-7 text-slate-700">
                     {isHolland
                       ? '24 היגדים בדירוג אישי, עם ניתוח מסכם של הטיפוס המוביל והשילוב המרכזי.'
                       : isGeneralExam
@@ -242,10 +276,11 @@ export default function TrackSelectPage() {
           })}
         </div>
       </section>
+      )}
 
       <div className="flex justify-center">
         <button onClick={() => navigate('/subject')} className="btn-muted">
-          חזרה לבחירת נושא ↩️
+          חזרה לבחירת נושא
         </button>
       </div>
     </div>

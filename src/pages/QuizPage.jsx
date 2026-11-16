@@ -62,6 +62,7 @@ function MultipleChoice({
   answered,
   selectedAnswer,
   isCorrect,
+  correctAnswer = null,
   reviewMode = false,
 }) {
   const hasOptionImages = Array.isArray(optionImages) && optionImages.length > 0
@@ -80,6 +81,9 @@ function MultipleChoice({
           stateClass = 'border-emerald-300 bg-emerald-50 text-emerald-700'
         } else if (answered && isSelected && !isCorrect) {
           stateClass = 'border-red-300 bg-red-50 text-red-700'
+        } else if (answered && correctAnswer && option === correctAnswer) {
+          // בתשובה שגויה מסמנים בירוק גם את התשובה הנכונה
+          stateClass = 'border-emerald-300 bg-emerald-50 text-emerald-700'
         } else if (answered) {
           stateClass = 'border-slate-100 bg-slate-50 text-slate-400'
         }
@@ -163,24 +167,28 @@ function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion
   const motionClass = isCorrect ? 'animate-pop' : 'animate-shake'
 
   return (
-    <div className={`mt-5 flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${tone} ${motionClass} motion-reduce:animate-none`}>
+    <div
+      role="status"
+      aria-live="polite"
+      className={`sticky bottom-3 z-20 mt-5 flex flex-col gap-4 rounded-2xl border-2 p-4 shadow-float sm:flex-row sm:items-center sm:justify-between ${tone} ${motionClass} motion-reduce:animate-none`}
+    >
       <div className="flex items-start gap-3 text-right">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl">
           {isCorrect ? '🎉' : '❌'}
         </div>
         <div>
-          <div className="text-lg font-bold">{isCorrect ? 'תשובה נכונה' : 'התשובה אינה מדויקת'}</div>
-          <div className="mt-1 text-sm opacity-90">
-            {isCorrect ? 'אפשר להמשיך בביטחון לשלב הבא.' : `התשובה הנכונה היא: ${correctAnswer}`}
+          <div className="text-xl font-bold">{isCorrect ? 'נכון! כל הכבוד' : 'לא בדיוק'}</div>
+          <div className="mt-1 text-base opacity-90">
+            {isCorrect ? 'אפשר להמשיך לשאלה הבאה.' : `התשובה הנכונה היא: ${correctAnswer}`}
           </div>
           {explanation && (
-            <div className="mt-2 rounded-2xl bg-white/70 px-3 py-2 text-sm font-medium text-slate-700">
+            <div className="mt-2 rounded-2xl bg-white/70 px-3 py-2 text-base font-medium text-slate-700">
               הסבר: {explanation}
             </div>
           )}
         </div>
       </div>
-      <button onClick={onNext} className="btn-primary self-start sm:self-auto">
+      <button onClick={onNext} className="btn-primary w-full py-3.5 text-lg sm:w-auto sm:self-auto">
         {isLastQuestion ? 'לסיכום' : 'לשאלה הבאה'}
       </button>
     </div>
@@ -455,30 +463,11 @@ export default function QuizPage() {
 
   return (
     <div className="page-shell">
-      <section className="page-hero text-right md:mx-0 md:max-w-none">
-        <div className="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-slate-100">
-          {selectedActivity === 'exam' ? 'מבחן פעיל' : 'תרגול פעיל'} | {selectedSubject}
-        </div>
-        <h1 className="section-title font-extrabold">
-          {isGeneralExam
-            ? 'מבחן כללי על זמן, עם מעבר מסודר בין עמודים'
-            : selectedActivity === 'exam'
-              ? 'שומרים על קצב ומסיימים בזמן'
-              : 'ממשיכים לצבור הצלחות שאלה אחר שאלה'}
-        </h1>
-        <p className="section-subtitle mt-3">
-          {selectedLevel ? `רמה נוכחית: ${selectedLevel}. ` : ''}
-          {isGeneralExam
-            ? 'בכל עמוד יוצגו 5 שאלות. אין משוב במהלך המבחן, ובסיום יופיע ציון מלא עם פירוט תשובות.'
-            : selectedActivity === 'exam'
-              ? 'השעון פועל כעת. אפשר לענות ברצף ולקבל סיכום מלא עם סיום המבחן.'
-              : 'אפשר לענות בקצב אישי, לקבל משוב מיידי ולהתקדם בביטחון.'}
-        </p>
-      </section>
-
-      <section className="edu-card-quiz p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-slate-600">{selectedSubject}</span>
+      <section className="edu-card-quiz p-4 sm:p-6">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <span className="text-base font-semibold text-slate-700">
+            {selectedSubject}{selectedLevel ? ` | ${selectedLevel}` : ''}
+          </span>
           <div className="flex items-center gap-3">
             {selectedActivity === 'exam' && (
               <span
@@ -504,12 +493,17 @@ export default function QuizPage() {
             style={{ width: `${progress}%` }}
           />
         </div>
+        {isGeneralExam && (
+          <p className="mt-3 text-base leading-7 text-slate-700">
+            בכל עמוד 5 שאלות. אין משוב במהלך המבחן, ובסיום יופיע ציון מלא עם פירוט התשובות.
+          </p>
+        )}
       </section>
 
-      <section className="edu-card-quiz p-6 sm:p-8">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <section className="edu-card-quiz p-4 sm:p-8">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+            <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-base font-semibold text-amber-800">
               {isGeneralExam
                 ? `שאלות ${currentIdx + 1}-${Math.min(currentIdx + pageSize, quizQuestions.length)}`
                 : `שאלה ${currentIdx + 1}`}
@@ -520,7 +514,7 @@ export default function QuizPage() {
               </div>
             )}
             {!isGeneralExam && (
-              <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950">
+              <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950 sm:text-3xl">
                 {question.text}
               </p>
             )}
@@ -616,6 +610,7 @@ export default function QuizPage() {
                 answered={answered}
                 selectedAnswer={selectedAnswer}
                 isCorrect={isCorrect}
+                correctAnswer={correctAnswer}
               />
             ) : (
               <OpenText key={question.id} onAnswer={handleAnswer} answered={answered} />
