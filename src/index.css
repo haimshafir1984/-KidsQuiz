@@ -12,6 +12,11 @@
     font-family: 'Assistant', sans-serif;
   }
 
+  html {
+    /* גודל בסיס מעט גדול יותר: קריאות טובה יותר למשתמשים פחות מנוסים */
+    font-size: 106.25%;
+  }
+
   body {
     font-family: 'Assistant', sans-serif;
     direction: rtl;
@@ -57,7 +62,7 @@
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-slate-300 p-3 text-right text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-transparent focus:ring-2 focus:ring-blue-500;
+    @apply w-full rounded-lg border border-slate-300 p-3.5 text-right text-lg text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-transparent focus:ring-2 focus:ring-blue-500;
   }
 
   .page-shell {
@@ -73,7 +78,7 @@
   }
 
   .section-subtitle {
-    @apply text-base leading-7 text-slate-600 sm:text-lg;
+    @apply text-base leading-7 text-slate-700 sm:text-lg;
   }
 
   .quiz-option {

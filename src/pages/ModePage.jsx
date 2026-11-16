@@ -8,17 +8,17 @@ const MODES = [
     value: 'online',
     emoji: '🌐',
     label: 'עבודה אונליין',
-    desc: 'שמירה בענן וגישה נוחה לנתונים מכל מקום.',
-    details: 'בחירה מצוינת ללמידה רציפה עם מעקב זמין ונגיש.',
+    desc: 'לומדים דרך האינטרנט, וההתקדמות נשמרת לכם.',
+    details: 'מתאים לרוב המשתמשים.',
     tone: 'bg-sky-50 text-sky-600',
     hover: 'hover:border-sky-300 hover:bg-sky-50/70',
   },
   {
     value: 'offline',
     emoji: '💾',
-    label: 'עבודה מקומית במחשב',
-    desc: 'עבודה מתוך אפליקציית Windows מקומית, ללא צורך בחיבור אינטרנט רציף.',
-    details: 'מתאים להתקנה על מחשב, שמירת נתונים מקומית וטעינת רישיון לפי צורך.',
+    label: 'תוכנה במחשב, בלי אינטרנט',
+    desc: 'מתקינים תוכנה על מחשב Windows ולומדים גם בלי חיבור לאינטרנט.',
+    details: 'ההתקדמות נשמרת על המחשב עצמו.',
     tone: 'bg-amber-50 text-amber-600',
     hover: 'hover:border-amber-300 hover:bg-amber-50/70',
   },
@@ -47,11 +47,11 @@ export default function ModePage() {
     <div className="page-shell min-h-[72vh] justify-center">
       <section className="page-hero">
         <div className="mb-4 inline-flex rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm ring-1 ring-slate-100">
-          בחירת מצב עבודה ⚙️
+          בחירת צורת עבודה
         </div>
-        <h1 className="section-title">איך נרצה לעבוד עם המערכת?</h1>
+        <h1 className="section-title">איך נעדיף ללמוד?</h1>
         <p className="section-subtitle mt-3">
-          בחרו בין עבודה מחוברת מתוך האתר לבין גרסת Desktop מקומית ל-Windows, עם אותו UI קיים.
+          רוב המשתמשים בוחרים באפשרות הראשונה.
         </p>
 
         {daysLeftDisplay !== null && (
@@ -82,7 +82,7 @@ export default function ModePage() {
             <p className="text-sm leading-6 text-slate-600">{mode.details}</p>
             {mode.value === 'offline' && !desktop && (
               <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50 p-3 text-sm font-semibold text-amber-700">
-                בחירה במצב זה תעביר אותך למסך הורדה והתקנה של גרסת Windows המקומית.
+                בחירה זו תעביר אתכם להורדת התוכנה למחשב.
               </div>
             )}
           </button>
