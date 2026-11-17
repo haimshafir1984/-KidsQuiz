@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import {
   ArrowDown,
   ArrowUp,
@@ -544,7 +545,9 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
       position: Number(form.position) || 1,
       explanation: form.explanation?.trim() || '',
       options: (form.type === 'multiple' || form.type === 'sentence_completion') ? form.options.filter(option => option.trim()) : [],
-      ...(form.type === 'list' ? { minItems: Math.max(1, Number(form.minItems) || 1) } : { minItems: undefined }),
+      ...(form.type === 'list'
+        ? { minItems: Math.max(1, Number(form.minItems) || 1), ordered: Boolean(form.ordered) }
+        : { minItems: undefined, ordered: undefined }),
       correct_answer: form.correct_answer.filter(answer => answer.trim()),
     }
 
@@ -600,7 +603,7 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
               <option value="open">פתוחה קצרה</option>
               <option value="sentence_completion">השלמת משפטים</option>
               <option value="list">רשימה (כתבי כמה)</option>
-              <option value="self_check">הסבר (בדיקה עצמית)</option>
+              {(SELF_CHECK_ENABLED || form.type === 'self_check') && <option value="self_check">הסבר (בדיקה עצמית)</option>}
             </select>
           </div>
           <div>
@@ -643,6 +646,14 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
                 onChange={event => updateField('minItems', event.target.value)}
                 className="input-field w-24"
               />
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.ordered)}
+                  onChange={event => updateField('ordered', event.target.checked)}
+                />
+                הסדר חשוב
+              </label>
             </div>
           )}
           {form.correct_answer.map((answer, index) => (

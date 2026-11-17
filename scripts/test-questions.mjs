@@ -2,7 +2,7 @@
 // הרצה: npm run test:questions
 import tanakhNew from '../src/data/tanakhNewQuestions.js'
 import giNew from '../src/data/generalIntelligenceNewQuestions.js'
-import { evaluateQuestionAnswer, getListMinItems, SELF_CHECK_KNOWN, SELF_CHECK_UNKNOWN } from '../src/utils/questionAnswers.js'
+import { evaluateQuestionAnswer, getListMinItems, SELF_CHECK_ENABLED, SELF_CHECK_KNOWN, SELF_CHECK_UNKNOWN } from '../src/utils/questionAnswers.js'
 
 let failed = 0
 function check(condition, message) {
@@ -54,9 +54,30 @@ check(evaluateQuestionAnswer(notes, 'דו רה מי פה סול לה סי'), 'ת
 check(!evaluateQuestionAnswer(notes, 'דו רה מי פה סול לה'), 'תווי נגינה: שישה לא מספיקים')
 
 // ───── self_check ─────
-const explanation = giNew.find(question => question.type === 'self_check')
+// שאלות הסבר מוסתרות כרגע (SELF_CHECK_ENABLED), אבל הלוגיקה נבדקת על שאלה לדוגמה
+const explanation = { type: 'self_check', correct_answer: ['הסבר'] }
 check(evaluateQuestionAnswer(explanation, SELF_CHECK_KNOWN) === true, 'self_check: ידעתי')
 check(evaluateQuestionAnswer(explanation, SELF_CHECK_UNKNOWN) === false, 'self_check: לא ידעתי')
+check(SELF_CHECK_ENABLED || !all.some(question => question.type === 'self_check'), 'שאלות הסבר מוסתרות ולא אמורות להיכלל במאגר')
+
+// ───── רשימה עם סדר ─────
+const presidents = byText('סדרי לפי הסדר מיהם שלושת הנשיאים האחרונים של אמריקה.')
+check(Boolean(presidents), 'שאלת הנשיאים לא נמצאה')
+if (presidents) {
+  check(evaluateQuestionAnswer(presidents, 'דונאלד טראמפ, ג\'ו ביידן, ברק אובמה'), 'נשיאים: סדר נכון')
+  check(evaluateQuestionAnswer(presidents, 'טראמפ, ביידן, אובמה'), 'נשיאים: שמות משפחה בלבד')
+  check(!evaluateQuestionAnswer(presidents, 'אובמה, ביידן, טראמפ'), 'נשיאים: סדר הפוך נפסל')
+  check(!evaluateQuestionAnswer(presidents, 'טראמפ, ביידן'), 'נשיאים: שניים בלבד נפסל')
+}
+
+// ───── מיון בעלי חיים ─────
+const birds = all.find(question => question.type === 'list' && question.text.endsWith('ששייכים לקבוצה: עופות.'))
+check(Boolean(birds), 'שאלת העופות לא נמצאה')
+if (birds) {
+  check(birds.text.includes('טונה') && birds.text.includes('זמר'), 'רשימת בעלי החיים אמורה להופיע בשאלה')
+  check(evaluateQuestionAnswer(birds, 'שקנאי, ינשוף, תנשמת, דוכיפת'), 'עופות: כולם')
+  check(!evaluateQuestionAnswer(birds, 'שקנאי, ינשוף'), 'עופות: חלקי נפסל')
+}
 
 // ───── שאלות פתוחות מהמאגר החדש ─────
 const openCheck = (text, answer, expected) => {

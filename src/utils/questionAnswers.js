@@ -4,10 +4,14 @@
 //  multiple / sentence_completion - בחירה מתוך אפשרויות
 //  open        - תשובה קצרה בטקסט (התאמה חכמה, ר' fuzzyMatch.js)
 //  list        - "כתבי כמה": התלמיד כותב כמה פריטים; correct_answer הוא מאגר הפריטים המקובלים
-//                (כל פריט יכול לכלול חלופות עם |, למשל "גלבוע|הר הגלבוע"), ו-minItems הוא כמה נדרשים
+//                (כל פריט יכול לכלול חלופות עם |, למשל "גלבוע|הר הגלבוע"), ו-minItems הוא כמה נדרשים.
+//                ordered: true - הסדר חשוב (הפריטים במאגר הם בסדר הנכון)
 //  self_check  - שאלת הסבר: התלמיד מציג את התשובה המלאה ומדווח אם ידע; correct_answer[0] הוא התשובה להצגה
 
 import { fuzzyMatch } from './fuzzyMatch.js'
+
+// שאלות הסבר (self_check): פעילות. כדי להסתיר שוב: false
+export const SELF_CHECK_ENABLED = true
 
 export const SELF_CHECK_KNOWN = 'known'
 export const SELF_CHECK_UNKNOWN = 'unknown'
@@ -40,14 +44,20 @@ function splitByConjunction(items) {
   return items.flatMap(item => item.split(/\s+ו(?=[א-ת])/).map(part => part.trim()).filter(Boolean))
 }
 
-function countListMatches(items, entries) {
+function countListMatches(items, entries, ordered = false) {
   const used = new Set()
+  let lastIndex = -1
 
   items.forEach(item => {
     const entryIndex = entries.findIndex((alternatives, index) => (
-      !used.has(index) && alternatives.some(alternative => fuzzyMatch(item, [alternative]))
+      !used.has(index)
+      && (!ordered || index > lastIndex)
+      && alternatives.some(alternative => fuzzyMatch(item, [alternative]))
     ))
-    if (entryIndex !== -1) used.add(entryIndex)
+    if (entryIndex !== -1) {
+      used.add(entryIndex)
+      lastIndex = entryIndex
+    }
   })
 
   return used.size
@@ -58,10 +68,11 @@ export function countListAnswerMatches(question, userAnswer) {
   const baseItems = splitListAnswer(userAnswer)
   // אם התלמיד כתב הכול ברצף בלי פסיקים, מנסים גם פיצול לפי מילים
   const singleWords = baseItems.flatMap(item => item.split(/\s+/).filter(Boolean))
+  const ordered = Boolean(question.ordered)
   return Math.max(
-    countListMatches(baseItems, entries),
-    countListMatches(splitByConjunction(baseItems), entries),
-    countListMatches(singleWords, entries),
+    countListMatches(baseItems, entries, ordered),
+    countListMatches(splitByConjunction(baseItems), entries, ordered),
+    countListMatches(singleWords, entries, ordered),
   )
 }
 

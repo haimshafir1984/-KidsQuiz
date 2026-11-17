@@ -224,6 +224,8 @@ npm run license:generate -- --customerName="שם הלקוח"
 
 - `list` ("כתבי כמה"): `correct_answer` הוא מאגר פריטים מקובלים (חלופות עם `|`, למשל `גלבוע|הר הגלבוע`), `minItems` הוא כמה פריטים נדרשים. התלמיד כותב שורה לכל פריט או בפסיקים.
 - `self_check` (הסבר): `correct_answer[0]` הוא ההסבר המלא; התלמיד מציג אותו ומדווח "ידעתי" / "לא ידעתי".
+- `list` תומך גם ב-`ordered: true` (הסדר חשוב; הפריטים במאגר בסדר הנכון).
+- `self_check` פעיל. אפשר להסתיר אותו שוב ב-`SELF_CHECK_ENABLED = false` (`questionAnswers.js`): השאלות נשארות בקוד אבל לא נטענות, ומוסרות גם מנתונים שכבר נשמרו בדפדפן.
 - שניהם לתרגול בלבד (מוחרגים מהמבחן הכללי). הלוגיקה ב-`src/utils/questionAnswers.js`, בדיקות: `npm run test:questions`.
 - הנושאים "תנך חדש" ו"אינטליגנציה כללית חדש" (grade-8) נוצרו ממסמכי Word: `src/data/tanakhNewQuestions.js`, `src/data/generalIntelligenceNewQuestions.js`.
 

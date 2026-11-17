@@ -23,6 +23,7 @@ import {
   clearStoredMode,
 } from '../utils/db'
 import seedQuestions, { normalizeImportedQuestionStructure } from '../data/seedQuestions'
+import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
 import { normalizeSubjectName } from '../data/subjectCatalog'
 import { getUserDisplayName, isProfileComplete } from '../utils/userProfile'
@@ -369,7 +370,10 @@ export function AppProvider({ children }) {
         return
       }
 
-      const withoutLegacyQuestions = stored.filter(question => !LEGACY_SUBJECTS.has(question.subject))
+      const withoutLegacyQuestions = stored.filter(question => (
+        !LEGACY_SUBJECTS.has(question.subject)
+        && (SELF_CHECK_ENABLED || question.type !== 'self_check')
+      ))
       const storedIds = new Set(withoutLegacyQuestions.map(question => question.id))
       const missingSeedQuestions = seedQuestions.filter(question => !storedIds.has(question.id))
       const mergedQuestions = missingSeedQuestions.length > 0 ? [...withoutLegacyQuestions, ...missingSeedQuestions] : withoutLegacyQuestions
