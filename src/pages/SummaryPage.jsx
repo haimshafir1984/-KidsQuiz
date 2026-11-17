@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { formatCorrectAnswer, formatUserAnswer } from '../utils/questionAnswers'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { GENERAL_EXAM_SUBJECT, getActivityLabel, getGradeConfig } from '../data/learningTracks'
@@ -45,9 +46,7 @@ function AnswerSection({ title, tone, items }) {
 
       <div className="space-y-3">
         {items.map((result, index) => {
-          const answer = Array.isArray(result.question.correct_answer)
-            ? result.question.correct_answer[0]
-            : result.question.correct_answer
+          const answer = formatCorrectAnswer(result.question)
 
           return (
             <article key={`${result.question.id}-${index}`} className={`rounded-xl border p-4 text-right ${tone}`}>
@@ -66,7 +65,7 @@ function AnswerSection({ title, tone, items }) {
               )}
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <div className="rounded-xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
-                  <span className="font-semibold">התשובה שנבחרה:</span> {result.userAnswer || 'לא נענתה שאלה זו'}
+                  <span className="font-semibold">התשובה שנבחרה:</span> {formatUserAnswer(result.question, result.userAnswer) || 'לא נענתה שאלה זו'}
                 </div>
                 <div className="rounded-xl bg-white px-3 py-2 text-sm text-emerald-700 shadow-sm">
                   <span className="font-semibold">התשובה הנכונה:</span> {answer}

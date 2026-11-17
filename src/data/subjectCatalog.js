@@ -1,4 +1,5 @@
 import { TANAKH_NEW_SUBJECT, TANAKH_NEW_LEVEL_LIST } from './tanakhNewQuestions.js'
+import { GI_NEW_SUBJECT, GI_NEW_LEVEL_LIST } from './generalIntelligenceNewQuestions.js'
 
 const BASE_SUBJECTS = {
   tanakh: {
@@ -202,6 +203,17 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-amber-300',
     emoji: '🌐',
   },
+  generalIntelligenceNew: {
+    label: GI_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: GI_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-teal-50 text-teal-600',
+    hover: 'hover:border-teal-300',
+    emoji: '🌍',
+  },
   numberSeries: {
     label: 'מתמטיקה: סדרות מספרים',
     aliases: [' מתמטיקה: סדרות מספרים'],
@@ -239,6 +251,7 @@ export const SUBJECT_CATALOG = {
     BASE_SUBJECTS.sentenceCompletion,
     BASE_SUBJECTS.conclusions,
     BASE_SUBJECTS.generalIntelligence,
+    BASE_SUBJECTS.generalIntelligenceNew,
     BASE_SUBJECTS.numberSeries,
     BASE_SUBJECTS.seriesCompletion,
   ],

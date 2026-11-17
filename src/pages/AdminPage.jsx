@@ -445,7 +445,7 @@ function LinkQuestionForm({ trackCatalog, question, onLink }) {
 }
 
 function QuestionPreview({ question }) {
-  const previewOptions = question.type === 'open' ? [] : question.options.filter(Boolean)
+  const previewOptions = (question.type === 'multiple' || question.type === 'sentence_completion') ? question.options.filter(Boolean) : []
 
   return (
     <section className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
@@ -457,7 +457,7 @@ function QuestionPreview({ question }) {
           <img src={question.image} alt={question.text || 'תצוגת שאלה'} className="mx-auto max-h-48 max-w-full object-contain" />
         </div>
       )}
-      {question.type !== 'open' && (
+      {previewOptions.length > 0 && (
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           {previewOptions.map((option, index) => (
             <div key={`${option}-${index}`} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
@@ -543,7 +543,8 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
       level: form.level || null,
       position: Number(form.position) || 1,
       explanation: form.explanation?.trim() || '',
-      options: form.type === 'open' ? [] : form.options.filter(option => option.trim()),
+      options: (form.type === 'multiple' || form.type === 'sentence_completion') ? form.options.filter(option => option.trim()) : [],
+      ...(form.type === 'list' ? { minItems: Math.max(1, Number(form.minItems) || 1) } : { minItems: undefined }),
       correct_answer: form.correct_answer.filter(answer => answer.trim()),
     }
 
@@ -562,7 +563,7 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
       return
     }
 
-    if (cleaned.type !== 'open' && cleaned.options.length < 2) {
+    if ((cleaned.type === 'multiple' || cleaned.type === 'sentence_completion') && cleaned.options.length < 2) {
       onError('יש להזין לפחות שתי אפשרויות תשובה.')
       return
     }
@@ -598,6 +599,8 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
               <option value="multiple">אמריקאית</option>
               <option value="open">פתוחה קצרה</option>
               <option value="sentence_completion">השלמת משפטים</option>
+              <option value="list">רשימה (כתבי כמה)</option>
+              <option value="self_check">הסבר (בדיקה עצמית)</option>
             </select>
           </div>
           <div>
@@ -611,7 +614,7 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
           </div>
         </div>
 
-        {form.type !== 'open' && (
+        {(form.type === 'multiple' || form.type === 'sentence_completion') && (
           <div className="mt-4 space-y-2">
             <label className="block text-sm font-semibold text-slate-700">אפשרויות תשובה</label>
             {form.options.map((option, index) => (
@@ -627,7 +630,21 @@ function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, onLinkQ
         )}
 
         <div className="mt-4 space-y-2">
-          <label className="block text-sm font-semibold text-slate-700">תשובות נכונות</label>
+          <label className="block text-sm font-semibold text-slate-700">
+            {form.type === 'list' ? 'פריטים מקובלים (אפשר חלופות עם |, למשל גלבוע|הר הגלבוע)' : form.type === 'self_check' ? 'התשובה המלאה שתוצג לתלמיד' : 'תשובות נכונות'}
+          </label>
+          {form.type === 'list' && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-slate-700">כמה פריטים נדרשים מהתלמיד:</span>
+              <input
+                type="number"
+                min="1"
+                value={form.minItems ?? ''}
+                onChange={event => updateField('minItems', event.target.value)}
+                className="input-field w-24"
+              />
+            </div>
+          )}
           {form.correct_answer.map((answer, index) => (
             <div key={index} className="flex items-center gap-2">
               <input

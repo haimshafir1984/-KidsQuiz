@@ -112,7 +112,7 @@ KidsQuiz/
 {
   id: 'string (unique)',
   text: 'string — טקסט השאלה',
-  type: 'multiple | open | sentence_completion',
+  type: 'multiple | open | sentence_completion | list | self_check',
   options: ['string', ...],          // רלוונטי ל-multiple/sentence_completion
   optionImages: ['url', ...],        // אופציונלי, תמונה לכל אפשרות
   image: 'url',                      // אופציונלי, תמונת השאלה עצמה
@@ -217,6 +217,15 @@ npm run license:generate -- --customerName="שם הלקוח"
 - `window.desktopAPI` (נחשף דרך `preload.cjs`) קיים רק בגרסת הדסקטופ; `runtime.js` בודק את קיומו.
 - הרישיון (`license.json`) נחתם ב-HMAC ונבדק ב-`electron/main.cjs`; תוקף ברירת מחדל 180 יום מהפעלה ראשונה.
 - אבטחה: CSP מוגדר ב-`index.html`, וחלון ה-Electron חוסם פתיחת חלונות חדשים וניווט לכתובות חיצוניות (`setWindowOpenHandler` + `will-navigate`).
+
+---
+
+## סוגי שאלות חדשים: list ו-self_check
+
+- `list` ("כתבי כמה"): `correct_answer` הוא מאגר פריטים מקובלים (חלופות עם `|`, למשל `גלבוע|הר הגלבוע`), `minItems` הוא כמה פריטים נדרשים. התלמיד כותב שורה לכל פריט או בפסיקים.
+- `self_check` (הסבר): `correct_answer[0]` הוא ההסבר המלא; התלמיד מציג אותו ומדווח "ידעתי" / "לא ידעתי".
+- שניהם לתרגול בלבד (מוחרגים מהמבחן הכללי). הלוגיקה ב-`src/utils/questionAnswers.js`, בדיקות: `npm run test:questions`.
+- הנושאים "תנך חדש" ו"אינטליגנציה כללית חדש" (grade-8) נוצרו ממסמכי Word: `src/data/tanakhNewQuestions.js`, `src/data/generalIntelligenceNewQuestions.js`.
 
 ---
 

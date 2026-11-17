@@ -12,7 +12,8 @@
         "desktop:pack": "npm run build && electron-builder --dir",
         "dist:win": "npm run build && electron-builder --win nsis portable",
         "license:generate": "node scripts/generate-license.mjs",
-        "test:fuzzy": "node scripts/test-fuzzy.mjs"
+        "test:fuzzy": "node scripts/test-fuzzy.mjs",
+        "test:questions": "node scripts/test-questions.mjs"
     },
     "dependencies": {
         "@fontsource/assistant": "^5.2.9",

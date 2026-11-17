@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { GENERAL_EXAM_SUBJECT } from '../data/learningTracks'
-import { fuzzyMatch } from '../utils/fuzzyMatch'
+import {
+  evaluateQuestionAnswer,
+  formatCorrectAnswer,
+  getListMinItems,
+  SELF_CHECK_KNOWN,
+  SELF_CHECK_UNKNOWN,
+} from '../utils/questionAnswers'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 
 const GENERAL_EXAM_PERSIST_DEBOUNCE_MS = 800
@@ -45,14 +51,6 @@ function VisualImage({ src, alt, className = '' }) {
       loading="lazy"
     />
   )
-}
-
-function evaluateAnswer(question, userAnswer) {
-  if (question.type === 'multiple' || question.type === 'sentence_completion') {
-    return question.correct_answer.includes(userAnswer)
-  }
-
-  return fuzzyMatch(userAnswer, question.correct_answer)
 }
 
 function MultipleChoice({
@@ -160,7 +158,87 @@ function OpenText({ onAnswer, answered, reviewMode = false, value = '', onChange
   )
 }
 
-function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion, onNext }) {
+function ListAnswer({ question, onAnswer, answered }) {
+  const [text, setText] = useState('')
+  const needed = getListMinItems(question)
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    if (!text.trim() || answered) return
+    onAnswer(text)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <p className="text-base font-semibold text-slate-700">
+        כותבים לפחות {needed} פריטים. אפשר שורה לכל פריט, או להפריד בפסיקים.
+      </p>
+      <textarea
+        value={text}
+        onChange={event => setText(event.target.value)}
+        rows={5}
+        placeholder={'למשל:\nפריט ראשון\nפריט שני'}
+        className="input-field"
+        disabled={answered}
+        autoFocus
+      />
+      {!answered && (
+        <button type="submit" className="btn-primary w-full py-3.5 text-lg sm:w-auto sm:self-start">
+          שליחת תשובה
+        </button>
+      )}
+    </form>
+  )
+}
+
+function SelfCheck({ question, onAnswer, answered }) {
+  const [revealed, setRevealed] = useState(false)
+
+  return (
+    <div className="space-y-4">
+      <p className="text-base font-semibold text-slate-700">
+        חושבים על התשובה (או אומרים אותה בקול), ואז מציגים אותה ובודקים את עצמנו.
+      </p>
+
+      {!revealed && !answered && (
+        <button type="button" onClick={() => setRevealed(true)} className="btn-primary w-full py-3.5 text-lg sm:w-auto">
+          הצגת התשובה
+        </button>
+      )}
+
+      {(revealed || answered) && (
+        <>
+          <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-right text-lg leading-8 text-slate-900">
+            <div className="mb-1 text-base font-bold text-blue-700">התשובה:</div>
+            {question.correct_answer[0]}
+          </div>
+
+          {!answered && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => onAnswer(SELF_CHECK_KNOWN)}
+                className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-4 text-lg font-bold text-emerald-800 transition hover:bg-emerald-100"
+              >
+                ✔ ידעתי
+              </button>
+              <button
+                type="button"
+                onClick={() => onAnswer(SELF_CHECK_UNKNOWN)}
+                className="rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-4 text-lg font-bold text-amber-800 transition hover:bg-amber-100"
+              >
+                לא ידעתי, אחזור על זה
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion, onNext, questionType }) {
+  const isSelfCheck = questionType === 'self_check'
   const tone = isCorrect
     ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
     : 'border-red-200 bg-red-50 text-red-700'
@@ -177,9 +255,9 @@ function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion
           {isCorrect ? '🎉' : '❌'}
         </div>
         <div>
-          <div className="text-xl font-bold">{isCorrect ? 'נכון! כל הכבוד' : 'לא בדיוק'}</div>
+          <div className="text-xl font-bold">{isCorrect ? (isSelfCheck ? 'יופי, ממשיכים' : 'נכון! כל הכבוד') : (isSelfCheck ? 'לא נורא, זה עוד יגיע' : 'לא בדיוק')}</div>
           <div className="mt-1 text-base opacity-90">
-            {isCorrect ? 'אפשר להמשיך לשאלה הבאה.' : `התשובה הנכונה היא: ${correctAnswer}`}
+            {isCorrect ? 'אפשר להמשיך לשאלה הבאה.' : (isSelfCheck ? 'אפשר לחזור לשאלה הזאת בהמשך.' : `התשובה הנכונה היא: ${correctAnswer}`)}
           </div>
           {explanation && (
             <div className="mt-2 rounded-2xl bg-white/70 px-3 py-2 text-base font-medium text-slate-700">
@@ -346,9 +424,7 @@ export default function QuizPage() {
   const progress = isGeneralExam
     ? (Math.min(currentIdx + pageSize, quizQuestions.length) / quizQuestions.length) * 100
     : ((currentIdx + 1) / quizQuestions.length) * 100
-  const correctAnswer = question
-    ? Array.isArray(question.correct_answer) ? question.correct_answer[0] : question.correct_answer
-    : ''
+  const correctAnswer = question ? formatCorrectAnswer(question) : ''
   const isLastQuestion = currentIdx === quizQuestions.length - 1
   const isLastPage = currentIdx + pageSize >= quizQuestions.length
   const answeredExamCount = isGeneralExam
@@ -364,7 +440,7 @@ export default function QuizPage() {
   }
 
   function handleAnswer(userAnswer) {
-    const correct = evaluateAnswer(question, userAnswer)
+    const correct = evaluateQuestionAnswer(question, userAnswer)
 
     const nextResults = [...resultsRef.current, { question, userAnswer, correct }]
     resultsRef.current = nextResults
@@ -382,7 +458,7 @@ export default function QuizPage() {
   }
 
   function handleGeneralExamAnswer(targetQuestion, userAnswer) {
-    const correct = evaluateAnswer(targetQuestion, userAnswer)
+    const correct = evaluateQuestionAnswer(targetQuestion, userAnswer)
     const nextResults = [...resultsRef.current]
     const existingIndex = nextResults.findIndex(result => result.question.id === targetQuestion.id)
 
@@ -612,6 +688,10 @@ export default function QuizPage() {
                 isCorrect={isCorrect}
                 correctAnswer={correctAnswer}
               />
+            ) : question.type === 'list' ? (
+              <ListAnswer key={question.id} question={question} onAnswer={handleAnswer} answered={answered} />
+            ) : question.type === 'self_check' ? (
+              <SelfCheck key={question.id} question={question} onAnswer={handleAnswer} answered={answered} />
             ) : (
               <OpenText key={question.id} onAnswer={handleAnswer} answered={answered} />
             )}
@@ -623,6 +703,7 @@ export default function QuizPage() {
                 explanation={question.explanation}
                 isLastQuestion={isLastQuestion}
                 onNext={handleNext}
+                questionType={question.type}
               />
             )}
           </div>

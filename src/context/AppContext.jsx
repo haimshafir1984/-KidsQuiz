@@ -94,6 +94,7 @@ function getQuestionTypesLabel(types, hasVisuals = false) {
   if (hasVisuals) return 'סגורות עם תמונות'
   if (types.has('sentence_completion')) return 'השלמת משפטים'
   if (types.has('multiple') && types.has('open')) return 'פתוחות וסגורות'
+  if (types.has('list') || types.has('self_check')) return 'מגוונות'
   if (types.has('multiple')) return 'סגורות'
   if (types.has('open')) return 'פתוחות'
   return 'מותאם אישית'
@@ -817,6 +818,9 @@ export function AppProvider({ children }) {
               && question.subject !== HOLLAND_SUBJECT
               && question.subject !== GENERAL_EXAM_SUBJECT
               && question.activityType === 'practice'
+              // שאלות רשימה והסבר מתאימות לתרגול בלבד, לא למבחן על זמן
+              && question.type !== 'list'
+              && question.type !== 'self_check'
           }))
 
           if (savedProgress?.questionIds?.length) {
