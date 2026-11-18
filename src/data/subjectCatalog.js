@@ -1,5 +1,7 @@
 import { TANAKH_NEW_SUBJECT, TANAKH_NEW_LEVEL_LIST } from './tanakhNewQuestions.js'
 import { GI_NEW_SUBJECT, GI_NEW_LEVEL_LIST } from './generalIntelligenceNewQuestions.js'
+import { YEAR_CYCLE_NEW_SUBJECT, YEAR_CYCLE_NEW_LEVEL_LIST } from './yearCycleNewQuestions.js'
+import { PRAYER_NEW_SUBJECT, PRAYER_NEW_LEVEL_LIST } from './prayerNewQuestions.js'
 
 const BASE_SUBJECTS = {
   tanakh: {
@@ -203,6 +205,28 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-amber-300',
     emoji: '🌐',
   },
+  yearCycleNew: {
+    label: YEAR_CYCLE_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: YEAR_CYCLE_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-rose-50 text-rose-600',
+    hover: 'hover:border-rose-300',
+    emoji: '🗓️',
+  },
+  prayerNew: {
+    label: PRAYER_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: PRAYER_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-sky-50 text-sky-600',
+    hover: 'hover:border-sky-300',
+    emoji: '🙏',
+  },
   generalIntelligenceNew: {
     label: GI_NEW_SUBJECT,
     aliases: [],
@@ -240,6 +264,8 @@ export const SUBJECT_CATALOG = {
   'grade-8': [
     BASE_SUBJECTS.tanakh,
     BASE_SUBJECTS.tanakhNew,
+    BASE_SUBJECTS.yearCycleNew,
+    BASE_SUBJECTS.prayerNew,
     BASE_SUBJECTS.pirkeiAvot,
     BASE_SUBJECTS.yearlyCycle,
     BASE_SUBJECTS.shabbat,

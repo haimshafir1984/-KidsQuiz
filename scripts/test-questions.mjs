@@ -2,6 +2,8 @@
 // הרצה: npm run test:questions
 import tanakhNew from '../src/data/tanakhNewQuestions.js'
 import giNew from '../src/data/generalIntelligenceNewQuestions.js'
+import yearCycleNew from '../src/data/yearCycleNewQuestions.js'
+import prayerNew from '../src/data/prayerNewQuestions.js'
 import { evaluateQuestionAnswer, getListMinItems, SELF_CHECK_ENABLED, SELF_CHECK_KNOWN, SELF_CHECK_UNKNOWN } from '../src/utils/questionAnswers.js'
 
 let failed = 0
@@ -13,7 +15,7 @@ function check(condition, message) {
 }
 
 // ───── תקינות מבנה ─────
-const all = [...tanakhNew, ...giNew]
+const all = [...tanakhNew, ...giNew, ...yearCycleNew, ...prayerNew]
 const ids = new Set()
 all.forEach(question => {
   check(!ids.has(question.id), `מזהה כפול: ${question.id}`)
@@ -95,6 +97,30 @@ openCheck('כמה שעות יש ביממה?', 'עשרים וארבע', true)
 openCheck('כמה שעות יש ביממה?', '25', false)
 openCheck('מה משותף ל: שפעת, סארס, קורונה, הרפס?', 'נגיפים', true)
 openCheck('מה משותף ל: שפעת, סארס, קורונה, הרפס?', 'חיידקים', false)
+
+// ───── מעגל השנה ותפילה: דוגמאות ─────
+const sample = (pool, text, answer, expected) => {
+  const question = pool.find(item => item.text === text)
+  check(Boolean(question), `שאלה לא נמצאה: ${text}`)
+  if (question) check(evaluateQuestionAnswer(question, answer) === expected, `"${text}" עם "${answer}" - צפוי ${expected}`)
+}
+sample(yearCycleNew, 'באיזה חודש נפטרה רחל אמנו?', 'חשוון', true)
+sample(yearCycleNew, 'באיזה חודש נפטרה רחל אמנו?', 'מרחשוון', true)
+sample(yearCycleNew, 'באיזה חודש נפטרה רחל אמנו?', 'כסלו', false)
+sample(yearCycleNew, 'באיזה חודש חל פורים קטן?', 'אדר א\'', true)
+sample(yearCycleNew, 'באיזה חודש חל פורים קטן?', 'ניסן', false)
+sample(yearCycleNew, 'באילו חודשים חלה תענית בה"ב?', 'חשוון ואייר', true)
+sample(yearCycleNew, 'באילו חודשים חלה תענית בה"ב?', 'אייר', false)
+sample(yearCycleNew, 'מתי קוראים את מגילת רות?', 'בשבועות', true)
+sample(yearCycleNew, 'מתי קוראים את מגילת רות?', 'בפורים', false)
+sample(yearCycleNew, 'איזה הלל אומרים בפורים?', 'אין אומרים הלל', true)
+sample(prayerNew, 'מי תיקן את תפילת מנחה?', 'יצחק', true)
+sample(prayerNew, 'מי תיקן את תפילת מנחה?', 'אברהם', false)
+sample(prayerNew, 'מאיזו תפילה (או מאיזה ספר) נלקח הציטוט: "כשם שאני רוקד כנגדך"?', 'קידוש לבנה', true)
+sample(prayerNew, 'כמה ברכות יש בתפילת שמונה עשרה?', 'תשע עשרה', true)
+sample(prayerNew, 'כמה ברכות יש בתפילת שמונה עשרה?', '18', false)
+sample(prayerNew, 'מהם שלושת חלקי תפילת שמונה עשרה?', 'שבח, בקשה והודיה', true)
+sample(prayerNew, 'מהם שלושת חלקי תפילת שמונה עשרה?', 'שבח ובקשה', false)
 
 console.log(failed === 0 ? `✔ כל הבדיקות עברו (${all.length} שאלות במאגרים החדשים)` : `\n${failed} בדיקות נכשלו`)
 process.exit(failed === 0 ? 0 : 1)

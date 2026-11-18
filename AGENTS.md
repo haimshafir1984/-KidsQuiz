@@ -227,7 +227,7 @@ npm run license:generate -- --customerName="שם הלקוח"
 - `list` תומך גם ב-`ordered: true` (הסדר חשוב; הפריטים במאגר בסדר הנכון).
 - `self_check` פעיל. אפשר להסתיר אותו שוב ב-`SELF_CHECK_ENABLED = false` (`questionAnswers.js`): השאלות נשארות בקוד אבל לא נטענות, ומוסרות גם מנתונים שכבר נשמרו בדפדפן.
 - שניהם לתרגול בלבד (מוחרגים מהמבחן הכללי). הלוגיקה ב-`src/utils/questionAnswers.js`, בדיקות: `npm run test:questions`.
-- הנושאים "תנך חדש" ו"אינטליגנציה כללית חדש" (grade-8) נוצרו ממסמכי Word: `src/data/tanakhNewQuestions.js`, `src/data/generalIntelligenceNewQuestions.js`.
+- הנושאים "תנך חדש", "אינטליגנציה כללית חדש", "מעגל השנה חדש" ו"תפילה וברכות חדש" (grade-8) נוצרו ממסמכי Word: `tanakhNewQuestions.js`, `generalIntelligenceNewQuestions.js`, `yearCycleNewQuestions.js`, `prayerNewQuestions.js` (ב-`src/data/`). שלושת האחרונים בנויים עם הבנאים המשותפים ב-`questionBuilders.js` (`mc`, `open`, `list`, `explain`). כל תת-נושא הוא `level` בסדר ההגדרה.
 
 ---
 
