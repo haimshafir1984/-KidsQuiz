@@ -298,6 +298,15 @@ function matchesTokens(userTokens, correctTokens) {
   }
   const userPatronymicIndex = userWords.findIndex(word => PATRONYMIC_WORDS.has(word))
 
+  // אם גם התלמיד וגם התשובה הנכונה כוללים שם אב ("בן X"), שם האב חייב להתאים:
+  // "רבי שלמה בן מאיר" אינו "רבי שלמה בן אדרת"
+  if (userPatronymicIndex !== -1 && patronymicIndex !== -1) {
+    const userTail = userWords.slice(userPatronymicIndex + 1)
+    const correctTail = correctWords.slice(patronymicIndex + 1)
+    const tailMatches = userTail.some(word => correctTail.some(candidate => wordsEquivalent(word, candidate)))
+    if (userTail.length > 0 && correctTail.length > 0 && !tailMatches) return false
+  }
+
   if (!mustMatch.every(consume)) return false
 
   // שאר מילות התשובה הנכונה (תארים, "בן ...") אופציונליות, אבל אם התלמיד כתב אותן הן לא נחשבות "עודף"

@@ -5,6 +5,9 @@ import tanakhNewQuestions from './tanakhNewQuestions.js'
 import generalIntelligenceNewQuestions from './generalIntelligenceNewQuestions.js'
 import yearCycleNewQuestions from './yearCycleNewQuestions.js'
 import prayerNewQuestions from './prayerNewQuestions.js'
+import shabbatNewQuestions from './shabbatNewQuestions.js'
+import lawsNewQuestions from './lawsNewQuestions.js'
+import jewishIntelligenceNewQuestions from './jewishIntelligenceNewQuestions.js'
 import { normalizeSubjectName } from './subjectCatalog.js'
 
 const THINKING_CHALLENGE_SUBJECT_MAP = {
@@ -413,4 +416,7 @@ export default [
   ...generalIntelligenceNewQuestions,
   ...yearCycleNewQuestions,
   ...prayerNewQuestions,
+  ...shabbatNewQuestions,
+  ...lawsNewQuestions,
+  ...jewishIntelligenceNewQuestions,
 ]

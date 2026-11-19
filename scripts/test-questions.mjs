@@ -4,6 +4,9 @@ import tanakhNew from '../src/data/tanakhNewQuestions.js'
 import giNew from '../src/data/generalIntelligenceNewQuestions.js'
 import yearCycleNew from '../src/data/yearCycleNewQuestions.js'
 import prayerNew from '../src/data/prayerNewQuestions.js'
+import shabbatNew from '../src/data/shabbatNewQuestions.js'
+import lawsNew from '../src/data/lawsNewQuestions.js'
+import jewishNew from '../src/data/jewishIntelligenceNewQuestions.js'
 import { evaluateQuestionAnswer, getListMinItems, SELF_CHECK_ENABLED, SELF_CHECK_KNOWN, SELF_CHECK_UNKNOWN } from '../src/utils/questionAnswers.js'
 
 let failed = 0
@@ -15,7 +18,7 @@ function check(condition, message) {
 }
 
 // ───── תקינות מבנה ─────
-const all = [...tanakhNew, ...giNew, ...yearCycleNew, ...prayerNew]
+const all = [...tanakhNew, ...giNew, ...yearCycleNew, ...prayerNew, ...shabbatNew, ...lawsNew, ...jewishNew]
 const ids = new Set()
 all.forEach(question => {
   check(!ids.has(question.id), `מזהה כפול: ${question.id}`)
@@ -121,6 +124,20 @@ sample(prayerNew, 'כמה ברכות יש בתפילת שמונה עשרה?', '�
 sample(prayerNew, 'כמה ברכות יש בתפילת שמונה עשרה?', '18', false)
 sample(prayerNew, 'מהם שלושת חלקי תפילת שמונה עשרה?', 'שבח, בקשה והודיה', true)
 sample(prayerNew, 'מהם שלושת חלקי תפילת שמונה עשרה?', 'שבח ובקשה', false)
+
+// ───── שבת, דינים ואינטליגנציה יהודית: דוגמאות ─────
+sample(shabbatNew, 'מי חיבר את הזמר "לכה דודי"?', 'רבי שלמה אלקבץ', true)
+sample(shabbatNew, 'מי חיבר את הזמר "לכה דודי"?', 'רבי יהודה הלוי', false)
+sample(shabbatNew, 'מה יוצא דופן?', 'צם', true)
+sample(lawsNew, 'איזו ברכה מברכים על במבה?', 'שהכל', true)
+sample(jewishNew, 'מי חיבר את הספר "מסילת ישרים"?', 'הרמח"ל', true)
+sample(jewishNew, 'מי חיבר את הספר "מסילת ישרים"?', 'הרמב"ם', false)
+sample(jewishNew, 'באיזה תאריך נפטר: החפץ חיים?', 'כ"ד באלול', true)
+sample(jewishNew, 'באיזה תאריך נפטר: החפץ חיים?', 'כ"ה באלול', false)
+sample(jewishNew, 'מהו שמו המלא של: הגאון מווילנה?', 'רבי אליהו מווילנה', true)
+sample(jewishNew, 'פתחו את ראשי התיבות: פרד"ס', 'פשט רמז דרש סוד', true)
+sample(jewishNew, 'סדרו לפי סדר הזמנים בסדר היום היהודי: שקיעה, עלות השחר, חצות, צאת הכוכבים, הנץ החמה, בין השמשות, זריחה.', 'עלות השחר, הנץ החמה, זריחה, חצות, שקיעה, בין השמשות, צאת הכוכבים', true)
+sample(jewishNew, 'סדרו לפי סדר הזמנים בסדר היום היהודי: שקיעה, עלות השחר, חצות, צאת הכוכבים, הנץ החמה, בין השמשות, זריחה.', 'שקיעה, חצות, זריחה, הנץ החמה, עלות השחר, בין השמשות, צאת הכוכבים', false)
 
 console.log(failed === 0 ? `✔ כל הבדיקות עברו (${all.length} שאלות במאגרים החדשים)` : `\n${failed} בדיקות נכשלו`)
 process.exit(failed === 0 ? 0 : 1)

@@ -2,6 +2,9 @@ import { TANAKH_NEW_SUBJECT, TANAKH_NEW_LEVEL_LIST } from './tanakhNewQuestions.
 import { GI_NEW_SUBJECT, GI_NEW_LEVEL_LIST } from './generalIntelligenceNewQuestions.js'
 import { YEAR_CYCLE_NEW_SUBJECT, YEAR_CYCLE_NEW_LEVEL_LIST } from './yearCycleNewQuestions.js'
 import { PRAYER_NEW_SUBJECT, PRAYER_NEW_LEVEL_LIST } from './prayerNewQuestions.js'
+import { SHABBAT_NEW_SUBJECT, SHABBAT_NEW_LEVEL_LIST } from './shabbatNewQuestions.js'
+import { LAWS_NEW_SUBJECT, LAWS_NEW_LEVEL_LIST } from './lawsNewQuestions.js'
+import { JEWISH_NEW_SUBJECT, JEWISH_NEW_LEVEL_LIST } from './jewishIntelligenceNewQuestions.js'
 
 const BASE_SUBJECTS = {
   tanakh: {
@@ -216,6 +219,39 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-rose-300',
     emoji: '🗓️',
   },
+  shabbatNew: {
+    label: SHABBAT_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: SHABBAT_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-violet-50 text-violet-600',
+    hover: 'hover:border-violet-300',
+    emoji: '🕯️',
+  },
+  lawsNew: {
+    label: LAWS_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: LAWS_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-lime-50 text-lime-700',
+    hover: 'hover:border-lime-300',
+    emoji: '⚖️',
+  },
+  jewishIntelligenceNew: {
+    label: JEWISH_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: JEWISH_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-emerald-50 text-emerald-600',
+    hover: 'hover:border-emerald-300',
+    emoji: '🧠',
+  },
   prayerNew: {
     label: PRAYER_NEW_SUBJECT,
     aliases: [],
@@ -266,6 +302,9 @@ export const SUBJECT_CATALOG = {
     BASE_SUBJECTS.tanakhNew,
     BASE_SUBJECTS.yearCycleNew,
     BASE_SUBJECTS.prayerNew,
+    BASE_SUBJECTS.shabbatNew,
+    BASE_SUBJECTS.lawsNew,
+    BASE_SUBJECTS.jewishIntelligenceNew,
     BASE_SUBJECTS.pirkeiAvot,
     BASE_SUBJECTS.yearlyCycle,
     BASE_SUBJECTS.shabbat,
