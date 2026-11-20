@@ -69,21 +69,31 @@ function MultipleChoice({
     <div className={`grid gap-3 ${hasOptionImages ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
       {options.map((option, index) => {
         const isSelected = selectedAnswer === option
-        let stateClass = 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 hover:-translate-x-1'
+        const idleClass = 'border-slate-200 bg-white text-slate-900 hover:border-blue-400 hover:bg-blue-50'
+        const idleLetter = 'border-2 border-blue-600 bg-white text-blue-700'
+        let stateClass = idleClass
+        let letterClass = idleLetter
+        let tag = null
 
         if (reviewMode) {
-          stateClass = isSelected
-            ? 'border-blue-300 bg-blue-50 text-blue-700'
-            : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 hover:-translate-x-1'
+          stateClass = isSelected ? 'border-blue-600 bg-blue-50 text-blue-800' : idleClass
+          letterClass = isSelected ? 'border-2 border-blue-600 bg-blue-600 text-white' : idleLetter
         } else if (answered && isSelected && isCorrect) {
-          stateClass = 'border-emerald-300 bg-emerald-50 text-emerald-700'
+          stateClass = 'border-emerald-600 bg-emerald-50 text-emerald-900'
+          letterClass = 'border-2 border-emerald-600 bg-emerald-600 text-white'
+          tag = { text: '✔ תשובה נכונה', cls: 'bg-emerald-200 text-emerald-800' }
         } else if (answered && isSelected && !isCorrect) {
-          stateClass = 'border-red-300 bg-red-50 text-red-700'
+          stateClass = 'border-rose-600 bg-rose-50 text-rose-900'
+          letterClass = 'border-2 border-rose-600 bg-rose-600 text-white'
+          tag = { text: '✖ הבחירה שלך', cls: 'bg-rose-200 text-rose-800' }
         } else if (answered && correctAnswer && option === correctAnswer) {
           // בתשובה שגויה מסמנים בירוק גם את התשובה הנכונה
-          stateClass = 'border-emerald-300 bg-emerald-50 text-emerald-700'
+          stateClass = 'border-emerald-600 bg-emerald-50 text-emerald-900'
+          letterClass = 'border-2 border-emerald-600 bg-emerald-600 text-white'
+          tag = { text: '✔ תשובה נכונה', cls: 'bg-emerald-200 text-emerald-800' }
         } else if (answered) {
           stateClass = 'border-slate-100 bg-slate-50 text-slate-400'
+          letterClass = 'border-2 border-slate-300 bg-white text-slate-400'
         }
 
         return (
@@ -95,11 +105,14 @@ function MultipleChoice({
             disabled={!reviewMode && answered}
             className={`quiz-option flex ${hasOptionImages ? 'flex-col items-stretch p-3' : 'items-center gap-4'} text-lg font-semibold ${stateClass}`}
           >
-            <div className={`flex ${hasOptionImages ? 'w-full items-center justify-between gap-3' : 'items-center gap-4'}`}>
-              <span className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${getOptionBadgeClass(index)}`}>
+            <div className={`flex flex-wrap ${hasOptionImages ? 'w-full items-center justify-between gap-3' : 'w-full items-center gap-x-4 gap-y-2'}`}>
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${letterClass}`}>
                 {getOptionLetter(index)}
               </span>
-              <span className={`${hasOptionImages ? 'text-base' : 'flex-1 text-right'}`}>{option}</span>
+              <span className={`${hasOptionImages ? 'text-base' : 'min-w-0 flex-1 text-right'}`}>{option}</span>
+              {tag && (
+                <span className={`whitespace-nowrap rounded-full px-3 py-1 text-sm font-bold ${tag.cls}`}>{tag.text}</span>
+              )}
             </div>
             {hasOptionImages && optionImages[index] && (
               <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-2">
@@ -576,7 +589,8 @@ export default function QuizPage() {
         )}
       </section>
 
-      <section className="edu-card-quiz p-4 sm:p-8">
+      <section className="edu-card-quiz relative overflow-hidden p-4 pt-7 sm:p-8 sm:pt-10">
+        <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-l from-violet-600 to-blue-600" aria-hidden="true" />
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-base font-semibold text-amber-800">
