@@ -6,6 +6,7 @@ import generalIntelligenceNewQuestions from './generalIntelligenceNewQuestions.j
 import yearCycleNewQuestions from './yearCycleNewQuestions.js'
 import prayerNewQuestions from './prayerNewQuestions.js'
 import shabbatNewQuestions from './shabbatNewQuestions.js'
+import pirkeiAvotNewQuestions from './pirkeiAvotNewQuestions.js'
 import lawsNewQuestions from './lawsNewQuestions.js'
 import jewishIntelligenceNewQuestions from './jewishIntelligenceNewQuestions.js'
 import { normalizeSubjectName } from './subjectCatalog.js'
@@ -417,6 +418,7 @@ export default [
   ...yearCycleNewQuestions,
   ...prayerNewQuestions,
   ...shabbatNewQuestions,
+  ...pirkeiAvotNewQuestions,
   ...lawsNewQuestions,
   ...jewishIntelligenceNewQuestions,
 ]

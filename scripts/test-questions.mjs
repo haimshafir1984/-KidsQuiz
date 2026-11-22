@@ -5,6 +5,7 @@ import giNew from '../src/data/generalIntelligenceNewQuestions.js'
 import yearCycleNew from '../src/data/yearCycleNewQuestions.js'
 import prayerNew from '../src/data/prayerNewQuestions.js'
 import shabbatNew from '../src/data/shabbatNewQuestions.js'
+import pirkeiNew from '../src/data/pirkeiAvotNewQuestions.js'
 import lawsNew from '../src/data/lawsNewQuestions.js'
 import jewishNew from '../src/data/jewishIntelligenceNewQuestions.js'
 import { evaluateQuestionAnswer, getListMinItems, SELF_CHECK_ENABLED, SELF_CHECK_KNOWN, SELF_CHECK_UNKNOWN } from '../src/utils/questionAnswers.js'
@@ -18,7 +19,7 @@ function check(condition, message) {
 }
 
 // ───── תקינות מבנה ─────
-const all = [...tanakhNew, ...giNew, ...yearCycleNew, ...prayerNew, ...shabbatNew, ...lawsNew, ...jewishNew]
+const all = [...tanakhNew, ...giNew, ...yearCycleNew, ...prayerNew, ...shabbatNew, ...lawsNew, ...jewishNew, ...pirkeiNew]
 const ids = new Set()
 all.forEach(question => {
   check(!ids.has(question.id), `מזהה כפול: ${question.id}`)
@@ -138,6 +139,14 @@ sample(jewishNew, 'מהו שמו המלא של: הגאון מווילנה?', 'ר
 sample(jewishNew, 'פתחו את ראשי התיבות: פרד"ס', 'פשט רמז דרש סוד', true)
 sample(jewishNew, 'סדרו לפי סדר הזמנים בסדר היום היהודי: שקיעה, עלות השחר, חצות, צאת הכוכבים, הנץ החמה, בין השמשות, זריחה.', 'עלות השחר, הנץ החמה, זריחה, חצות, שקיעה, בין השמשות, צאת הכוכבים', true)
 sample(jewishNew, 'סדרו לפי סדר הזמנים בסדר היום היהודי: שקיעה, עלות השחר, חצות, צאת הכוכבים, הנץ החמה, בין השמשות, זריחה.', 'שקיעה, חצות, זריחה, הנץ החמה, עלות השחר, בין השמשות, צאת הכוכבים', false)
+
+// ───── פרקי אבות חדש ─────
+sample(pirkeiNew, 'השלימו את שם החכם: ______ בן זכאי.', 'יוחנן', true)
+sample(pirkeiNew, 'השלימו את שם החכם: ______ בן זכאי.', 'שמעון', false)
+sample(pirkeiNew, 'כמה דורות היו מאדם ועד נח?', 'עשרה', true)
+sample(pirkeiNew, 'בכמה מעלות התורה נקנית?', '48', true)
+sample(pirkeiNew, 'בכמה מעלות התורה נקנית?', '24', false)
+sample(pirkeiNew, 'מי אמר: "איזהו עשיר? השמח בחלקו"?', 'בן זומא', true)
 
 console.log(failed === 0 ? `✔ כל הבדיקות עברו (${all.length} שאלות במאגרים החדשים)` : `\n${failed} בדיקות נכשלו`)
 process.exit(failed === 0 ? 0 : 1)

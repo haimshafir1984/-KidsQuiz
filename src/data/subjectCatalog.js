@@ -5,6 +5,7 @@ import { PRAYER_NEW_SUBJECT, PRAYER_NEW_LEVEL_LIST } from './prayerNewQuestions.
 import { SHABBAT_NEW_SUBJECT, SHABBAT_NEW_LEVEL_LIST } from './shabbatNewQuestions.js'
 import { LAWS_NEW_SUBJECT, LAWS_NEW_LEVEL_LIST } from './lawsNewQuestions.js'
 import { JEWISH_NEW_SUBJECT, JEWISH_NEW_LEVEL_LIST } from './jewishIntelligenceNewQuestions.js'
+import { PIRKEI_NEW_SUBJECT, PIRKEI_NEW_LEVEL_LIST } from './pirkeiAvotNewQuestions.js'
 
 const BASE_SUBJECTS = {
   tanakh: {
@@ -274,6 +275,17 @@ const BASE_SUBJECTS = {
     hover: 'hover:border-teal-300',
     emoji: '🌍',
   },
+  pirkeiAvotNew: {
+    label: PIRKEI_NEW_SUBJECT,
+    aliases: [],
+    questionTypes: 'מגוונות',
+    levels: PIRKEI_NEW_LEVEL_LIST,
+    levelsKind: 'subtopic',
+    activities: ['practice'],
+    tone: 'bg-orange-50 text-orange-600',
+    hover: 'hover:border-orange-300',
+    emoji: '📜',
+  },
   numberSeries: {
     label: 'מתמטיקה: סדרות מספרים',
     aliases: [' מתמטיקה: סדרות מספרים'],
@@ -298,13 +310,16 @@ const BASE_SUBJECTS = {
 
 export const SUBJECT_CATALOG = {
   'grade-8': [
-    BASE_SUBJECTS.tanakh,
+    // הנושאים "חדש" מוצגים יחד בראש הרשימה
     BASE_SUBJECTS.tanakhNew,
+    BASE_SUBJECTS.generalIntelligenceNew,
     BASE_SUBJECTS.yearCycleNew,
     BASE_SUBJECTS.prayerNew,
     BASE_SUBJECTS.shabbatNew,
     BASE_SUBJECTS.lawsNew,
     BASE_SUBJECTS.jewishIntelligenceNew,
+    BASE_SUBJECTS.pirkeiAvotNew,
+    BASE_SUBJECTS.tanakh,
     BASE_SUBJECTS.pirkeiAvot,
     BASE_SUBJECTS.yearlyCycle,
     BASE_SUBJECTS.shabbat,
@@ -316,7 +331,6 @@ export const SUBJECT_CATALOG = {
     BASE_SUBJECTS.sentenceCompletion,
     BASE_SUBJECTS.conclusions,
     BASE_SUBJECTS.generalIntelligence,
-    BASE_SUBJECTS.generalIntelligenceNew,
     BASE_SUBJECTS.numberSeries,
     BASE_SUBJECTS.seriesCompletion,
   ],

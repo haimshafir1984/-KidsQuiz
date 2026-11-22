@@ -5,6 +5,7 @@ import { HOLLAND_QUESTIONS } from '../data/hollandQuestionnaire'
 
 const GROUPS = [
   { key: 'exam', title: 'מבחן מסכם' },
+  { key: 'new', title: 'נושאים חדשים' },
   { key: 'jewish', title: 'יהדות' },
   { key: 'language', title: 'שפה' },
   { key: 'thinking', title: 'חשיבה ומתמטיקה' },
@@ -13,6 +14,7 @@ const GROUPS = [
 
 function getGroupKey(subject) {
   if (subject === GENERAL_EXAM_SUBJECT) return 'exam'
+  if (/ חדש$/.test(subject)) return 'new'
   if (/תנ"ך|תנך|אבות|שבת|תפילה|דינים|מעגל השנה|יהודית/.test(subject)) return 'jewish'
   if (/מילולי|אנלוגיות|אנגלית/.test(subject)) return 'language'
   if (/הולנד|שאלון אישי/.test(subject)) return 'quiz'
