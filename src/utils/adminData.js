@@ -21,9 +21,9 @@ export function useAdminStats() {
       : { ...serverGetStats(), loading: false, error: null }
   ))
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!API_ENABLED) return
-    setState(previous => ({ ...previous, loading: true, error: null }))
+    if (!silent) setState(previous => ({ ...previous, loading: true, error: null }))
     const [users, results] = await Promise.all([api.get('/admin/users'), api.get('/admin/results')])
     if (!users.ok || !results.ok) {
       setState(previous => ({ ...previous, loading: false, error: users.error || results.error }))
@@ -39,5 +39,6 @@ export function useAdminStats() {
 
   useEffect(() => { load() }, [load])
 
-  return { ...state, reload: load }
+  // רענון שקט (בלי מסך טעינה), למשל אחרי שינוי מנוי
+  return { ...state, reload: () => load(true) }
 }

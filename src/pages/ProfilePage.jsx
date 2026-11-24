@@ -4,6 +4,7 @@ import { BarChart3, BookOpenCheck, Clock3, MapPin, Phone, Save, UserCircle2 } fr
 import { useApp } from '../context/AppContext'
 import { getActivityLabel, getGradeConfig } from '../data/learningTracks'
 import { isProfileComplete } from '../utils/userProfile'
+import PrivacyControls from '../components/shared/PrivacyControls'
 
 function formatDate(dateValue) {
   if (!dateValue) return '-'
@@ -359,6 +360,7 @@ export default function ProfilePage() {
           </section>
         </section>
       </section>
+      <PrivacyControls />
     </div>
   )
 }

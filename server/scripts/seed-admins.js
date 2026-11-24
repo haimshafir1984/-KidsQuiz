@@ -20,8 +20,8 @@ function askHidden(prompt) {
 }
 
 const email = (arg('email') || '').trim().toLowerCase()
-if (!email) {
-  console.error('חסר --email')
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  console.error('כתובת המייל חסרה או אינה תקינה (--email name@example.com)')
   process.exit(1)
 }
 const firstName = arg('first') || 'מנהל'

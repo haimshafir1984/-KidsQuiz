@@ -15,10 +15,13 @@ import {
   Users,
   BookCopy,
   FileQuestion,
+  History,
   X,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import AdminUsers from './AdminUsers'
+import AdminActivity from './AdminActivity'
+import { API_ENABLED } from '../utils/api'
 import { GRADES, getGradeConfig } from '../data/learningTracks'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import ToastViewport from '../components/shared/ToastViewport'
@@ -69,9 +72,11 @@ function TabButton({ active, label, count, icon: Icon, onClick }) {
     >
       <Icon className="h-4 w-4" />
       {label}
-      <span className={`rounded-full px-2 py-0.5 text-xs ${active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-        {count}
-      </span>
+      {count != null && (
+        <span className={`rounded-full px-2 py-0.5 text-xs ${active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+          {count}
+        </span>
+      )}
     </button>
   )
 }
@@ -1372,9 +1377,18 @@ export default function AdminPage() {
           icon={Users}
           onClick={() => setActiveTab('users')}
         />
+        {API_ENABLED && (
+          <TabButton
+            active={activeTab === 'activity'}
+            label="שחזור ויומן"
+            icon={History}
+            onClick={() => setActiveTab('activity')}
+          />
+        )}
       </div>
 
       {activeTab === 'users' && <AdminUsers stats={adminStats} />}
+      {activeTab === 'activity' && <AdminActivity />}
 
       {activeTab === 'topics' && (
         <>

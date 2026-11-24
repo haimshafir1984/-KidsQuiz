@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, LineChart, Lock, Mail, Phone, UserPlus2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { isDesktopRuntime } from '../utils/runtime'
+import { API_ENABLED } from '../utils/api'
+import Turnstile, { TURNSTILE_SITE_KEY } from '../components/shared/Turnstile'
 import { TANAKH_NEW_SUBJECT } from '../data/tanakhNewQuestions'
 
 const FEATURE_CARDS = [
@@ -67,6 +69,10 @@ export default function AuthPage() {
   const [error, setError] = useState('')
   const [showExpired, setShowExpired] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [turnstileReset, setTurnstileReset] = useState(0)
+  const handleTurnstileToken = useCallback(token => setTurnstileToken(token), [])
   const [registerForm, setRegisterForm] = useState({
     firstName: '',
     lastName: '',
@@ -189,6 +195,16 @@ export default function AuthPage() {
       return
     }
 
+    if (API_ENABLED && !termsAccepted) {
+      setError('יש לאשר את תנאי השימוש ומדיניות הפרטיות')
+      return
+    }
+
+    if (API_ENABLED && TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError('יש להשלים את בדיקת האבטחה לפני ההרשמה')
+      return
+    }
+
     if (registerForm.password.trim().length < 6) {
       setError('הסיסמה קצרה מדי. יש לבחור לפחות 6 תווים')
       return
@@ -203,12 +219,17 @@ export default function AuthPage() {
       password: registerForm.password,
       phone: registerForm.phone,
       email: registerForm.email,
+      acceptTerms: termsAccepted,
+      turnstileToken,
     })
 
     setSubmitting(false)
 
     if (result.error) {
       setError(result.error)
+      // אסימון Turnstile תקף לשימוש אחד בלבד
+      setTurnstileToken('')
+      setTurnstileReset(previous => previous + 1)
       return
     }
 
@@ -453,6 +474,23 @@ export default function AuthPage() {
                     <div className="text-sm text-slate-600">אפשר גם להיכנס בהמשך עם כתובת המייל.</div>
                   </div>
                 ) : null}
+
+                {API_ENABLED && (
+                  <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-base leading-7 text-slate-800 sm:col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={event => setTermsAccepted(event.target.checked)}
+                      className="mt-1.5 h-5 w-5 shrink-0"
+                    />
+                    <span>
+                      קראתי ואני מסכים/ה ל<Link to="/terms" target="_blank" className="font-semibold text-blue-700 underline">תנאי השימוש</Link> ול<Link to="/privacy" target="_blank" className="font-semibold text-blue-700 underline">מדיניות הפרטיות</Link>.
+                      הרשמה של קטין היא באישור ההורים.
+                    </span>
+                  </label>
+                )}
+
+                {API_ENABLED && <Turnstile onToken={handleTurnstileToken} resetKey={turnstileReset} />}
               </div>
             )}
 

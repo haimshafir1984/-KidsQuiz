@@ -4,6 +4,8 @@ import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
 import { config } from './config.js'
 import { findSessionUser } from './auth.js'
+import { clientIp, createAttemptLimiter } from './limiter.js'
+import { verifyTurnstileToken } from './turnstile.js'
 import authRoutes from './routes/auth.js'
 import questionRoutes from './routes/questions.js'
 import resultRoutes from './routes/results.js'
@@ -11,15 +13,24 @@ import adminRoutes from './routes/admin.js'
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
-export async function buildApp({ pool, logger = false, rateLimitMax = 300, authRateLimitMax = 10 }) {
+export async function buildApp({
+  pool, logger = false,
+  // מגבלות לכתובת אחת (כיתה שלמה יכולה לשבת מאחורי כתובת אחת, לכן הערכים נדיבים)
+  rateLimitMax = 1200, authRateLimitMax = 60,
+  // ניסיונות כניסה כושלים: לכל זוג כתובת+חשבון, ולכל חשבון מכל הכתובות
+  loginMaxPerIpAccount = 8, loginMaxPerAccount = 50,
+  verifyTurnstile = verifyTurnstileToken,
+}) {
   const app = Fastify({ logger, trustProxy: true, bodyLimit: 1024 * 1024 })
 
   await app.register(helmet, { contentSecurityPolicy: false })
   await app.register(cookie)
-  await app.register(rateLimit, { max: rateLimitMax, timeWindow: '1 minute' })
+  await app.register(rateLimit, { max: rateLimitMax, timeWindow: '1 minute', keyGenerator: clientIp })
 
   app.decorate('pool', pool)
   app.decorate('authRateLimitMax', authRateLimitMax)
+  app.decorate('loginLimiter', createAttemptLimiter({ maxPerIpAccount: loginMaxPerIpAccount, maxPerAccount: loginMaxPerAccount }))
+  app.decorate('verifyTurnstile', verifyTurnstile)
   app.decorateRequest('user', null)
 
   // זיהוי המשתמש מהעוגייה בכל בקשה
@@ -36,6 +47,11 @@ export async function buildApp({ pool, logger = false, rateLimitMax = 300, authR
     try { sourceHost = new URL(source).host } catch { /* מקור לא תקין */ }
     const allowed = new Set([request.headers.host, new URL(config.publicUrl).host])
     if (!allowed.has(sourceHost)) return reply.code(403).send({ error: 'בקשה לא תקינה' })
+  })
+
+  // תשובות ה-API מכילות מידע אישי ולכן אסור לשמור אותן במטמון (גם לא ב-CDN)
+  app.addHook('onSend', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store')
   })
 
   app.get('/api/health', async () => {

@@ -3,6 +3,7 @@ import { requireAdmin } from '../guards.js'
 import { rowToQuestion } from './questions.js'
 import { getSubscription } from '../auth.js'
 import { hashPassword } from '../password.js'
+import { deleteUserAccount, exportUserData } from '../userData.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
 
@@ -155,7 +156,7 @@ export default async function adminRoutes(app) {
     // איפוס סיסמה ע"י מנהל (בהיעדר שירות מייל לשחזור עצמי). הסיסמה החדשה נמסרת למשתמש בערוץ אחר
     let passwordReset = false
     if (body.newPassword !== undefined) {
-      if (typeof body.newPassword !== 'string' || body.newPassword.length < 6) return reply.code(400).send({ error: 'הסיסמה צריכה להכיל לפחות 6 תווים' })
+      if (typeof body.newPassword !== 'string' || body.newPassword.length < 6 || body.newPassword.length > 200) return reply.code(400).send({ error: 'הסיסמה צריכה להכיל לפחות 6 תווים' })
       values.push(await hashPassword(body.newPassword)); updates.push(`password_hash = $${values.length}`)
       passwordReset = true
     }
@@ -169,6 +170,34 @@ export default async function adminRoutes(app) {
     const { newPassword: _hidden, ...loggedBody } = body
     await audit(pool, request.user.id, passwordReset ? 'reset_password' : 'update', 'user', rows[0].id, null, loggedBody)
     return { success: true, user: rows[0] }
+  })
+
+  // ייצוא כל נתוני תלמיד (זכות עיון), ומחיקתו המלאה (זכות מחיקה). מנהלים לא נמחקים מכאן
+  app.get('/users/:id/export', async (request, reply) => {
+    const data = await exportUserData(pool, request.params.id)
+    if (!data) return reply.code(404).send({ error: 'המשתמש לא נמצא' })
+    await audit(pool, request.user.id, 'export', 'user', request.params.id, null, null)
+    return data
+  })
+
+  app.delete('/users/:id', async (request, reply) => {
+    const { id } = request.params
+    if (id === request.user.id) return reply.code(400).send({ error: 'אי אפשר למחוק את עצמך' })
+    const target = await pool.query('SELECT role, username FROM users WHERE id = $1', [id])
+    if (target.rowCount === 0) return reply.code(404).send({ error: 'המשתמש לא נמצא' })
+    if (target.rows[0].role === 'admin') return reply.code(400).send({ error: 'חשבון מנהל לא נמחק מכאן' })
+    await deleteUserAccount(pool, id)
+    // ביומן נשמרים רק המזהה ושם המשתמש, בלי פרטי קשר
+    await audit(pool, request.user.id, 'delete', 'user', id, { username: target.rows[0].username }, null)
+    return { success: true }
+  })
+
+  // שאלות שנמחקו (למסך השחזור)
+  app.get('/questions/deleted', async () => {
+    const { rows } = await pool.query(
+      'SELECT id, data, updated_at FROM questions WHERE deleted ORDER BY updated_at DESC LIMIT 500',
+    )
+    return { questions: rows.map(row => ({ ...rowToQuestion(row), deletedAt: row.updated_at })) }
   })
 
   app.get('/audit', async request => {

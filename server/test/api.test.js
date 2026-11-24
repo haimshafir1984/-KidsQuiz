@@ -34,7 +34,7 @@ function client() {
 }
 
 const student = overrides => ({
-  firstName: 'דנה', lastName: 'כהן', city: 'ירושלים', email: 'dana@example.com', password: 'secret123', ...overrides,
+  firstName: 'דנה', lastName: 'כהן', city: 'ירושלים', email: 'dana@example.com', password: 'secret123', acceptTerms: true, ...overrides,
 })
 
 before(async () => {
@@ -274,6 +274,167 @@ describe('שאלות וניהול', () => {
     const log = await admin.call('GET', `/api/admin/audit?entity=user&id=${target.id}`)
     assert.ok(log.body.entries.some(entry => entry.action === 'reset_password'))
     assert.ok(!JSON.stringify(log.body.entries).includes('fresh-pass-1'))
+  })
+})
+
+
+describe('אבטחה והגנות נוספות', () => {
+  test('הרשמה דורשת אישור תנאים', async () => {
+    const c = client()
+    const res = await c.call('POST', '/api/auth/register', student({ email: 'noterms@example.com', acceptTerms: false }))
+    assert.equal(res.status, 400)
+    const row = await pool.query("SELECT terms_accepted_at, terms_version FROM users WHERE email = 'dana@example.com'")
+    assert.ok(row.rows[0].terms_accepted_at)
+    assert.ok(row.rows[0].terms_version)
+  })
+
+  test('שם משתמש שנשלח מהלקוח מתעלמים ממנו (אי אפשר לתפוס מייל של אחר)', async () => {
+    const c = client()
+    const res = await c.call('POST', '/api/auth/register', student({ email: 'squatter@example.com', firstName: 'תוקף', lastName: 'בדיקה', username: 'victim@example.com' }))
+    assert.equal(res.status, 200)
+    assert.equal(res.body.user.username, 'תוקף בדיקה')
+    // מי שנרשם אחר כך עם המייל שניסו לתפוס, עדיין נכנס רגיל עם המייל
+    const victim = client()
+    await victim.call('POST', '/api/auth/register', student({ email: 'victim@example.com', firstName: 'קורבן', lastName: 'בדיקה' }))
+    const login = await client().call('POST', '/api/auth/login', { identifier: 'victim@example.com', password: 'secret123' })
+    assert.equal(login.status, 200)
+    assert.equal(login.body.user.firstName, 'קורבן')
+  })
+
+  test('אימות Turnstile: הרשמה נדחית כשהאימות נכשל', async () => {
+    const strictApp = await buildApp({ pool, rateLimitMax: 1000, authRateLimitMax: 1000, verifyTurnstile: async token => token === 'good' })
+    const call = payload => strictApp.inject({ method: 'POST', url: '/api/auth/register', payload, headers: ORIGIN })
+    assert.equal((await call(student({ email: 'bot@example.com' }))).statusCode, 400)
+    assert.equal((await call(student({ email: 'bot@example.com', turnstileToken: 'bad' }))).statusCode, 400)
+    assert.equal((await call(student({ email: 'human@example.com', firstName: 'אנושי', turnstileToken: 'good' }))).statusCode, 200)
+    await strictApp.close()
+  })
+
+  test('נעילה אחרי ניסיונות כושלים: לכל כתובת+חשבון, בלי לחסום חשבון אחר מאותה כתובת', async () => {
+    const limited = await buildApp({ pool, rateLimitMax: 1000, authRateLimitMax: 1000, loginMaxPerIpAccount: 3, loginMaxPerAccount: 50 })
+    const attempt = (identifier, password, ip = '1.2.3.4') => limited.inject({
+      method: 'POST', url: '/api/auth/login', payload: { identifier, password }, headers: { ...ORIGIN, 'cf-connecting-ip': ip },
+    })
+    for (let i = 0; i < 3; i += 1) assert.equal((await attempt('squatter@example.com', 'wrong')).statusCode, 401)
+    // גם הסיסמה הנכונה נחסמת בזמן הנעילה
+    assert.equal((await attempt('squatter@example.com', 'secret123')).statusCode, 429)
+    // חשבון אחר מאותה כתובת (כיתה משותפת) לא נפגע
+    assert.equal((await attempt('victim@example.com', 'secret123')).statusCode, 200)
+    // אותו חשבון מכתובת אחרת לא ננעל (מניעת נעילה זדונית של תלמיד)
+    assert.equal((await attempt('squatter@example.com', 'secret123', '9.9.9.9')).statusCode, 200)
+    await limited.close()
+  })
+
+  test('נעילה לפי חשבון מכל הכתובות יחד', async () => {
+    const limited = await buildApp({ pool, rateLimitMax: 1000, authRateLimitMax: 1000, loginMaxPerIpAccount: 100, loginMaxPerAccount: 4 })
+    const attempt = (ip, password) => limited.inject({
+      method: 'POST', url: '/api/auth/login', payload: { identifier: 'human@example.com', password }, headers: { ...ORIGIN, 'cf-connecting-ip': ip },
+    })
+    for (let i = 0; i < 4; i += 1) assert.equal((await attempt(`10.0.0.${i}`, 'wrong')).statusCode, 401)
+    assert.equal((await attempt('10.0.0.99', 'secret123')).statusCode, 429)
+    await limited.close()
+  })
+
+  test('כותרת X-Forwarded-For מזויפת לא עוקפת הגבלה (מפתח לפי CF-Connecting-IP)', async () => {
+    const limited = await buildApp({ pool, authRateLimitMax: 3 })
+    const codes = []
+    for (let i = 0; i < 5; i += 1) {
+      const res = await limited.inject({
+        method: 'POST', url: '/api/auth/login', payload: { identifier: 'x@example.com', password: 'bad' },
+        headers: { ...ORIGIN, 'cf-connecting-ip': '7.7.7.7', 'x-forwarded-for': `1.1.1.${i}` },
+      })
+      codes.push(res.statusCode)
+    }
+    await limited.close()
+    assert.deepEqual(codes, [401, 401, 401, 429, 429])
+  })
+
+  test('תשובות ה-API לא נשמרות במטמון', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/health' })
+    assert.equal(res.headers['cache-control'], 'no-store')
+  })
+
+  test('מנוי שפג תוקפו מנתק גם התחברות קיימת', async () => {
+    const c = client()
+    await c.call('POST', '/api/auth/register', student({ email: 'expiring@example.com', firstName: 'פוקע' }))
+    assert.ok((await c.call('GET', '/api/auth/me')).body.user)
+    await pool.query("UPDATE users SET subscription_status = 'expired' WHERE email = 'expiring@example.com'")
+    assert.equal((await c.call('GET', '/api/auth/me')).body.user, null)
+    assert.equal((await c.call('GET', '/api/questions')).status, 401)
+    await pool.query("UPDATE users SET subscription_status = 'active', subscription_until = NULL WHERE email = 'expiring@example.com'")
+    assert.ok((await c.call('GET', '/api/auth/me')).body.user)
+  })
+
+  test('סיסמה ארוכה מדי נדחית', async () => {
+    const res = await client().call('POST', '/api/auth/register', student({ email: 'long@example.com', password: 'x'.repeat(201) }))
+    assert.equal(res.status, 400)
+  })
+
+  test('תוצאה לא תקינה או גדולה נדחית', async () => {
+    const c = client()
+    await c.call('POST', '/api/auth/login', { identifier: 'human@example.com', password: 'secret123' })
+    assert.equal((await c.call('POST', '/api/results', { subject: 'x', score: 5, total: 10, percent: 500 })).status, 400)
+    assert.equal((await c.call('POST', '/api/results', { subject: 'x', score: -1, total: 10, percent: 10 })).status, 400)
+    assert.equal((await c.call('POST', '/api/results', { subject: 'x', score: 5, total: 10, percent: 50, junk: 'a'.repeat(30000) })).status, 413)
+    assert.equal((await c.call('POST', '/api/results', { subject: 'x', score: 5, total: 10, percent: 50 })).status, 200)
+    assert.equal((await c.call('PUT', '/api/progress/big', { blob: 'a'.repeat(210000) })).status, 413)
+  })
+
+  test('מנהל מייצא ומוחק תלמיד, ולא מוחק מנהל או את עצמו', async () => {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    const users = (await admin.call('GET', '/api/admin/users')).body.users
+    const target = users.find(u => u.email === 'human@example.com')
+    const adminUser = users.find(u => u.role === 'admin')
+
+    const exported = await admin.call('GET', `/api/admin/users/${target.id}/export`)
+    assert.equal(exported.status, 200)
+    assert.equal(exported.body.profile.email, 'human@example.com')
+    assert.ok(exported.body.results.length >= 1)
+    assert.equal(exported.body.profile.password_hash, undefined)
+
+    assert.equal((await admin.call('DELETE', `/api/admin/users/${adminUser.id}`)).status, 400)
+    assert.equal((await admin.call('DELETE', `/api/admin/users/${target.id}`)).status, 200)
+    assert.equal((await pool.query('SELECT 1 FROM users WHERE id = $1', [target.id])).rowCount, 0)
+    assert.equal((await pool.query('SELECT 1 FROM results WHERE user_id = $1', [target.id])).rowCount, 0)
+    const log = await admin.call('GET', `/api/admin/audit?entity=user&id=${target.id}`)
+    assert.ok(log.body.entries.some(e => e.action === 'delete'))
+    assert.ok(!JSON.stringify(log.body.entries).includes('human@example.com'))
+    assert.equal((await client().call('GET', `/api/admin/users/${target.id}/export`)).status, 401)
+  })
+
+  test('תלמיד מייצא ומוחק את החשבון של עצמו, באישור סיסמה', async () => {
+    const c = client()
+    await c.call('POST', '/api/auth/register', student({ email: 'leaver@example.com', firstName: 'עוזב' }))
+    const mine = await c.call('GET', '/api/auth/me/export')
+    assert.equal(mine.body.profile.email, 'leaver@example.com')
+    assert.equal((await c.call('DELETE', '/api/auth/me', { password: 'wrong-pass' })).status, 403)
+    assert.equal((await c.call('DELETE', '/api/auth/me', { password: 'secret123' })).status, 200)
+    assert.equal((await pool.query("SELECT 1 FROM users WHERE email = 'leaver@example.com'")).rowCount, 0)
+    assert.equal((await c.call('GET', '/api/auth/me')).body.user, null)
+  })
+
+  test('מנהל לא נמחק דרך מחיקה עצמית', async () => {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    assert.equal((await admin.call('DELETE', '/api/auth/me', { password: 'admin-pass-123' })).status, 403)
+  })
+
+  test('רשימת שאלות שנמחקו למסך השחזור', async () => {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    const q = await admin.call('POST', '/api/admin/questions', { grade: 'grade-8', subject: 'שחזור', activityType: 'practice', type: 'open', text: 'שאלה למחיקה', correct_answer: ['כן'] })
+    await admin.call('POST', '/api/admin/questions/delete', { ids: [q.body.question.id] })
+    const deleted = await admin.call('GET', '/api/admin/questions/deleted')
+    assert.ok(deleted.body.questions.some(item => item.id === q.body.question.id))
+    assert.equal((await client().call('GET', '/api/admin/questions/deleted')).status, 401)
+  })
+
+  test('התחברות מנהל קצרה יותר מתלמיד', async () => {
+    const admin = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { identifier: 'admin@example.com', password: 'admin-pass-123' }, headers: ORIGIN })
+    const stu = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { identifier: 'victim@example.com', password: 'secret123' }, headers: ORIGIN })
+    const expiry = response => new Date(String(response.headers['set-cookie']).match(/Expires=([^;]+)/i)[1]).getTime()
+    assert.ok(expiry(admin) < expiry(stu))
   })
 })
 

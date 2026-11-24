@@ -5,9 +5,10 @@ import { config } from './config.js'
 
 const hashToken = token => createHash('sha256').update(token).digest('hex')
 
-export async function createSession(pool, userId, userAgent) {
+export async function createSession(pool, userId, userAgent, role = 'student') {
   const token = randomBytes(32).toString('base64url')
-  const expiresAt = new Date(Date.now() + config.sessionDays * 86400000)
+  const days = role === 'admin' ? config.adminSessionDays : config.sessionDays
+  const expiresAt = new Date(Date.now() + days * 86400000)
   await pool.query(
     'INSERT INTO sessions (token_hash, user_id, expires_at, user_agent) VALUES ($1, $2, $3, $4)',
     [hashToken(token), userId, expiresAt, (userAgent || '').slice(0, 300)],
@@ -27,7 +28,15 @@ export async function findSessionUser(pool, token) {
      WHERE s.token_hash = $1 AND s.expires_at > now() AND NOT u.disabled`,
     [hashToken(token)],
   )
-  return rows[0] || null
+  const user = rows[0] || null
+  // מנוי שפג תוקפו מנתק גם התחברות קיימת (ולא רק כניסה חדשה)
+  if (user && !getSubscription(user).valid) return null
+  return user
+}
+
+export async function purgeExpiredSessions(pool) {
+  const result = await pool.query('DELETE FROM sessions WHERE expires_at < now()')
+  return result.rowCount
 }
 
 export function setSessionCookie(reply, token, expiresAt) {

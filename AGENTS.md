@@ -271,6 +271,9 @@ npm run license:generate -- --customerName="שם הלקוח"
 - `src/utils/api.js` הוא לקוח ה-API (`API_ENABLED`, `api.get/post/put/patch/delete`, לא זורק שגיאות). `AppContext` במצב שרת: משחזר התחברות מ-`/auth/me`, טוען שאלות והתקדמות אחרי כניסה, שומר תוצאות ב-`/results`, ושינויי שאלות במסך הניהול נשלחים לשרת כהפרש בין הרשימה הקודמת לחדשה (`syncQuestionsToServer`). `login/register/updateUserProfile` אסינכרוניות.
 - `/admin` נפתח רק למשתמש עם `role === 'admin'` במצב שרת (`AdminRoute` ב-`App.jsx`); השרת בודק הרשאה בכל פעולה. מנהלים נוצרים רק בסקריפט `seed:admins`. אין עדיין שחזור סיסמה במייל: מנהל מאפס סיסמה במסך המשתמשים.
 - נתוני משתמשים ותוצאות למסך הניהול דרך `useAdminStats` (`src/utils/adminData.js`).
+- אבטחה ופרטיות (שרת): שם משתמש נוצר בשרת בלבד; הגבלת קצב לפי `CF-Connecting-IP` + נעילה זמנית אחרי כניסות כושלות (`server/src/limiter.js`); מנוי שפג מנתק גם התחברות קיימת; Turnstile אופציונלי (`TURNSTILE_SECRET` / `VITE_TURNSTILE_SITE_KEY`); זכות עיון ומחיקה (`PrivacyControls.jsx`, `userData.js`); הסכמה לתנאים נשמרת (מיגרציה 002).
+- ניהול במצב שרת: ניהול מנויים, חסימה, מחיקה וייצוא תלמיד ב-`AdminUsers.jsx`; שחזור שאלות ויומן ב-`AdminActivity.jsx`. דפי `/terms` `/privacy` `/accessibility` ב-`LegalPages.jsx` (טיוטה עד אישור הלקוחה, `LEGAL_DRAFT`).
+- כותרות אבטחה של האתר ב-`security-headers.inc` (נכללות בכל `location` ב-`nginx.conf`, כי `add_header` ב-location מבטל כותרות שהוגדרו ב-server).
 - פריסה והגדרות Dokploy: `docs/DOKPLOY_API_SETUP.md`, תשתית כללית: `docs/PRODUCTION_INFRA.md`.
 
 ---

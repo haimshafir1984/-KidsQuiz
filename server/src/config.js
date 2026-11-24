@@ -20,4 +20,8 @@ export const config = {
   sessionDays: Number(process.env.SESSION_DAYS || 30),
   // תקופת הניסיון בהרשמה (ימים). בהמשך תוחלף בסטטוס מנוי מחברת הסליקה
   trialDays: Number(process.env.TRIAL_DAYS || 180),
+  // מנהלים מתחברים לתקופה קצרה יותר
+  adminSessionDays: Number(process.env.ADMIN_SESSION_DAYS || 7),
+  // Cloudflare Turnstile בהרשמה: פעיל רק כשהסוד מוגדר
+  turnstileSecret: process.env.TURNSTILE_SECRET || '',
 }

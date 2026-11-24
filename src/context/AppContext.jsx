@@ -548,6 +548,8 @@ export function AppProvider({ children }) {
         email: profileData.email,
         password: profileData.password,
         birthDate: profileData.birthDate || '',
+        acceptTerms: profileData.acceptTerms === true,
+        turnstileToken: profileData.turnstileToken || '',
       })
     }
     const baseUsername = profileData.username?.trim().replace(/\s+/g, ' ') || ''
@@ -647,6 +649,22 @@ export function AppProvider({ children }) {
     clearStoredMode()
     setModeState(null)
     resetLearningFlow()
+  }
+
+  // טעינה מחדש של השאלות מהשרת (למשל אחרי שחזור שאלה שנמחקה)
+  async function refreshQuestions() {
+    if (!API_ENABLED) return
+    const response = await api.get('/questions')
+    if (response.ok) setQuestions(ensureQuestionPositions(response.data.questions).normalized)
+  }
+
+  // זכות מחיקה: מחיקת החשבון וכל הנתונים בשרת, באישור סיסמה
+  async function deleteMyAccount(password) {
+    if (!API_ENABLED) return { error: 'מחיקת חשבון זמינה רק באתר המקוון' }
+    const response = await api.delete('/auth/me', { password })
+    if (!response.ok) return { error: response.error }
+    logout()
+    return { success: true }
   }
 
   function setMode(modeValue) {
@@ -1162,6 +1180,8 @@ export function AppProvider({ children }) {
         register,
         updateUserProfile,
         logout,
+        deleteMyAccount,
+        refreshQuestions,
         mode,
         setMode,
         questions,

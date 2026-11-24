@@ -19,6 +19,7 @@ import OfflineDownloadPage from './pages/OfflineDownloadPage'
 import DesktopLicensePage from './pages/DesktopLicensePage'
 import { getLicenseStatus, getRuntimeInfo } from './utils/runtime'
 import { API_ENABLED } from './utils/api'
+import { AccessibilityPage, LegalFooter, PrivacyPage, TermsPage } from './pages/LegalPages'
 
 function AuthRoute({ children }) {
   const { user } = useApp()
@@ -116,6 +117,9 @@ function AppRoutes() {
             </div>
           ) : (
           <Routes>
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/accessibility" element={<AccessibilityPage />} />
             <Route path="/welcome" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <WelcomePage />} />
             <Route path="/auth" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <AuthPage />} />
             <Route path="/desktop-license" element={<DesktopLicensePage licenseStatus={desktopState.license} onRefresh={refreshDesktopState} />} />
@@ -135,6 +139,7 @@ function AppRoutes() {
           </Routes>
           )}
         </main>
+        <LegalFooter />
       </div>
     </DesktopGate>
   )

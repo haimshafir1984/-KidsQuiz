@@ -3,6 +3,7 @@ import { ArrowDownWideNarrow, ArrowUpWideNarrow, ChevronLeft, ChevronRight, Down
 import { checkSubscription } from '../utils/db'
 import { API_ENABLED, api } from '../utils/api'
 import { useDialogA11y } from '../components/shared/useDialogA11y'
+import ConfirmDialog from '../components/shared/ConfirmDialog'
 
 const COLUMNS = [
   { key: 'fullName', label: 'שם' },
@@ -118,6 +119,56 @@ export default function AdminUsers({ stats }) {
     }
     setResetPassword('')
     setResetMessage({ ok: true, text: 'הסיסמה אופסה. התלמיד נותק מכל המכשירים ויוכל להיכנס עם הסיסמה החדשה.' })
+  }
+
+  const [actionMessage, setActionMessage] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  // עדכון מנוי/חסימה בשרת, ואז רענון הרשימה
+  async function updateUser(userId, changes, successText) {
+    setActionMessage(null)
+    const response = await api.patch(`/admin/users/${userId}`, changes)
+    if (!response.ok) {
+      setActionMessage({ ok: false, text: response.error })
+      return
+    }
+    setActionMessage({ ok: true, text: successText })
+    reload()
+  }
+
+  // הארכה: מוסיפים ימים על מה שנשאר למנוי (או מהיום, אם פג)
+  function extendSubscription(user, days) {
+    const remainingMs = user.valid ? user.daysLeft * 86400000 : 0
+    const until = new Date(Date.now() + remainingMs + days * 86400000).toISOString()
+    return updateUser(user.id, { subscriptionStatus: 'active', subscriptionUntil: until }, `המנוי הוארך ב-${days} ימים.`)
+  }
+
+  async function exportStudent(user) {
+    setActionMessage(null)
+    const response = await api.get(`/admin/users/${user.id}/export`)
+    if (!response.ok) {
+      setActionMessage({ ok: false, text: response.error })
+      return
+    }
+    const url = URL.createObjectURL(new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${user.fullName}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  async function deleteStudent(user) {
+    setConfirmDelete(false)
+    const response = await api.delete(`/admin/users/${user.id}`)
+    if (!response.ok) {
+      setActionMessage({ ok: false, text: response.error })
+      return
+    }
+    setSelectedUserId(null)
+    reload()
   }
 
   function toggleSort(key) {
@@ -257,7 +308,10 @@ export default function AdminUsers({ stats }) {
                     >
                       <td className="px-4 py-3 font-semibold text-slate-900">
                         {user.fullName}
-                        <div className="text-sm font-normal text-slate-500">{user.username}</div>
+                        <div className="text-sm font-normal text-slate-500">
+                          {user.username}
+                          {user.disabled && <span className="mr-2 rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">חסום</span>}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-slate-700">{user.city || '—'}</td>
                       <td className="px-4 py-3 text-slate-700" dir="ltr" style={{ textAlign: 'right' }}>{user.phone || '—'}</td>
@@ -373,6 +427,57 @@ export default function AdminUsers({ stats }) {
                 {resetMessage && (
                   <p className={`mt-2 text-sm font-semibold ${resetMessage.ok ? 'text-emerald-700' : 'text-red-600'}`}>{resetMessage.text}</p>
                 )}
+              </div>
+            )}
+
+            {API_ENABLED && (
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <h4 className="text-base font-bold text-slate-900">מנוי וגישה</h4>
+                <p className="mt-1 text-sm text-slate-600">
+                  {selectedUser.disabled ? 'החשבון חסום. ' : ''}
+                  {selectedUser.valid ? `נותרו ${selectedUser.daysLeft} ימים` : 'המנוי פג'}
+                  {selectedUser.subscription_until ? ` (עד ${formatDate(selectedUser.subscription_until)})` : ''}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[30, 90, 180, 365].map(days => (
+                    <button key={days} type="button" onClick={() => extendSubscription(selectedUser, days)} className="btn-secondary px-3 py-2 text-sm">
+                      הארכה ב-{days} ימים
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => updateUser(selectedUser.id, { subscriptionStatus: 'expired' }, 'המנוי הסתיים.')}
+                    className="btn-muted px-3 py-2 text-sm"
+                  >
+                    סיום מנוי
+                  </button>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateUser(selectedUser.id, { disabled: !selectedUser.disabled }, selectedUser.disabled ? 'החשבון שוחרר.' : 'החשבון נחסם והתלמיד נותק.')}
+                    className="btn-secondary px-3 py-2 text-sm"
+                  >
+                    {selectedUser.disabled ? 'שחרור חשבון' : 'חסימת חשבון'}
+                  </button>
+                  <button type="button" onClick={() => exportStudent(selectedUser)} className="btn-secondary px-3 py-2 text-sm">
+                    הורדת נתוני התלמיד
+                  </button>
+                  <button type="button" onClick={() => setConfirmDelete(true)} className="btn-danger px-3 py-2 text-sm">
+                    מחיקת תלמיד
+                  </button>
+                </div>
+                {actionMessage && (
+                  <p className={`mt-2 text-sm font-semibold ${actionMessage.ok ? 'text-emerald-700' : 'text-red-600'}`}>{actionMessage.text}</p>
+                )}
+                <ConfirmDialog
+                  open={confirmDelete}
+                  title={`למחוק את ${selectedUser.fullName}?`}
+                  message="החשבון, התוצאות וההתקדמות יימחקו לצמיתות ולא ניתן לשחזר אותם. מומלץ להוריד קודם את נתוני התלמיד."
+                  confirmLabel="כן, למחוק"
+                  onConfirm={() => deleteStudent(selectedUser)}
+                  onCancel={() => setConfirmDelete(false)}
+                />
               </div>
             )}
 
