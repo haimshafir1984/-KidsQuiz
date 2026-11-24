@@ -23,5 +23,7 @@ export const config = {
   // מנהלים מתחברים לתקופה קצרה יותר
   adminSessionDays: Number(process.env.ADMIN_SESSION_DAYS || 7),
   // Cloudflare Turnstile בהרשמה: פעיל רק כשהסוד מוגדר
+  // true = לסמוך על CF-Connecting-IP רק כשהחיבור מגיע מ-Cloudflare (להפעיל אחרי אימות /api/admin/diagnostics/client-ip)
+  cloudflareOnly: process.env.TRUST_CLOUDFLARE_ONLY === 'true',
   turnstileSecret: process.env.TURNSTILE_SECRET || '',
 }

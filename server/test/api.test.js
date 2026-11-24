@@ -5,6 +5,7 @@ import { createPool } from '../src/db.js'
 import { migrate } from '../src/migrate.js'
 import { buildApp } from '../src/app.js'
 import { hashPassword, verifyPassword } from '../src/password.js'
+import { clientIp, isCloudflareAddress } from '../src/limiter.js'
 
 const TEST_DB = process.env.TEST_DATABASE_URL || 'postgres://postgres@localhost:5432/kidsquiz_test'
 const ORIGIN = { origin: 'http://localhost:5180', host: 'localhost:5180' }
@@ -435,6 +436,71 @@ describe('אבטחה והגנות נוספות', () => {
     const stu = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { identifier: 'victim@example.com', password: 'secret123' }, headers: ORIGIN })
     const expiry = response => new Date(String(response.headers['set-cookie']).match(/Expires=([^;]+)/i)[1]).getTime()
     assert.ok(expiry(admin) < expiry(stu))
+  })
+})
+
+describe('כתובת לקוח, שינוי סיסמה ואימות קלט', () => {
+  const fakeRequest = (headers, cloudflareOnly, remoteAddress = '10.0.0.5') => ({
+    headers, ip: remoteAddress, socket: { remoteAddress }, server: { cloudflareOnly },
+  })
+
+  test('זיהוי כתובות של Cloudflare', () => {
+    assert.equal(isCloudflareAddress('172.67.10.1'), true)
+    assert.equal(isCloudflareAddress('2606:4700::1'), true)
+    assert.equal(isCloudflareAddress('::ffff:104.16.0.1'), true)
+    assert.equal(isCloudflareAddress('8.8.8.8'), false)
+    assert.equal(isCloudflareAddress('לא כתובת'), false)
+  })
+
+  test('מצב קפדני: הכותרת מתקבלת רק מחיבור של Cloudflare', () => {
+    const fromCloudflare = fakeRequest({ 'cf-connecting-ip': '5.5.5.5', 'x-forwarded-for': '172.67.10.1' }, true)
+    assert.equal(clientIp(fromCloudflare), '5.5.5.5')
+    // גישה ישירה עם כותרת מזויפת: משתמשים בכתובת החיבור האמיתית
+    const direct = fakeRequest({ 'cf-connecting-ip': '5.5.5.5', 'x-forwarded-for': '9.9.9.9' }, true)
+    assert.equal(clientIp(direct), '9.9.9.9')
+    // כותרת X-Forwarded-For מזויפת בתחילת הרשימה לא משפיעה (הכתובת האחרונה היא שהוסיף הפרוקסי)
+    const spoofedChain = fakeRequest({ 'cf-connecting-ip': '5.5.5.5', 'x-forwarded-for': '172.67.10.1, 9.9.9.9' }, true)
+    assert.equal(clientIp(spoofedChain), '9.9.9.9')
+  })
+
+  test('בלי מצב קפדני ההתנהגות כמו קודם', () => {
+    assert.equal(clientIp(fakeRequest({ 'cf-connecting-ip': '5.5.5.5' }, false)), '5.5.5.5')
+    assert.equal(clientIp(fakeRequest({}, false)), '10.0.0.5')
+  })
+
+  test('שינוי סיסמה: דורש סיסמה נוכחית, מנתק מכשירים אחרים ומשאיר את הנוכחי', async () => {
+    const first = client()
+    const second = client()
+    await first.call('POST', '/api/auth/register', student({ email: 'changer@example.com', firstName: 'מחליף' }))
+    await second.call('POST', '/api/auth/login', { identifier: 'changer@example.com', password: 'secret123' })
+
+    assert.equal((await client().call('POST', '/api/auth/change-password', { currentPassword: 'a', newPassword: 'b123456' })).status, 401)
+    assert.equal((await first.call('POST', '/api/auth/change-password', { currentPassword: 'wrong-pass', newPassword: 'newpass123' })).status, 403)
+    assert.equal((await first.call('POST', '/api/auth/change-password', { currentPassword: 'secret123', newPassword: '123' })).status, 400)
+    assert.equal((await first.call('POST', '/api/auth/change-password', { currentPassword: 'secret123', newPassword: 'newpass123' })).status, 200)
+
+    assert.ok((await first.call('GET', '/api/auth/me')).body.user)
+    assert.equal((await second.call('GET', '/api/auth/me')).body.user, null)
+    const retry = client()
+    assert.equal((await retry.call('POST', '/api/auth/login', { identifier: 'changer@example.com', password: 'secret123' })).status, 401)
+    assert.equal((await retry.call('POST', '/api/auth/login', { identifier: 'changer@example.com', password: 'newpass123' })).status, 200)
+  })
+
+  test('מזהה משתמש לא תקין בניהול נדחה ב-400, ותאריך תוצאה לא תקין לא קורס', async () => {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    assert.equal((await admin.call('DELETE', '/api/admin/users/not-a-uuid')).status, 400)
+    assert.equal((await admin.call('GET', '/api/admin/users/xyz/export')).status, 400)
+    assert.equal((await admin.call('PATCH', '/api/admin/users/xyz', { disabled: true })).status, 400)
+
+    const diag = await admin.call('GET', '/api/admin/diagnostics/client-ip')
+    assert.equal(diag.status, 200)
+    assert.equal((await client().call('GET', '/api/admin/diagnostics/client-ip')).status, 401)
+
+    const stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'dater@example.com', firstName: 'תאריך' }))
+    const saved = await stu.call('POST', '/api/results', { subject: 'x', score: 1, total: 2, percent: 50, date: 'לא תאריך' })
+    assert.equal(saved.status, 200)
   })
 })
 

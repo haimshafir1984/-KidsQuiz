@@ -1,7 +1,7 @@
 import { config } from '../config.js'
 import { hashPassword, verifyPassword } from '../password.js'
 import {
-  clearSessionCookie, createSession, destroySession, getSubscription, publicUser, setSessionCookie,
+  clearSessionCookie, createSession, destroyOtherSessions, destroySession, getSubscription, publicUser, setSessionCookie,
 } from '../auth.js'
 import { requireUser } from '../guards.js'
 import { clientIp } from '../limiter.js'
@@ -117,6 +117,25 @@ export default async function authRoutes(app) {
       [request.user.id, firstName, lastName, city, clean(body.phone), clean(body.birthDate)],
     )
     return { success: true, user: publicUser(rows[0]) }
+  })
+
+  // שינוי סיסמה עצמי: באישור הסיסמה הנוכחית, ומנתק את שאר המכשירים
+  app.post('/change-password', { preHandler: requireUser, ...strict }, async (request, reply) => {
+    const current = typeof request.body?.currentPassword === 'string' ? request.body.currentPassword : ''
+    const next = typeof request.body?.newPassword === 'string' ? request.body.newPassword : ''
+    const limiterKey = `pw:${request.user.id}`
+    const ip = clientIp(request)
+    if (app.loginLimiter.isBlocked(ip, limiterKey)) return reply.code(429).send({ error: 'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות' })
+    if (!(await verifyPassword(current, request.user.password_hash))) {
+      app.loginLimiter.recordFailure(ip, limiterKey)
+      return reply.code(403).send({ error: 'הסיסמה הנוכחית שגויה' })
+    }
+    if (next.length < MIN_PASSWORD) return reply.code(400).send({ error: `הסיסמה החדשה צריכה להכיל לפחות ${MIN_PASSWORD} תווים` })
+    if (next.length > MAX_PASSWORD) return reply.code(400).send({ error: 'הסיסמה ארוכה מדי' })
+    await pool.query('UPDATE users SET password_hash = $2 WHERE id = $1', [request.user.id, await hashPassword(next)])
+    await destroyOtherSessions(pool, request.user.id, request.cookies?.[config.cookieName])
+    app.loginLimiter.recordSuccess(ip, limiterKey)
+    return { success: true }
   })
 
   // זכות עיון: הורדת כל הנתונים של המשתמש המחובר

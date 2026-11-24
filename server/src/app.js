@@ -20,6 +20,7 @@ export async function buildApp({
   // ניסיונות כניסה כושלים: לכל זוג כתובת+חשבון, ולכל חשבון מכל הכתובות
   loginMaxPerIpAccount = 8, loginMaxPerAccount = 50,
   verifyTurnstile = verifyTurnstileToken,
+  cloudflareOnly = config.cloudflareOnly,
 }) {
   const app = Fastify({ logger, trustProxy: true, bodyLimit: 1024 * 1024 })
 
@@ -31,6 +32,7 @@ export async function buildApp({
   app.decorate('authRateLimitMax', authRateLimitMax)
   app.decorate('loginLimiter', createAttemptLimiter({ maxPerIpAccount: loginMaxPerIpAccount, maxPerAccount: loginMaxPerAccount }))
   app.decorate('verifyTurnstile', verifyTurnstile)
+  app.decorate('cloudflareOnly', cloudflareOnly)
   app.decorateRequest('user', null)
 
   // זיהוי המשתמש מהעוגייה בכל בקשה

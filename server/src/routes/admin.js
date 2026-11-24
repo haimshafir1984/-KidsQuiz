@@ -3,6 +3,7 @@ import { requireAdmin } from '../guards.js'
 import { rowToQuestion } from './questions.js'
 import { getSubscription } from '../auth.js'
 import { hashPassword } from '../password.js'
+import { clientIp, isCloudflareAddress } from '../limiter.js'
 import { deleteUserAccount, exportUserData } from '../userData.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
@@ -34,9 +35,25 @@ async function audit(client, actorId, action, entity, entityId, before, after) {
   )
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export default async function adminRoutes(app) {
   const { pool } = app
   app.addHook('preHandler', requireAdmin)
+  // מזהה משתמש לא תקין = 400 (ולא שגיאת בסיס נתונים)
+  app.addHook('preHandler', async (request, reply) => {
+    if (request.url.includes('/users/') && !UUID_PATTERN.test(request.params?.id || '')) {
+      return reply.code(400).send({ error: 'מזהה משתמש לא תקין' })
+    }
+  })
+
+  // אבחון: איזו כתובת לקוח השרת רואה (לאימות הגדרת TRUST_CLOUDFLARE_ONLY)
+  app.get('/diagnostics/client-ip', async request => ({
+    clientIp: clientIp(request),
+    cloudflareOnly: app.cloudflareOnly,
+    cfHeaderPresent: Boolean(request.headers['cf-connecting-ip']),
+    viaCloudflare: isCloudflareAddress(String(request.headers['x-forwarded-for'] || '').split(',').pop().trim()),
+  }))
 
   // ───── שאלות ─────
   app.post('/questions', async (request, reply) => {

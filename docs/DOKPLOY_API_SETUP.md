@@ -37,6 +37,7 @@ PUBLIC_URL=https://kidsquiz.flowsbiz.com
 SESSION_DAYS=30         # כמה ימים תלמיד נשאר מחובר
 ADMIN_SESSION_DAYS=7    # כמה ימים מנהל נשאר מחובר
 TRIAL_DAYS=180          # תקופת ניסיון בהרשמה. יוחלף בסטטוס מנוי כשיחובר תשלום
+TRUST_CLOUDFLARE_ONLY=true  # להפעיל רק אחרי אימות (ר' USER_ACTIONS_REMAINING.md): מאמין לכתובת הלקוח רק כשהחיבור מ-Cloudflare
 TURNSTILE_SECRET=...    # רק אחרי יצירת ווידג'ט Turnstile (ר' למטה). ריק = הרשמה בלי Turnstile
 ```
 

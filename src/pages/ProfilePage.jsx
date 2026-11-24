@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext'
 import { getActivityLabel, getGradeConfig } from '../data/learningTracks'
 import { isProfileComplete } from '../utils/userProfile'
 import PrivacyControls from '../components/shared/PrivacyControls'
+import ChangePassword from '../components/shared/ChangePassword'
 
 function formatDate(dateValue) {
   if (!dateValue) return '-'
@@ -360,6 +361,7 @@ export default function ProfilePage() {
           </section>
         </section>
       </section>
+      <ChangePassword />
       <PrivacyControls />
     </div>
   )

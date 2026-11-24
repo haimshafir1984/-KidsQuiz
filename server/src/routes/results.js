@@ -3,6 +3,7 @@ import { requireUser } from '../guards.js'
 const int = value => (Number.isFinite(Number(value)) ? Math.round(Number(value)) : null)
 const MAX_RESULT_BYTES = 20 * 1024
 const MAX_RESULTS_PER_USER = 20000
+const validDate = value => (typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null)
 const text = value => (typeof value === 'string' ? value.slice(0, 200) : null)
 
 export default async function resultRoutes(app) {
@@ -27,7 +28,7 @@ export default async function resultRoutes(app) {
       [
         request.user.id, text(body.subject), text(body.age ?? body.grade), text(body.level),
         text(body.activityType), score, total, percent,
-        { ...body, userId: request.user.id }, body.date ?? null,
+        { ...body, userId: request.user.id }, validDate(body.date),
       ],
     )
     return { success: true, id: rows[0].id }

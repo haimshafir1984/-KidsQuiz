@@ -21,6 +21,11 @@ export async function destroySession(pool, token) {
   await pool.query('DELETE FROM sessions WHERE token_hash = $1', [hashToken(token)])
 }
 
+// ניתוק מכל המכשירים חוץ מההתחברות הנוכחית (למשל אחרי שינוי סיסמה)
+export async function destroyOtherSessions(pool, userId, currentToken) {
+  await pool.query('DELETE FROM sessions WHERE user_id = $1 AND token_hash <> $2', [userId, hashToken(currentToken || '')])
+}
+
 export async function findSessionUser(pool, token) {
   if (!token) return null
   const { rows } = await pool.query(
