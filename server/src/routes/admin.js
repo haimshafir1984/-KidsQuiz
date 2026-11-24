@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { requireAdmin } from '../guards.js'
 import { rowToQuestion } from './questions.js'
+import { getSubscription } from '../auth.js'
+import { hashPassword } from '../password.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
 
@@ -130,7 +132,7 @@ export default async function adminRoutes(app) {
        FROM users u LEFT JOIN results r ON r.user_id = u.id
        GROUP BY u.id ORDER BY u.created_at DESC`,
     )
-    return { users: rows }
+    return { users: rows.map(row => ({ ...row, subscription: getSubscription(row) })) }
   })
 
   app.get('/results', async () => {
@@ -150,11 +152,22 @@ export default async function adminRoutes(app) {
       if (until !== null && Number.isNaN(until.getTime())) return reply.code(400).send({ error: 'תאריך לא תקין' })
       values.push(until); updates.push(`subscription_until = $${values.length}`)
     }
+    // איפוס סיסמה ע"י מנהל (בהיעדר שירות מייל לשחזור עצמי). הסיסמה החדשה נמסרת למשתמש בערוץ אחר
+    let passwordReset = false
+    if (body.newPassword !== undefined) {
+      if (typeof body.newPassword !== 'string' || body.newPassword.length < 6) return reply.code(400).send({ error: 'הסיסמה צריכה להכיל לפחות 6 תווים' })
+      values.push(await hashPassword(body.newPassword)); updates.push(`password_hash = $${values.length}`)
+      passwordReset = true
+    }
     if (updates.length === 0) return reply.code(400).send({ error: 'אין מה לעדכן' })
     if (request.params.id === request.user.id && body.disabled === true) return reply.code(400).send({ error: 'אי אפשר לחסום את עצמך' })
     const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $1 RETURNING id, username, disabled, subscription_status, subscription_until`, values)
     if (rows.length === 0) return reply.code(404).send({ error: 'המשתמש לא נמצא' })
-    await audit(pool, request.user.id, 'update', 'user', rows[0].id, null, body)
+    // איפוס סיסמה או חסימה מנתקים את המשתמש מכל המכשירים
+    if (passwordReset || body.disabled === true) await pool.query('DELETE FROM sessions WHERE user_id = $1', [rows[0].id])
+    // הסיסמה עצמה לא נרשמת ביומן
+    const { newPassword: _hidden, ...loggedBody } = body
+    await audit(pool, request.user.id, passwordReset ? 'reset_password' : 'update', 'user', rows[0].id, null, loggedBody)
     return { success: true, user: rows[0] }
   })
 

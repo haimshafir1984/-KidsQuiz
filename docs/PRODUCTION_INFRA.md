@@ -84,26 +84,12 @@ Cloudflare  ->  Traefik (Dokploy)  ->  web   (nginx עם האתר הסטטי)   
   - להגדיר Backup Destination (S3 או תואם): Cloudflare R2, Backblaze B2 או Contabo Object Storage.
   - גיבוי **יומי**, שמירה של 14 עד 30 יום.
   - לבדוק פעם אחת **שחזור** מגיבוי לבסיס נתונים נפרד. גיבוי שלא נבדק הוא לא גיבוי.
-- רשימת הסודות שמחזיקים במנהל סיסמאות (לא בקוד ולא בצ'אט): סיסמת בסיס הנתונים, `SESSION_SECRET`, מפתחות המייל.
+- רשימת הסודות שמחזיקים במנהל סיסמאות (לא בקוד ולא בצ'אט): סיסמת בסיס הנתונים, סיסמאות המנהלים, מפתחות המייל (כשיוגדר ספק).
 
 ### 3. שירות ה-API (חדש)
 - Application חדש ב-Dokploy, מהמאגר ב-GitHub, עם Dockerfile בתיקיית `server/` (אני אכין).
-- משתני סביבה (Environment) שצריך להגדיר ב-Dokploy:
-
-  | משתנה | דוגמה / הערה |
-  |---|---|
-  | `NODE_ENV` | `production` |
-  | `PORT` | `3000` |
-  | `DATABASE_URL` | `postgres://kidsquiz_app:<סיסמה>@<שם-שירות-פנימי>:5432/kidsquiz` |
-  | `SESSION_SECRET` | מחרוזת אקראית של 64 תווים |
-  | `PUBLIC_URL` | `https://<דומיין>` |
-  | `MAIL_PROVIDER_KEY` | מפתח API של ספק המייל |
-  | `MAIL_FROM` | `no-reply@<דומיין>` |
-  | `ADMIN_EMAILS` | מיילים של שני המנהלים (מופרדים בפסיק) |
-
-- Domain: אותו דומיין, עם **Path = `/api`**, ו-Strip Path (הסרת הקידומת) מופעל לפי מה שהשרת מצפה (אני אסמן בקוד איזה מהם).
-- Health check: נתיב `/api/health` (אני אכין), כדי ש-Dokploy ידע מתי השירות תקין.
-- Restart policy: `always`. הגבלת משאבים: למשל 512MB זיכרון.
+- משתני הסביבה, הנתיבים והפקודות הראשונות: ראו **docs/DOKPLOY_API_SETUP.md** (מדריך מדויק, מעודכן לקוד בפועל).
+- Health check: `/api/health`. Restart policy: `always`. הגבלת משאבים: למשל 512MB זיכרון.
 
 ### 4. שירות האתר (קיים)
 - להשאיר את ה-Dockerfile הקיים. אני אעדכן את ההגדרות כך ש-`/api` לא יטופל כקובץ סטטי.

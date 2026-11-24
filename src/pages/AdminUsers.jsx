@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, ChevronLeft, ChevronRight, Download, Search, Users, BarChart3, ShieldCheck } from 'lucide-react'
-import { serverGetStats, checkSubscription } from '../utils/db'
+import { checkSubscription } from '../utils/db'
+import { API_ENABLED, api } from '../utils/api'
 import { useDialogA11y } from '../components/shared/useDialogA11y'
 
 const COLUMNS = [
@@ -38,9 +39,9 @@ function SummaryCard({ title, value, helper, icon: Icon, tone }) {
   )
 }
 
-export default function AdminUsers() {
-  const { users, results } = serverGetStats()
-  const students = users.filter(user => user.role !== 'admin')
+export default function AdminUsers({ stats }) {
+  const { users, results, loading, error, reload } = stats
+  const students = useMemo(() => users.filter(user => user.role !== 'admin'), [users])
   const [sortKey, setSortKey] = useState('fullName')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
@@ -104,6 +105,21 @@ export default function AdminUsers() {
     : 0
   const activeSubscriptions = preparedStudents.filter(user => user.valid).length
 
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetMessage, setResetMessage] = useState(null)
+
+  // איפוס סיסמה ע"י מנהל (אין עדיין שחזור סיסמה במייל). את הסיסמה החדשה מוסרים לתלמיד בערוץ אחר
+  async function handleResetPassword(userId) {
+    setResetMessage(null)
+    const response = await api.patch(`/admin/users/${userId}`, { newPassword: resetPassword })
+    if (!response.ok) {
+      setResetMessage({ ok: false, text: response.error })
+      return
+    }
+    setResetPassword('')
+    setResetMessage({ ok: true, text: 'הסיסמה אופסה. התלמיד נותק מכל המכשירים ויוכל להיכנס עם הסיסמה החדשה.' })
+  }
+
   function toggleSort(key) {
     if (sortKey === key) {
       setSortDirection(previous => previous === 'asc' ? 'desc' : 'asc')
@@ -141,6 +157,16 @@ export default function AdminUsers() {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+  }
+
+  if (loading) return <div className="edu-card text-center text-lg text-slate-600">טוענים את רשימת התלמידים...</div>
+  if (error) {
+    return (
+      <div className="edu-card text-center">
+        <p className="text-lg text-slate-700">{error}</p>
+        <button type="button" onClick={reload} className="btn-primary mt-4">נסו שוב</button>
+      </div>
+    )
   }
 
   return (
@@ -325,6 +351,30 @@ export default function AdminUsers() {
                 </p>
               </div>
             </div>
+
+            {API_ENABLED && (
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <h4 className="text-base font-bold text-slate-900">איפוס סיסמה</h4>
+                <p className="mt-1 text-sm text-slate-600">בוחרים סיסמה חדשה (לפחות 6 תווים) ומוסרים אותה לתלמיד.</p>
+                <div className="mt-3 flex gap-2">
+                  <input
+                    type="text"
+                    value={resetPassword}
+                    onChange={event => setResetPassword(event.target.value)}
+                    className="input-field flex-1"
+                    dir="ltr"
+                    autoComplete="off"
+                    aria-label="סיסמה חדשה"
+                  />
+                  <button type="button" onClick={() => handleResetPassword(selectedUser.id)} disabled={resetPassword.length < 6} className="btn-secondary disabled:opacity-50">
+                    איפוס
+                  </button>
+                </div>
+                {resetMessage && (
+                  <p className={`mt-2 text-sm font-semibold ${resetMessage.ok ? 'text-emerald-700' : 'text-red-600'}`}>{resetMessage.text}</p>
+                )}
+              </div>
+            )}
 
             <div className="mt-6 space-y-3">
               {selectedUser.userResults.length === 0 ? (

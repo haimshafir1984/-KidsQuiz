@@ -35,6 +35,8 @@ KidsQuiz/
     │   └── AppContext.jsx        # ניהול מצב גלובלי (Auth, שאלות, מסלולים, חידון, הולנד)
     │
     ├── utils/
+    │   ├── api.js                # לקוח ה-API (מצב שרת, VITE_USE_API)
+    │   ├── adminData.js          # נתוני משתמשים/תוצאות למסך הניהול (שרת או מקומי)
     │   ├── storage.js            # גישה ל-localStorage (שאלות, מסלולים, התקדמות) + safeParse
     │   ├── db.js                 # שכבת "ServerDB/LocalDB" מדומה: משתמשים, תוצאות, מנוי
     │   ├── fuzzyMatch.js         # Levenshtein distance עם סף מדורג להתאמת תשובות פתוחות
@@ -260,6 +262,16 @@ npm run license:generate -- --customerName="שם הלקוח"
 - טוקנים ב-`tailwind.config.js`: `rounded-card`/`rounded-card-lg` לפינות, `shadow-card`/`shadow-float`/`shadow-modal` לצללים, ואנימציות `pop`/`shake`/`fade-slide-in`/`confetti-fall` (מכבדות `prefers-reduced-motion`)
 - כיתות עזר ב-`index.css`: `.btn-primary` (פעולה ראשית), `.btn-secondary` (משנית עם גבול), `.btn-muted` (שקופה, טקסט בלבד), `.btn-danger`, `.edu-card`, `.edu-card-quiz`, `.input-field`
 - מודאלים (Drawer, ConfirmDialog, פאנל משתמש) נגישים דרך ה-hook המשותף `useDialogA11y`: `role="dialog"`, סגירה ב-Escape, focus-trap ושחזור פוקוס
+
+---
+
+## מצב שרת (VITE_USE_API) ושרת ה-API
+
+- `server/` הוא שרת Fastify + PostgreSQL (ר' `server/README.md`). האתר עובד מולו רק כשנבנה עם `VITE_USE_API=true`; בלי הדגל (או בגרסת דסקטופ) הכול נשאר localStorage כמו בדמו.
+- `src/utils/api.js` הוא לקוח ה-API (`API_ENABLED`, `api.get/post/put/patch/delete`, לא זורק שגיאות). `AppContext` במצב שרת: משחזר התחברות מ-`/auth/me`, טוען שאלות והתקדמות אחרי כניסה, שומר תוצאות ב-`/results`, ושינויי שאלות במסך הניהול נשלחים לשרת כהפרש בין הרשימה הקודמת לחדשה (`syncQuestionsToServer`). `login/register/updateUserProfile` אסינכרוניות.
+- `/admin` נפתח רק למשתמש עם `role === 'admin'` במצב שרת (`AdminRoute` ב-`App.jsx`); השרת בודק הרשאה בכל פעולה. מנהלים נוצרים רק בסקריפט `seed:admins`. אין עדיין שחזור סיסמה במייל: מנהל מאפס סיסמה במסך המשתמשים.
+- נתוני משתמשים ותוצאות למסך הניהול דרך `useAdminStats` (`src/utils/adminData.js`).
+- פריסה והגדרות Dokploy: `docs/DOKPLOY_API_SETUP.md`, תשתית כללית: `docs/PRODUCTION_INFRA.md`.
 
 ---
 

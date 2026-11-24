@@ -23,7 +23,7 @@ import { GRADES, getGradeConfig } from '../data/learningTracks'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import ToastViewport from '../components/shared/ToastViewport'
 import { useDialogA11y } from '../components/shared/useDialogA11y'
-import { serverGetStats } from '../utils/db'
+import { useAdminStats } from '../utils/adminData'
 
 const PAGE_SIZE = 25
 
@@ -1113,7 +1113,8 @@ export default function AdminPage() {
     [trackCatalog],
   )
 
-  const usersCount = useMemo(() => serverGetStats().users.filter(user => user.role !== 'admin').length, [])
+  const adminStats = useAdminStats()
+  const usersCount = useMemo(() => adminStats.users.filter(user => user.role !== 'admin').length, [adminStats.users])
 
   const availableSubjects = useMemo(() => {
     const subjects = gradeFilter === 'all'
@@ -1373,7 +1374,7 @@ export default function AdminPage() {
         />
       </div>
 
-      {activeTab === 'users' && <AdminUsers />}
+      {activeTab === 'users' && <AdminUsers stats={adminStats} />}
 
       {activeTab === 'topics' && (
         <>

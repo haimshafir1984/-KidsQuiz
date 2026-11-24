@@ -254,6 +254,27 @@ describe('שאלות וניהול', () => {
     // אחרי החסימה ההתחברות הפעילה של התלמיד כבר לא תקפה
     assert.equal((await studentClient.call('GET', '/api/auth/me')).body.user, null)
   })
+
+  test('מנהל מאפס סיסמה: הישנה לא עובדת, ההתחברות הפעילה מתבטלת, והסיסמה לא ביומן', async () => {
+    const forgetful = client()
+    await forgetful.call('POST', '/api/auth/register', student({ email: 'forgetful@example.com', firstName: 'שכחן' }))
+    const users = (await admin.call('GET', '/api/admin/users')).body.users
+    const target = users.find(u => u.email === 'forgetful@example.com')
+    assert.ok(target.subscription.valid)
+
+    assert.equal((await admin.call('PATCH', `/api/admin/users/${target.id}`, { newPassword: '123' })).status, 400)
+    assert.equal((await studentClient.call('PATCH', `/api/admin/users/${target.id}`, { newPassword: 'whatever123' })).status, 401)
+    assert.equal((await admin.call('PATCH', `/api/admin/users/${target.id}`, { newPassword: 'fresh-pass-1' })).status, 200)
+
+    assert.equal((await forgetful.call('GET', '/api/auth/me')).body.user, null)
+    const retry = client()
+    assert.equal((await retry.call('POST', '/api/auth/login', { identifier: 'forgetful@example.com', password: 'secret123' })).status, 401)
+    assert.equal((await retry.call('POST', '/api/auth/login', { identifier: 'forgetful@example.com', password: 'fresh-pass-1' })).status, 200)
+
+    const log = await admin.call('GET', `/api/admin/audit?entity=user&id=${target.id}`)
+    assert.ok(log.body.entries.some(entry => entry.action === 'reset_password'))
+    assert.ok(!JSON.stringify(log.body.entries).includes('fresh-pass-1'))
+  })
 })
 
 describe('הגבלת ניסיונות', () => {

@@ -71,13 +71,13 @@ export default function ProfilePage() {
     setForm(previous => ({ ...previous, [field]: value }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setError('')
     setMessage('')
     const wasIncomplete = !profileComplete
 
-    const result = updateUserProfile(form)
+    const result = await updateUserProfile(form)
     if (result.error) {
       setError(result.error)
       return

@@ -7,6 +7,9 @@ COPY . .
 # משתני VITE נאפים בזמן הבנייה - להגדיר ב-Dokploy כ-Build Arg / Environment
 ARG VITE_OFFLINE_DOWNLOAD_URL=""
 ENV VITE_OFFLINE_DOWNLOAD_URL=$VITE_OFFLINE_DOWNLOAD_URL
+# true = האתר עובד מול שרת ה-API (חשבונות ושאלות בבסיס נתונים); ריק/false = מצב דמו מקומי
+ARG VITE_USE_API=""
+ENV VITE_USE_API=$VITE_USE_API
 RUN npx vite build
 
 # שלב 2: הגשה סטטית עם nginx

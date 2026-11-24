@@ -1,0 +1,40 @@
+// לקוח ה-API של האתר המקוון.
+// מצב השרת נדלק רק כשהאתר נבנה עם VITE_USE_API=true (וכשאין גרסת דסקטופ).
+// אחרת האתר ממשיך לעבוד מול localStorage (דמו / גרסת אופליין).
+
+export const API_ENABLED = import.meta.env.VITE_USE_API === 'true'
+  && typeof window !== 'undefined'
+  && !window.desktopAPI
+
+const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '')
+const NETWORK_ERROR = 'אין חיבור לשרת. בדקו את החיבור לאינטרנט ונסו שוב.'
+
+// מחזיר תמיד { ok, status, data, error } ולעולם לא זורק, כדי שהמסכים יטפלו בשגיאה בצורה אחידה
+async function request(method, path, body) {
+  try {
+    const response = await fetch(`${BASE}${path}`, {
+      method,
+      credentials: 'include',
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+    let data = null
+    try { data = await response.json() } catch { /* תגובה בלי גוף */ }
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+      error: response.ok ? null : (data?.error || 'שגיאה בשרת, נסו שוב'),
+    }
+  } catch {
+    return { ok: false, status: 0, data: null, error: NETWORK_ERROR }
+  }
+}
+
+export const api = {
+  get: path => request('GET', path),
+  post: (path, body = {}) => request('POST', path, body),
+  put: (path, body = {}) => request('PUT', path, body),
+  patch: (path, body = {}) => request('PATCH', path, body),
+  delete: path => request('DELETE', path),
+}

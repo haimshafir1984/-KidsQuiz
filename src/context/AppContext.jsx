@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   getCurrentUser,
   setCurrentUser,
@@ -22,6 +22,7 @@ import {
   setStoredMode,
   clearStoredMode,
 } from '../utils/db'
+import { API_ENABLED, api } from '../utils/api'
 import seedQuestions, { normalizeImportedQuestionStructure } from '../data/seedQuestions'
 import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
@@ -221,10 +222,32 @@ function sanitizeUser(user) {
   return sanitized
 }
 
+const SYNC_FAILED_MESSAGE = 'לא הצלחנו לשמור את השינוי בשרת. הנתונים נטענו מחדש, נסו שוב.'
+const SAVE_CONCURRENCY = 5
+
+// מריץ את הפעולות בקבוצות קטנות במקביל, כדי שעדכון של מאות שאלות לא יפתח מאות בקשות בבת אחת
+async function runInBatches(tasks) {
+  let allOk = true
+  for (let index = 0; index < tasks.length; index += SAVE_CONCURRENCY) {
+    const results = await Promise.all(tasks.slice(index, index + SAVE_CONCURRENCY).map(task => task()))
+    if (results.some(result => !result.ok)) allOk = false
+  }
+  return allOk
+}
+
 export function AppProvider({ children }) {
   const gradeValues = useMemo(() => GRADES.map(grade => grade.value), [])
 
+  // במצב מקוון (שרת) המשתמש נטען מהשרת לפי עוגיית ההתחברות; אחרת מה-localStorage
+  const [authReady, setAuthReady] = useState(!API_ENABLED)
+  const [questionsReady, setQuestionsReady] = useState(!API_ENABLED)
+  const [loadError, setLoadError] = useState(null)
+  const [reloadToken, setReloadToken] = useState(0)
+  const [remoteResults, setRemoteResults] = useState([])
+  const syncQueue = useRef(Promise.resolve())
+
   const [user, setUser] = useState(() => {
+    if (API_ENABLED) return null
     seedAdmin()
     const currentUser = getCurrentUser()
     if (!currentUser) return null
@@ -237,6 +260,7 @@ export function AppProvider({ children }) {
   })
 
   const [mode, setModeState] = useState(() => {
+    if (API_ENABLED) return null
     const currentUser = getCurrentUser()
     if (!currentUser || !checkSubscription(currentUser).valid) return null
     return getStoredMode()
@@ -244,7 +268,7 @@ export function AppProvider({ children }) {
 
   const [questions, setQuestions] = useState([])
   const [customTracks, setCustomTracks] = useState(() => getCustomTracks())
-  const [quizProgressMap, setQuizProgressState] = useState(() => getQuizProgressMap())
+  const [quizProgressMap, setQuizProgressState] = useState(() => (API_ENABLED ? {} : getQuizProgressMap()))
   const [selectedGrade, setSelectedGrade] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [selectedLevel, setSelectedLevel] = useState(null)
@@ -316,8 +340,9 @@ export function AppProvider({ children }) {
 
   const userResults = useMemo(() => {
     if (!user) return []
+    if (API_ENABLED) return remoteResults.map(result => ({ ...result, source: 'online' }))
     return getUserResults(user.id)
-  }, [resultsVersion, user])
+  }, [resultsVersion, user, remoteResults])
 
   const savedQuizProgress = useMemo(() => {
     if (!user) return []
@@ -341,7 +366,37 @@ export function AppProvider({ children }) {
     setStorageError(null)
   }
 
+  // מצב שרת: משווים את הרשימה הקודמת לחדשה ושולחים לשרת רק מה שנוסף, השתנה או נמחק
+  function syncQuestionsToServer(previousList, nextList) {
+    const previousById = new Map(previousList.map(question => [question.id, question]))
+    const nextById = new Map(nextList.map(question => [question.id, question]))
+    const tasks = []
+
+    const removedIds = previousList.filter(question => !nextById.has(question.id)).map(question => question.id)
+    nextList.forEach(question => {
+      const before = previousById.get(question.id)
+      if (!before) tasks.push(() => api.post('/admin/questions', question))
+      else if (JSON.stringify(before) !== JSON.stringify(question)) tasks.push(() => api.put(`/admin/questions/${encodeURIComponent(question.id)}`, question))
+    })
+    if (removedIds.length > 0) tasks.push(() => api.post('/admin/questions/delete', { ids: removedIds }))
+    if (tasks.length === 0) return
+
+    // פעולות נשמרות לפי הסדר, גם אם המנהל לוחץ מהר
+    syncQueue.current = syncQueue.current.then(async () => {
+      const allOk = await runInBatches(tasks)
+      if (allOk) { setStorageError(null); return }
+      setStorageError(SYNC_FAILED_MESSAGE)
+      const fresh = await api.get('/questions')
+      if (fresh.ok) setQuestions(fresh.data.questions)
+    })
+  }
+
   function persistQuestionsList(list) {
+    if (API_ENABLED) {
+      syncQuestionsToServer(questions, list)
+      setQuestions(list)
+      return
+    }
     setQuestions(list)
     reportPersistResult(saveQuestions(list))
   }
@@ -352,11 +407,75 @@ export function AppProvider({ children }) {
   }
 
   function persistQuizProgress(nextMap) {
+    if (API_ENABLED) {
+      // ההתקדמות נשמרת בשרת לפי משתמש, כך שאפשר להמשיך ממכשיר אחר
+      Object.keys(nextMap).forEach(key => {
+        if (nextMap[key] !== quizProgressMap[key]) api.put(`/progress/${encodeURIComponent(key)}`, nextMap[key])
+      })
+      Object.keys(quizProgressMap).forEach(key => {
+        if (!(key in nextMap)) api.delete(`/progress/${encodeURIComponent(key)}`)
+      })
+      setQuizProgressState(nextMap)
+      return
+    }
     setQuizProgressState(nextMap)
     reportPersistResult(saveQuizProgressMap(nextMap))
   }
 
+  // מצב שרת: שחזור ההתחברות מהעוגייה בעת טעינת האתר
   useEffect(() => {
+    if (!API_ENABLED) return
+    let cancelled = false
+    api.get('/auth/me').then(response => {
+      if (cancelled) return
+      if (response.ok && response.data?.user) {
+        setUser(response.data.user)
+        setModeState('online')
+      }
+      setAuthReady(true)
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  // מצב שרת: אחרי התחברות טוענים שאלות והתקדמות; כשמתנתקים מנקים את הנתונים מהזיכרון
+  useEffect(() => {
+    if (!API_ENABLED || !authReady) return
+    if (!user) {
+      setQuestions([])
+      setQuizProgressState({})
+      setRemoteResults([])
+      setQuestionsReady(true)
+      return
+    }
+    let cancelled = false
+    setQuestionsReady(false)
+    setLoadError(null)
+    Promise.all([api.get('/questions'), api.get('/progress')]).then(([questionsResponse, progressResponse]) => {
+      if (cancelled) return
+      if (!questionsResponse.ok) {
+        setLoadError(questionsResponse.error)
+        setQuestionsReady(true)
+        return
+      }
+      setQuestions(ensureQuestionPositions(questionsResponse.data.questions).normalized)
+      setQuizProgressState(progressResponse.ok ? progressResponse.data.progress : {})
+      setQuestionsReady(true)
+    })
+    return () => { cancelled = true }
+  }, [user?.id, authReady, reloadToken])
+
+  // מצב שרת: תוצאות המשתמש המחובר
+  useEffect(() => {
+    if (!API_ENABLED || !user) return
+    let cancelled = false
+    api.get('/results/me').then(response => {
+      if (!cancelled && response.ok) setRemoteResults(response.data.results)
+    })
+    return () => { cancelled = true }
+  }, [user?.id, resultsVersion])
+
+  useEffect(() => {
+    if (API_ENABLED) return
     const stored = getQuestions()
 
     if (stored?.length > 0) {
@@ -396,7 +515,17 @@ export function AppProvider({ children }) {
     setQuestions(normalized)
   }, [])
 
-  function login(identifier, password) {
+  // כניסה/הרשמה מול השרת: ההרשאה, הסיסמה והמנוי נבדקים בשרת בלבד
+  async function serverAuth(path, body) {
+    const response = await api.post(path, body)
+    if (!response.ok) return { error: response.error, expired: Boolean(response.data?.expired) }
+    setModeState('online')
+    setUser(response.data.user)
+    return { success: true, user: response.data.user }
+  }
+
+  async function login(identifier, password) {
+    if (API_ENABLED) return serverAuth('/auth/login', { identifier, password })
     const found = serverFindUser(identifier)
     if (!found || found.password !== password) return { error: 'שם משתמש או סיסמה שגויים' }
     const { valid } = checkSubscription(found)
@@ -409,7 +538,18 @@ export function AppProvider({ children }) {
     return { success: true, user: sanitizedUser }
   }
 
-  function register(profileData) {
+  async function register(profileData) {
+    if (API_ENABLED) {
+      return serverAuth('/auth/register', {
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        city: profileData.city,
+        phone: profileData.phone,
+        email: profileData.email,
+        password: profileData.password,
+        birthDate: profileData.birthDate || '',
+      })
+    }
     const baseUsername = profileData.username?.trim().replace(/\s+/g, ' ') || ''
     const normalizedEmail = profileData.email?.trim().toLowerCase() || ''
     const users = serverGetUsers()
@@ -456,8 +596,15 @@ export function AppProvider({ children }) {
     return { success: true, user: sanitizedUser }
   }
 
-  function updateUserProfile(profileData) {
+  async function updateUserProfile(profileData) {
     if (!user) return { error: 'לא נמצא משתמש פעיל.' }
+
+    if (API_ENABLED) {
+      const response = await api.patch('/auth/me', profileData)
+      if (!response.ok) return { error: response.error }
+      setUser(response.data.user)
+      return { success: true, user: response.data.user }
+    }
 
     const fullUser = serverFindUserById(user.id) || user
     const nextUser = {
@@ -494,6 +641,7 @@ export function AppProvider({ children }) {
   }
 
   function logout() {
+    if (API_ENABLED) api.post('/auth/logout')
     setCurrentUser(null)
     setUser(null)
     clearStoredMode()
@@ -894,7 +1042,7 @@ export function AppProvider({ children }) {
     setHollandResults(storedSummary)
 
     if (user) {
-      saveResult({
+      recordResult({
         id: crypto.randomUUID(),
         userId: user.id,
         subject: HOLLAND_SUBJECT,
@@ -909,8 +1057,18 @@ export function AppProvider({ children }) {
         combinedCode: storedSummary.combinedCode,
         date: completedAt,
       }, mode || 'offline')
-      setResultsVersion(previous => previous + 1)
     }
+  }
+
+  // שמירת תוצאה: בשרת במצב מקוון, אחרת ב-localStorage. אחרי השמירה מרעננים את רשימת התוצאות
+  async function recordResult(result, resultMode) {
+    if (API_ENABLED) {
+      const response = await api.post('/results', result)
+      if (!response.ok) setStorageError('לא הצלחנו לשמור את התוצאה בשרת. התוצאה לא תופיע ברשימה.')
+    } else {
+      reportPersistResult(saveResult(result, resultMode))
+    }
+    setResultsVersion(previous => previous + 1)
   }
 
   function beginExamSession() {
@@ -978,7 +1136,7 @@ export function AppProvider({ children }) {
     })
 
     if (user) {
-      saveResult({
+      recordResult({
         id: crypto.randomUUID(),
         userId: user.id,
         subject: selectedSubject,
@@ -991,7 +1149,6 @@ export function AppProvider({ children }) {
         percent,
         date: summary.completedAt,
       }, mode || 'offline')
-      setResultsVersion(previous => previous + 1)
     }
   }
 
@@ -1047,6 +1204,9 @@ export function AppProvider({ children }) {
         resetLearningFlow,
         storageError,
         clearStorageError,
+        appReady: authReady && questionsReady,
+        loadError,
+        retryLoad: () => setReloadToken(previous => previous + 1),
       }}
     >
       {children}

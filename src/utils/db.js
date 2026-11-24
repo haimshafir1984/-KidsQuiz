@@ -127,6 +127,8 @@ export function getUserResults(userId) {
 // --- בדיקת מנוי ---
 export function checkSubscription(user) {
   if (user?.role === 'admin') return { valid: true, daysLeft: 999 }
+  // במצב מקוון השרת כבר חישב את המנוי
+  if (user?.subscription) return { valid: Boolean(user.subscription.valid), daysLeft: user.subscription.daysLeft ?? 0 }
   if (!user?.subscription_date) return { valid: false, daysLeft: 0 }
   const elapsed = (Date.now() - new Date(user.subscription_date).getTime()) / 86400000
   const daysLeft = Math.max(0, Math.floor(SUBSCRIPTION_DAYS - elapsed))

@@ -66,6 +66,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showExpired, setShowExpired] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [registerForm, setRegisterForm] = useState({
     firstName: '',
     lastName: '',
@@ -145,7 +146,9 @@ export default function AuthPage() {
         return
       }
 
-      const result = login(loginIdentifier, password)
+      setSubmitting(true)
+      const result = await login(loginIdentifier, password)
+      setSubmitting(false)
 
       if (result.error) {
         if (result.expired) setShowExpired(true)
@@ -186,12 +189,13 @@ export default function AuthPage() {
       return
     }
 
-    if (registerForm.password.trim().length < 4) {
-      setError('הסיסמה קצרה מדי. יש לבחור לפחות 4 תווים')
+    if (registerForm.password.trim().length < 6) {
+      setError('הסיסמה קצרה מדי. יש לבחור לפחות 6 תווים')
       return
     }
 
-    const result = register({
+    setSubmitting(true)
+    const result = await register({
       firstName: registerForm.firstName,
       lastName: registerForm.lastName,
       city: registerForm.city,
@@ -200,6 +204,8 @@ export default function AuthPage() {
       phone: registerForm.phone,
       email: registerForm.email,
     })
+
+    setSubmitting(false)
 
     if (result.error) {
       setError(result.error)
@@ -399,7 +405,7 @@ export default function AuthPage() {
                   <PasswordInput
                     value={registerForm.password}
                     onChange={(event) => updateRegisterField('password', event.target.value)}
-                    placeholder="לפחות 4 תווים"
+                    placeholder="לפחות 6 תווים"
                     autoComplete="new-password"
                   />
                   <p className="mt-2 text-sm font-semibold text-slate-600">
@@ -457,7 +463,7 @@ export default function AuthPage() {
             ) : null}
 
             <div className="flex flex-col gap-3 pt-2">
-              <button type="submit" className="btn-primary w-full py-4 text-lg shadow-[0_16px_30px_-16px_rgba(37,99,235,0.55)]">
+              <button type="submit" disabled={submitting} className="btn-primary w-full py-4 text-lg shadow-[0_16px_30px_-16px_rgba(37,99,235,0.55)] disabled:opacity-60">
                 {authTab === 'register' && !desktop ? 'יצירת חשבון והתחלה' : 'כניסה'}
                 <ArrowLeft className="h-5 w-5" />
               </button>

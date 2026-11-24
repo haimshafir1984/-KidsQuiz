@@ -18,10 +18,19 @@ import ProfilePage from './pages/ProfilePage'
 import OfflineDownloadPage from './pages/OfflineDownloadPage'
 import DesktopLicensePage from './pages/DesktopLicensePage'
 import { getLicenseStatus, getRuntimeInfo } from './utils/runtime'
+import { API_ENABLED } from './utils/api'
 
 function AuthRoute({ children }) {
   const { user } = useApp()
   return user ? children : <Navigate to="/welcome" replace />
+}
+
+// מסך הניהול: במצב שרת נפתח רק לחשבון מנהל (גם השרת בודק הרשאה בכל פעולה). בדמו המקומי נשאר פתוח לכל משתמש מחובר
+function AdminRoute({ children }) {
+  const { user } = useApp()
+  if (!user) return <Navigate to="/welcome" replace />
+  if (API_ENABLED && user.role !== 'admin') return <Navigate to="/age" replace />
+  return children
 }
 
 function ModeRoute({ children }) {
@@ -59,7 +68,7 @@ function DesktopGate({ desktopState, children }) {
 }
 
 function AppRoutes() {
-  const { user, mode, profileComplete } = useApp()
+  const { user, mode, profileComplete, appReady, loadError, retryLoad } = useApp()
   const [desktopState, setDesktopState] = useState({
     loading: true,
     isDesktop: false,
@@ -93,6 +102,19 @@ function AppRoutes() {
       <div className="min-h-screen">
         <Header />
         <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+          {!appReady ? (
+            <div className="flex min-h-[60vh] items-center justify-center">
+              <p className="text-lg font-semibold text-slate-600">טוענים...</p>
+            </div>
+          ) : loadError ? (
+            <div className="flex min-h-[60vh] items-center justify-center">
+              <div className="edu-card max-w-lg text-center">
+                <h1 className="text-2xl font-bold text-slate-950">לא הצלחנו לטעון את הנתונים</h1>
+                <p className="mt-2 text-slate-600">{loadError}</p>
+                <button type="button" onClick={retryLoad} className="btn-primary mt-5">נסו שוב</button>
+              </div>
+            </div>
+          ) : (
           <Routes>
             <Route path="/welcome" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <WelcomePage />} />
             <Route path="/auth" element={user ? <Navigate to={user.role !== 'admin' && !profileComplete ? '/profile' : mode ? '/age' : '/mode'} replace /> : <AuthPage />} />
@@ -108,9 +130,10 @@ function AppRoutes() {
             <Route path="/summary" element={<ModeRoute><SummaryPage /></ModeRoute>} />
             <Route path="/holland-questionnaire" element={<ModeRoute><HollandQuestionnairePage /></ModeRoute>} />
             <Route path="/holland-result" element={<ModeRoute><HollandResultPage /></ModeRoute>} />
-            <Route path="/admin" element={<AuthRoute><AdminPage /></AuthRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="*" element={<Navigate to={!user ? '/welcome' : user.role !== 'admin' && !profileComplete ? '/profile' : !mode ? '/mode' : '/age'} replace />} />
           </Routes>
+          )}
         </main>
       </div>
     </DesktopGate>
