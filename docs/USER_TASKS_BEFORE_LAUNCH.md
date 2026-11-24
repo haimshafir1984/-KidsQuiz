@@ -15,22 +15,27 @@
 
 ---
 
-## סטטוס ביצוע (מעודכן)
-**בוצע:**
-- Cloudflare (מוגבל ל-`kidsquiz.flowsbiz.com`): Cache Rule `KidsQuiz - Bypass API Cache`; הפניית HTTP→HTTPS (308); Rate Limit `KidsQuiz - Auth Rate Limit` (20 בקשות ל-10 שניות, `/api/auth/`); ווידג'ט Turnstile `KidsQuiz - Registration Protection` (Managed).
-- גיבוי נוסף עם נתונים (85.2KB); שני מוניטורים ב-UptimeRobot פעילים.
+## סטטוס ביצוע (מעודכן 24.11.2026)
+**הושלם:**
+- Cloudflare, לדומיין שלנו בלבד: Cache Rule `KidsQuiz - Bypass API Cache`; הפניית HTTP→HTTPS (308); Rate Limit `KidsQuiz - Auth Rate Limit`; Configuration Rule `KidsQuiz - Strict SSL` (Full strict, נבדק); הגדרת SSL הכללית של `flowsbiz.com` לא שונתה.
+- Turnstile: ווידג'ט `KidsQuiz - Registration Protection`; `TURNSTILE_SECRET` ב-`kidsquiz-api` ו-`VITE_TURNSTILE_SITE_KEY` כ-Build Arg ב-`kidsquiz-web`; נפרסו. הרכיב מופיע, הרשמה וכניסה עובדות.
+- גיבוי עם נתונים, בדיקת שחזור, ושני מוניטורים ב-UptimeRobot (אתר + Keyword על `/api/health`, כל 5 דקות).
+- מנהלים: החשבון השגוי `email` נוטרל (`disabled`) והסשנים שלו נמחקו.
+- GitHub: Ruleset `KidsQuiz - Protect main` (איסור מחיקה ו-force-push), Secret Protection ו-Push Protection.
+- כותרות אבטחה (CSP כולל Turnstile, Permissions-Policy, Referrer-Policy, nosniff, X-Frame-Options) אומתו מול שרת המקור.
 
-**נדחה במכוון לסוף (משפיע על מערכות נוספות בשרת):** סגירת ממשק Dokploy (1), חומת אש ופורטים (2), הקשחת SSH (3). שירות מייל נדחה.
+**נדרש אימות (עוד לא נבדק בפועל):**
+- שהשרת דוחה הרשמה בלי Token של Turnstile (ר' פקודת הבדיקה ב-`docs/PRODUCTION_READINESS_REVIEW.md`).
+- שחסימת ה-Rate Limit של Cloudflare באמת נחסמת (20 בקשות ל-10 שניות).
+- שהופעלו Dependency graph ו-Dependabot alerts (התראות בלבד, בלי עדכונים אוטומטיים).
+- מחיקה סופית של חשבון `email` אחרי שבוע (SQL בסעיף 8א).
 
-**נשאר לביצוע:**
-- 5: להוסיף את משתני Turnstile ב-Dokploy ולפרוס (מפתחות כבר קיימים) ולאמת
-- 6: בדיקת שחזור הגיבוי עם הנתונים לבסיס זמני
-- 7: בדיקת התראת UptimeRobot בנפילה מכוונת
-- 8: ניטרול חשבון `email` ויצירת מנהל שני
-- 9: הגנת `main`, Auto Deploy, Secret Scanning
-- 10: טקסטים משפטיים מהלקוחה (והחלפת `[…]` + `LEGAL_DRAFT=false`)
-- סעיף 4.4 (אופציונלי): SSL Full (strict) לדומיין שלנו בלבד
-- בסוף: סעיפים 1-3
+**נדחה במכוון:**
+- סגירת ממשק Dokploy וחסימת פורט 3000 (1), חומת אש ופורטים כולל Docker (2), הקשחת SSH, fail2ban ועדכונים אוטומטיים (3). הערה: סעיף 2 משפיע גם על אבטחת האפליקציה (ר' ממצא 1 בסקירה).
+- מנהל שני (עד קבלת פרטיו), שירות מייל ואימות מייל, דומיין ייעודי, בדיקת התראה בנפילה יזומה.
+- Auto Deploy: נשאר **ידני** בכוונה.
+
+**ממתין ללקוחה:** טקסטים משפטיים סופיים (פרטיות, תנאים, נגישות) והחלפת `[…]` ו-`LEGAL_DRAFT=false`.
 
 ---
 
@@ -153,10 +158,10 @@
 - [ ] `nmap` מראה רק 22/80/443
 - [ ] SSH ללא סיסמה, fail2ban פעיל, עדכונים אוטומטיים פעילים
 - [x] כללי Cloudflare (Bypass `/api/`, הפניית HTTPS, Rate Limit) לדומיין שלנו בלבד
-- [ ] Turnstile פעיל בהרשמה (ווידג'ט נוצר; נותר להגדיר משתנים ולפרוס)
-- [ ] שחזור גיבוי עם נתונים אומת
+- [x] Turnstile פעיל בהרשמה (נותר לאמת דחייה בצד השרת)
+- [x] שחזור גיבוי עם נתונים אומת
 - [ ] התראת UptimeRobot נבדקה בנפילה אמיתית
 - [ ] חשבון `email` הוסר, מנהל שני נוצר
-- [ ] `main` מוגן ו-Auto Deploy נבדק
+- [x] `main` מוגן (Auto Deploy נשאר ידני בכוונה)
 - [ ] דפי פרטיות/תנאים/נגישות עם טקסט סופי מהלקוחה
 - [ ] בדיקת קצה לקצה: הרשמה, כניסה, חידון, ניהול, הארכת מנוי, איפוס סיסמה, ייצוא ומחיקה
