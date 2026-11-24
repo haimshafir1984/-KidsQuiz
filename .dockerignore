@@ -9,3 +9,5 @@ docs
 .claude
 electron
 *.log
+**/node_modules
+server
