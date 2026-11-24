@@ -15,6 +15,25 @@
 
 ---
 
+## סטטוס ביצוע (מעודכן)
+**בוצע:**
+- Cloudflare (מוגבל ל-`kidsquiz.flowsbiz.com`): Cache Rule `KidsQuiz - Bypass API Cache`; הפניית HTTP→HTTPS (308); Rate Limit `KidsQuiz - Auth Rate Limit` (20 בקשות ל-10 שניות, `/api/auth/`); ווידג'ט Turnstile `KidsQuiz - Registration Protection` (Managed).
+- גיבוי נוסף עם נתונים (85.2KB); שני מוניטורים ב-UptimeRobot פעילים.
+
+**נדחה במכוון לסוף (משפיע על מערכות נוספות בשרת):** סגירת ממשק Dokploy (1), חומת אש ופורטים (2), הקשחת SSH (3). שירות מייל נדחה.
+
+**נשאר לביצוע:**
+- 5: להוסיף את משתני Turnstile ב-Dokploy ולפרוס (מפתחות כבר קיימים) ולאמת
+- 6: בדיקת שחזור הגיבוי עם הנתונים לבסיס זמני
+- 7: בדיקת התראת UptimeRobot בנפילה מכוונת
+- 8: ניטרול חשבון `email` ויצירת מנהל שני
+- 9: הגנת `main`, Auto Deploy, Secret Scanning
+- 10: טקסטים משפטיים מהלקוחה (והחלפת `[…]` + `LEGAL_DRAFT=false`)
+- סעיף 4.4 (אופציונלי): SSL Full (strict) לדומיין שלנו בלבד
+- בסוף: סעיפים 1-3
+
+---
+
 ## עדיפות 1 – חובה לפני השקה
 
 ### 1. לסגור את ממשק Dokploy מהאינטרנט
@@ -133,8 +152,8 @@
 - [ ] Dokploy לא נגיש מהאינטרנט הציבורי
 - [ ] `nmap` מראה רק 22/80/443
 - [ ] SSH ללא סיסמה, fail2ban פעיל, עדכונים אוטומטיים פעילים
-- [ ] כללי Cloudflare (Bypass `/api/`, הפניית HTTPS, Rate Limit) לדומיין שלנו בלבד
-- [ ] Turnstile פעיל בהרשמה
+- [x] כללי Cloudflare (Bypass `/api/`, הפניית HTTPS, Rate Limit) לדומיין שלנו בלבד
+- [ ] Turnstile פעיל בהרשמה (ווידג'ט נוצר; נותר להגדיר משתנים ולפרוס)
 - [ ] שחזור גיבוי עם נתונים אומת
 - [ ] התראת UptimeRobot נבדקה בנפילה אמיתית
 - [ ] חשבון `email` הוסר, מנהל שני נוצר
