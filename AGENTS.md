@@ -39,7 +39,8 @@ KidsQuiz/
     │   ├── db.js                 # שכבת "ServerDB/LocalDB" מדומה: משתמשים, תוצאות, מנוי
     │   ├── fuzzyMatch.js         # Levenshtein distance עם סף מדורג להתאמת תשובות פתוחות
     │   ├── runtime.js            # זיהוי סביבת דסקטופ (window.desktopAPI) וסטטוס רישיון
-    │   └── userProfile.js        # שם תצוגה ובדיקת שלמות פרופיל
+    │   ├── userProfile.js        # שם תצוגה ובדיקת שלמות פרופיל
+    │   └── sounds.js             # צלילי משוב לתשובה נכונה/שגויה (Web Audio, בלי קבצים; כיבוי נשמר ב-kq_sound_enabled)
     │
     ├── data/
     │   ├── seedQuestions.js      # איחוד כל מאגרי השאלות + נרמול מבנה/נושאים

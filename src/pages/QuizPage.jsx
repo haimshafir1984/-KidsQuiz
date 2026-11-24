@@ -11,6 +11,7 @@ import {
   SELF_CHECK_UNKNOWN,
 } from '../utils/questionAnswers'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
+import { isSoundEnabled, playFeedbackSound, setSoundEnabled } from '../utils/sounds'
 
 const GENERAL_EXAM_PERSIST_DEBOUNCE_MS = 800
 
@@ -314,6 +315,13 @@ export default function QuizPage() {
   })
 
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled())
+
+  function toggleSound() {
+    const next = !soundOn
+    setSoundOn(next)
+    setSoundEnabled(next)
+  }
 
   const resultsRef = useRef([])
   const completedRef = useRef(false)
@@ -454,6 +462,7 @@ export default function QuizPage() {
 
   function handleAnswer(userAnswer) {
     const correct = evaluateQuestionAnswer(question, userAnswer)
+    playFeedbackSound(correct)
 
     const nextResults = [...resultsRef.current, { question, userAnswer, correct }]
     resultsRef.current = nextResults
@@ -609,9 +618,22 @@ export default function QuizPage() {
               </p>
             )}
           </div>
-          <button onClick={handleSaveAndExit} className="btn-muted self-start">
-            שמירה ויציאה
-          </button>
+          <div className="flex items-center gap-1 self-start">
+            {!isGeneralExam && (
+              <button
+                type="button"
+                onClick={toggleSound}
+                aria-pressed={soundOn}
+                className="btn-muted"
+                title={soundOn ? 'כיבוי צלילים' : 'הפעלת צלילים'}
+              >
+                {soundOn ? '🔊 צליל פעיל' : '🔇 צליל כבוי'}
+              </button>
+            )}
+            <button onClick={handleSaveAndExit} className="btn-muted">
+              שמירה ויציאה
+            </button>
+          </div>
         </div>
 
         {isGeneralExam ? (
