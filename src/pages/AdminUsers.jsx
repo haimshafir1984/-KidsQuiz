@@ -4,6 +4,8 @@ import { checkSubscription } from '../utils/db'
 import { API_ENABLED, api } from '../utils/api'
 import { useDialogA11y } from '../components/shared/useDialogA11y'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
+import PaymentsPanel from './admin/PaymentsPanel'
+import PlansManager from './admin/PlansManager'
 
 const COLUMNS = [
   { key: 'fullName', label: 'שם' },
@@ -248,6 +250,8 @@ export default function AdminUsers({ stats }) {
         />
       </section>
 
+      {API_ENABLED && <PlansManager />}
+
       <section className="edu-card p-0 overflow-hidden">
         <div className="border-b border-slate-200 px-6 py-4 text-right">
           <h3 className="text-2xl font-bold text-slate-950">תלמידים ותוצאות</h3>
@@ -475,13 +479,15 @@ export default function AdminUsers({ stats }) {
                 <ConfirmDialog
                   open={confirmDelete}
                   title={`למחוק את ${selectedUser.fullName}?`}
-                  message="החשבון, התוצאות וההתקדמות יימחקו לצמיתות ולא ניתן לשחזר אותם. מומלץ להוריד קודם את נתוני התלמיד."
+                  message="החשבון, התוצאות וההתקדמות יימחקו לצמיתות ולא ניתן לשחזר אותם. רשומות תשלום נשמרות להנהלת חשבונות. מומלץ להוריד קודם את נתוני התלמיד."
                   confirmLabel="כן, למחוק"
                   onConfirm={() => deleteStudent(selectedUser)}
                   onCancel={() => setConfirmDelete(false)}
                 />
               </div>
             )}
+
+            {API_ENABLED && <PaymentsPanel key={selectedUser.id} userId={selectedUser.id} onChanged={reload} />}
 
             <div className="mt-6 space-y-3">
               {selectedUser.userResults.length === 0 ? (

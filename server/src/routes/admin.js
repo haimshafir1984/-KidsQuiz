@@ -5,6 +5,7 @@ import { getSubscription } from '../auth.js'
 import { hashPassword } from '../password.js'
 import { clientIp, isCloudflareAddress } from '../limiter.js'
 import { buildStudentWorkbook, exportFileName } from '../exportXlsx.js'
+import { UUID_PATTERN } from '../validators.js'
 import { deleteUserAccount, exportUserData } from '../userData.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
@@ -35,8 +36,6 @@ async function audit(client, actorId, action, entity, entityId, before, after) {
     [actorId, action, entity, entityId, before ?? null, after ?? null],
   )
 }
-
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default async function adminRoutes(app) {
   const { pool } = app

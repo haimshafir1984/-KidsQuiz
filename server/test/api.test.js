@@ -9,6 +9,7 @@ import { clientIp, isCloudflareAddress } from '../src/limiter.js'
 import { config } from '../src/config.js'
 import { verifyTurnstileToken } from '../src/turnstile.js'
 import ExcelJS from 'exceljs'
+import { confirmPayment, createPendingPayment, nextSubscription } from '../src/billing.js'
 
 const TEST_DB = process.env.TEST_DATABASE_URL || 'postgres://postgres@localhost:5432/kidsquiz_test'
 const ORIGIN = { origin: 'http://localhost:5180', host: 'localhost:5180' }
@@ -129,8 +130,8 @@ describe('הרשמה והתחברות', () => {
     await c.call('POST', '/api/auth/register', student({ email: 'old@example.com', firstName: 'ישן' }))
     await pool.query(`UPDATE users SET subscription_date = now() - interval '400 days' WHERE email = 'old@example.com'`)
     const expired = await client().call('POST', '/api/auth/login', { identifier: 'old@example.com', password: 'secret123' })
-    assert.equal(expired.status, 403)
-    assert.equal(expired.body.expired, true)
+    assert.equal(expired.status, 200)
+    assert.equal(expired.body.user.subscription.valid, false)
   })
 
   test('עדכון פרופיל', async () => {
@@ -358,15 +359,17 @@ describe('אבטחה והגנות נוספות', () => {
     assert.equal(res.headers['cache-control'], 'no-store')
   })
 
-  test('מנוי שפג תוקפו מנתק גם התחברות קיימת', async () => {
+  test('מנוי שפג תוקפו חוסם את התוכן גם בהתחברות קיימת', async () => {
     const c = client()
     await c.call('POST', '/api/auth/register', student({ email: 'expiring@example.com', firstName: 'פוקע' }))
-    assert.ok((await c.call('GET', '/api/auth/me')).body.user)
+    assert.equal((await c.call('GET', '/api/questions')).status, 200)
     await pool.query("UPDATE users SET subscription_status = 'expired' WHERE email = 'expiring@example.com'")
-    assert.equal((await c.call('GET', '/api/auth/me')).body.user, null)
-    assert.equal((await c.call('GET', '/api/questions')).status, 401)
+    assert.equal((await c.call('GET', '/api/auth/me')).body.user.subscription.valid, false)
+    const blocked = await c.call('GET', '/api/questions')
+    assert.equal(blocked.status, 403)
+    assert.equal(blocked.body.expired, true)
     await pool.query("UPDATE users SET subscription_status = 'active', subscription_until = NULL WHERE email = 'expiring@example.com'")
-    assert.ok((await c.call('GET', '/api/auth/me')).body.user)
+    assert.equal((await c.call('GET', '/api/questions')).status, 200)
   })
 
   test('סיסמה ארוכה מדי נדחית', async () => {
@@ -553,7 +556,7 @@ describe('בדיקות קבלה: חשבון חסום, ייצוא Excel והרש�
 
     const workbook = new ExcelJS.Workbook()
     await workbook.xlsx.load(response.rawPayload)
-    assert.deepEqual(workbook.worksheets.map(sheet => sheet.name), ['פרטים אישיים', 'מנוי וחשבון', 'התקדמות בלמידה', 'תוצאות חידונים'])
+    assert.deepEqual(workbook.worksheets.map(sheet => sheet.name), ['פרטים אישיים', 'מנוי וחשבון', 'התקדמות בלמידה', 'תוצאות חידונים', 'תשלומים'])
     for (const sheet of workbook.worksheets) assert.equal(sheet.views[0].rightToLeft, true)
     assert.equal(workbook.getWorksheet('פרטים אישיים').getRow(1).getCell(1).value, 'שם פרטי')
     assert.equal(workbook.getWorksheet('פרטים אישיים').getRow(2).getCell(1).value, 'אקסל')
@@ -703,9 +706,161 @@ describe('בדיקות קבלה: חשבון חסום, ייצוא Excel והרש�
     const id = (await admin.call('GET', '/api/admin/users')).body.users.find(u => u.email === 'revoke@example.com').id
     assert.ok((await stu.call('GET', '/api/auth/me')).body.user)
     await admin.call('PATCH', `/api/admin/users/${id}`, { subscriptionStatus: 'expired' })
-    assert.equal((await stu.call('GET', '/api/auth/me')).body.user, null)
+    assert.equal((await stu.call('GET', '/api/questions')).status, 403)
     await admin.call('PATCH', `/api/admin/users/${id}`, { subscriptionStatus: 'active', subscriptionUntil: '2031-01-01', disabled: true })
     assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'revoke@example.com', password: 'secret123' })).status, 403)
+  })
+})
+
+describe('תשלומים: גישה מוגבלת, אישור תשלום ורישום ידני', () => {
+  const DAY = 86400000
+  let admin
+  before(async () => {
+    admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+  })
+
+  async function newStudent(email, firstName) {
+    const c = client()
+    await c.call('POST', '/api/auth/register', student({ email, firstName }))
+    const id = (await c.call('GET', '/api/auth/me')).body.user.id
+    return { c, id }
+  }
+  const expire = id => pool.query("UPDATE users SET subscription_status = 'expired' WHERE id = $1", [id])
+  const userRow = async id => (await pool.query('SELECT * FROM users WHERE id = $1', [id])).rows[0]
+
+  test('מנוי שפג: רק פעולות חשבון ותשלום פתוחות, כל התוכן חסום', async () => {
+    const { c, id } = await newStudent('pay-limited@example.com', 'מוגבל')
+    await expire(id)
+    for (const [method, url, payload] of [
+      ['GET', '/api/questions'], ['GET', '/api/progress'], ['PUT', '/api/progress/k', { a: 1 }], ['DELETE', '/api/progress/k'],
+      ['GET', '/api/results/me'], ['POST', '/api/results', { subject: 'x', score: 1, total: 1, percent: 100 }],
+    ]) {
+      const res = await c.call(method, url, payload)
+      assert.equal(res.status, 403, `${method} ${url}`)
+      assert.equal(res.body.expired, true, `${method} ${url}`)
+    }
+    for (const url of ['/api/billing', '/api/auth/me', '/api/auth/me/export']) {
+      assert.equal((await c.call('GET', url)).status, 200, url)
+    }
+    for (const url of ['/api/admin/users', '/api/admin/plans', `/api/admin/users/${id}/payments`]) {
+      assert.equal((await c.call('GET', url)).status, 403, url)
+    }
+    // לא יכול להאריך לעצמו
+    assert.equal((await c.call('POST', `/api/admin/users/${id}/payments`, { requestId: crypto.randomUUID(), method: 'cash', amountAgorot: 1, durationDays: 365 })).status, 403)
+    assert.equal((await c.call('PATCH', `/api/admin/users/${id}`, { subscriptionStatus: 'active' })).status, 403)
+    assert.equal((await client().call('GET', '/api/billing')).status, 401)
+  })
+
+  test('חישוב תקופה: מהיום אם פג, בהמשך לתקופה קיימת, ובלי לקצר מנוי ללא הגבלה', () => {
+    const now = Date.parse('2026-12-01T00:00:00Z')
+    const expired = nextSubscription({ subscription_status: 'expired', subscription_until: '2027-01-01', subscription_date: '2026-01-01' }, 30, now)
+    assert.equal(expired.until.getTime(), now + 30 * DAY)
+    const running = nextSubscription({ subscription_status: 'active', subscription_until: new Date(now + 10 * DAY) }, 30, now)
+    assert.equal(running.until.getTime(), now + 40 * DAY)
+    const trial = nextSubscription({ subscription_status: 'trial', subscription_until: null, subscription_date: new Date(now - DAY) }, 30, now)
+    assert.ok(trial.until.getTime() > now + 30 * DAY, 'ימי הניסיון שנותרו לא אובדים')
+    assert.deepEqual(nextSubscription({ subscription_status: 'active', subscription_until: null }, 30, now), { status: 'active', until: null })
+  })
+
+  test('אישור תשלום: סכום שגוי, ספק שגוי ועסקה חוזרת לא מאריכים מנוי', async () => {
+    const { c, id } = await newStudent('pay-confirm@example.com', 'משלם')
+    await expire(id)
+    const pending = await createPendingPayment(pool, { userId: id, amountAgorot: 9900, durationDays: 30, method: 'online', provider: 'test-provider' })
+    assert.equal(pending.status, 'pending')
+    const base = { paymentId: pending.id, amountAgorot: 9900, provider: 'test-provider', transactionId: 'T-1' }
+
+    assert.equal((await confirmPayment(pool, { ...base, amountAgorot: 100 })).reason, 'amount_mismatch')
+    assert.equal((await confirmPayment(pool, { ...base, amountAgorot: '9900' })).reason, 'amount_mismatch')
+    assert.equal((await confirmPayment(pool, { ...base, provider: 'manual' })).reason, 'provider_mismatch')
+    assert.equal((await confirmPayment(pool, { ...base, transactionId: '' })).reason, 'invalid')
+    assert.equal((await confirmPayment(pool, { ...base, paymentId: '00000000-0000-0000-0000-000000000000' })).reason, 'not_found')
+    assert.equal((await c.call('GET', '/api/questions')).status, 403)
+
+    // אותה הודעה מגיעה פעמיים במקביל: הארכה אחת בלבד
+    const [first, second] = await Promise.all([confirmPayment(pool, base), confirmPayment(pool, base)])
+    assert.deepEqual([first.ok, second.ok], [true, true])
+    assert.equal([first, second].filter(item => item.duplicate).length, 1)
+    const until = new Date((await userRow(id)).subscription_until).getTime()
+    assert.ok(Math.abs(until - (Date.now() + 30 * DAY)) < 60000)
+    assert.equal((await c.call('GET', '/api/questions')).status, 200)
+
+    assert.equal((await confirmPayment(pool, { ...base, transactionId: 'T-2' })).reason, 'not_pending')
+    // אותו מזהה עסקה לא יכול לשלם רשומה אחרת
+    const other = await createPendingPayment(pool, { userId: id, amountAgorot: 9900, durationDays: 30, method: 'online', provider: 'test-provider' })
+    assert.equal((await confirmPayment(pool, { ...base, paymentId: other.id })).reason, 'transaction_used')
+    assert.equal(new Date((await userRow(id)).subscription_until).getTime(), until)
+  })
+
+  test('תשלום לא משחרר חשבון חסום', async () => {
+    const { id } = await newStudent('pay-blocked@example.com', 'חסוםתשלום')
+    await pool.query('UPDATE users SET disabled = true WHERE id = $1', [id])
+    const pending = await createPendingPayment(pool, { userId: id, amountAgorot: 500, durationDays: 10, method: 'online', provider: 'test-provider' })
+    assert.equal((await confirmPayment(pool, { paymentId: pending.id, amountAgorot: 500, provider: 'test-provider', transactionId: 'B-1' })).ok, true)
+    assert.equal((await userRow(id)).disabled, true)
+  })
+
+  test('מסלולים: ולידציה, השבתה, ומחיר שהמשתמש רואה', async () => {
+    for (const bad of [{ name: '', priceAgorot: 100, durationDays: 30 }, { name: 'א', priceAgorot: 0, durationDays: 30 }, { name: 'א', priceAgorot: 10.5, durationDays: 30 }, { name: 'א', priceAgorot: 100, durationDays: 0 }]) {
+      assert.equal((await admin.call('POST', '/api/admin/plans', bad)).status, 400, JSON.stringify(bad))
+    }
+    const plan = (await admin.call('POST', '/api/admin/plans', { name: 'שנתי', priceAgorot: 24000, durationDays: 365 })).body.plan
+    const { c } = await newStudent('pay-plans@example.com', 'מסלולים')
+    const seen = (await c.call('GET', '/api/billing')).body
+    assert.equal(seen.onlineEnabled, false)
+    assert.ok(seen.plans.some(item => item.id === plan.id && item.priceAgorot === 24000))
+    await admin.call('PATCH', `/api/admin/plans/${plan.id}`, { active: false })
+    assert.ok(!(await c.call('GET', '/api/billing')).body.plans.some(item => item.id === plan.id))
+    assert.equal((await admin.call('PATCH', '/api/admin/plans/xyz', { active: true })).status, 400)
+  })
+
+  test('רישום ידני: מאריך פעם אחת, מופיע לתלמיד, ניתן לביטול ונרשם ביומן', async () => {
+    const { c, id } = await newStudent('pay-manual@example.com', 'ידני')
+    await expire(id)
+    const plan = (await admin.call('POST', '/api/admin/plans', { name: 'חודשי', priceAgorot: 3000, durationDays: 30 })).body.plan
+    const body = { requestId: crypto.randomUUID(), planId: plan.id, method: 'bank_transfer', note: 'אסמכתא 123', durationDays: 3000 }
+
+    for (const bad of [{ ...body, requestId: 'x' }, { ...body, method: 'online' }, { ...body, planId: 'x' }, { ...body, amountAgorot: -5 }]) {
+      assert.equal((await admin.call('POST', `/api/admin/users/${id}/payments`, bad)).status, 400, JSON.stringify(bad))
+    }
+    const [one, two] = await Promise.all([
+      admin.call('POST', `/api/admin/users/${id}/payments`, body),
+      admin.call('POST', `/api/admin/users/${id}/payments`, body),
+    ])
+    assert.deepEqual([one.status, two.status], [200, 200])
+    assert.equal([one, two].filter(res => res.body.duplicate).length, 1)
+    const until = new Date((await userRow(id)).subscription_until).getTime()
+    // התקופה נלקחת מהמסלול ולא מגוף הבקשה
+    assert.ok(Math.abs(until - (Date.now() + 30 * DAY)) < 60000)
+
+    const mine = (await c.call('GET', '/api/billing')).body.payments
+    assert.equal(mine.length, 1)
+    assert.equal(mine[0].amountAgorot, 3000)
+    assert.ok(!JSON.stringify(mine).includes('אסמכתא'), 'הערת מנהל לא מוצגת לתלמיד')
+    const { c: stranger } = await newStudent('pay-stranger@example.com', 'זר')
+    assert.equal((await stranger.call('GET', '/api/billing')).body.payments.length, 0)
+
+    const other = await newStudent('pay-other@example.com', 'אחרת')
+    assert.equal((await admin.call('POST', `/api/admin/users/${other.id}/payments`, body)).status, 409)
+
+    const paymentId = mine[0].id
+    assert.equal((await admin.call('POST', `/api/admin/payments/${paymentId}/cancel`)).status, 200)
+    assert.equal((await admin.call('POST', `/api/admin/payments/${paymentId}/cancel`)).status, 404)
+    assert.equal(new Date((await userRow(id)).subscription_until).getTime(), until, 'ביטול רישום לא משנה מנוי אוטומטית')
+    const log = JSON.stringify((await admin.call('GET', `/api/admin/audit?entity=user&id=${id}`)).body)
+    assert.ok(log.includes('record_payment') && log.includes('cancel_payment'))
+  })
+
+  test('מחיקת חשבון שומרת את רשומת התשלום בלי קישור לחשבון', async () => {
+    const { c, id } = await newStudent('pay-delete@example.com', 'נמחק')
+    const requestId = crypto.randomUUID()
+    await admin.call('POST', `/api/admin/users/${id}/payments`, { requestId, method: 'cash', amountAgorot: 1200, durationDays: 30 })
+    assert.equal((await c.call('GET', '/api/auth/me/export')).body.payments.length, 1)
+    assert.equal((await c.call('DELETE', '/api/auth/me', { password: 'secret123' })).status, 200)
+    const { rows } = await pool.query('SELECT user_id, payer_name, amount_agorot FROM payments WHERE provider_transaction_id = $1', [requestId])
+    assert.equal(rows[0].user_id, null)
+    assert.equal(rows[0].payer_name, 'נמחק כהן')
+    assert.equal(rows[0].amount_agorot, 1200)
   })
 })
 

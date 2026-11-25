@@ -1,9 +1,9 @@
 import { config } from '../config.js'
 import { hashPassword, verifyPassword } from '../password.js'
 import {
-  clearSessionCookie, createSession, destroyOtherSessions, destroySession, getSubscription, publicUser, setSessionCookie,
+  clearSessionCookie, createSession, destroyOtherSessions, destroySession, publicUser, setSessionCookie,
 } from '../auth.js'
-import { requireUser } from '../guards.js'
+import { requireAccount } from '../guards.js'
 import { clientIp } from '../limiter.js'
 import { deleteUserAccount, exportUserData } from '../userData.js'
 
@@ -91,8 +91,7 @@ export default async function authRoutes(app) {
     if (user.disabled) return reply.code(403).send({ error: 'חשבונך חסום. יש לפנות למנהל המערכת', blocked: true })
     app.loginLimiter.recordSuccess(ip, identifier)
 
-    if (!getSubscription(user).valid) return reply.code(403).send({ error: 'פג תוקף המנוי שלך', expired: true })
-
+    // גם כשהמנוי פג נכנסים: הגישה מוגבלת לחשבון ולחידוש (השרת חוסם את התוכן)
     await pool.query('UPDATE users SET last_login_at = now() WHERE id = $1', [user.id])
     const session = await createSession(pool, user.id, request.headers['user-agent'], user.role)
     setSessionCookie(reply, session.token, session.expiresAt)
@@ -107,7 +106,7 @@ export default async function authRoutes(app) {
 
   app.get('/me', async request => ({ user: request.user ? publicUser(request.user) : null }))
 
-  app.patch('/me', { preHandler: requireUser }, async (request, reply) => {
+  app.patch('/me', { preHandler: requireAccount }, async (request, reply) => {
     const body = request.body || {}
     const firstName = clean(body.firstName)
     const lastName = clean(body.lastName)
@@ -122,7 +121,7 @@ export default async function authRoutes(app) {
   })
 
   // שינוי סיסמה עצמי: באישור הסיסמה הנוכחית, ומנתק את שאר המכשירים
-  app.post('/change-password', { preHandler: requireUser, ...strict }, async (request, reply) => {
+  app.post('/change-password', { preHandler: requireAccount, ...strict }, async (request, reply) => {
     const current = typeof request.body?.currentPassword === 'string' ? request.body.currentPassword : ''
     const next = typeof request.body?.newPassword === 'string' ? request.body.newPassword : ''
     const limiterKey = `pw:${request.user.id}`
@@ -141,10 +140,10 @@ export default async function authRoutes(app) {
   })
 
   // זכות עיון: הורדת כל הנתונים של המשתמש המחובר
-  app.get('/me/export', { preHandler: requireUser }, async request => exportUserData(pool, request.user.id))
+  app.get('/me/export', { preHandler: requireAccount }, async request => exportUserData(pool, request.user.id))
 
   // זכות מחיקה: מחיקת החשבון וכל נתוניו, באישור סיסמה. מנהלים נמחקים רק ע"י מנהל אחר (לא כאן)
-  app.delete('/me', { preHandler: requireUser, ...strict }, async (request, reply) => {
+  app.delete('/me', { preHandler: requireAccount, ...strict }, async (request, reply) => {
     if (request.user.role === 'admin') return reply.code(403).send({ error: 'חשבון מנהל לא נמחק מכאן' })
     const password = typeof request.body?.password === 'string' ? request.body.password : ''
     if (!(await verifyPassword(password, request.user.password_hash))) return reply.code(403).send({ error: 'הסיסמה שגויה' })

@@ -10,6 +10,9 @@ const GRADE_LABELS = {
 const ACTIVITY_LABELS = { practice: 'תרגול', exam: 'מבחן', assessment: 'שאלון' }
 const STATUS_LABELS = { trial: 'תקופת ניסיון', active: 'מנוי פעיל', expired: 'המנוי הסתיים' }
 
+const METHOD_LABELS = { online: 'תשלום מקוון', bank_transfer: 'העברה בנקאית', cash: 'מזומן', check: 'צ\'ק', other: 'אחר' }
+const PAYMENT_STATUS_LABELS = { pending: 'ממתין', paid: 'שולם', cancelled: 'בוטל' }
+
 const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D4ED8' } }
 const BORDER = { style: 'thin', color: { argb: 'FFCBD5E1' } }
 
@@ -123,6 +126,21 @@ export async function buildStudentWorkbook(data, extra = {}) {
     { header: 'מתוך', key: 'total', width: 10 },
     { header: 'אחוז הצלחה', key: 'percent', width: 14, style: { numFmt: '0"%"' } },
   ], resultRows)
+
+  const paymentRows = (data.payments || []).map(item => ({
+    date: asDate(item.paid_at || item.created_at), plan: item.plan_name || '',
+    amount: asNumber(item.amount_agorot) === null ? null : item.amount_agorot / 100,
+    days: asNumber(item.duration_days),
+    method: label(METHOD_LABELS, item.method), status: label(PAYMENT_STATUS_LABELS, item.status),
+  }))
+  addSheet(workbook, 'תשלומים', [
+    { header: 'תאריך', key: 'date', width: 20, style: dateTimeStyle },
+    { header: 'מסלול', key: 'plan', width: 24 },
+    { header: 'סכום (₪)', key: 'amount', width: 14, style: { numFmt: '#,##0.00' } },
+    { header: 'ימים', key: 'days', width: 10 },
+    { header: 'אמצעי תשלום', key: 'method', width: 18 },
+    { header: 'מצב', key: 'status', width: 12 },
+  ], paymentRows)
 
   return workbook
 }

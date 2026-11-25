@@ -50,7 +50,7 @@ export default function PrivacyControls() {
 
       <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4">
         <h3 className="text-lg font-bold text-red-800">מחיקת החשבון</h3>
-        <p className="mt-1 text-base text-red-800">המחיקה סופית: החשבון, התוצאות וההתקדמות נמחקים ולא ניתן לשחזר אותם. להמשך, מקלידים את הסיסמה.</p>
+        <p className="mt-1 text-base text-red-800">המחיקה סופית: החשבון, התוצאות וההתקדמות נמחקים ולא ניתן לשחזר אותם. אם היו תשלומים, רישום התשלום נשמר לצורכי הנהלת חשבונות. להמשך, מקלידים את הסיסמה.</p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input
             type="password"

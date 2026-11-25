@@ -17,6 +17,7 @@ import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 import OfflineDownloadPage from './pages/OfflineDownloadPage'
 import DesktopLicensePage from './pages/DesktopLicensePage'
+import RenewPage from './pages/RenewPage'
 import { getLicenseStatus, getRuntimeInfo } from './utils/runtime'
 import { API_ENABLED } from './utils/api'
 import { AccessibilityPage, LegalFooter, PrivacyPage, TermsPage } from './pages/LegalPages'
@@ -34,9 +35,24 @@ function AdminRoute({ children }) {
   return children
 }
 
-function ModeRoute({ children }) {
-  const { user, mode, profileComplete } = useApp()
+// תוכן שדורש מנוי בתוקף (באתר המקוון)
+function SubscriptionRoute({ children }) {
+  const { user, subscriptionBlocked } = useApp()
   if (!user) return <Navigate to="/welcome" replace />
+  return subscriptionBlocked ? <Navigate to="/renew" replace /> : children
+}
+
+// מסך החידוש פתוח רק למי שהמנוי שלו פג
+function RenewRoute({ children }) {
+  const { user, subscriptionBlocked } = useApp()
+  if (!user) return <Navigate to="/welcome" replace />
+  return subscriptionBlocked ? children : <Navigate to="/age" replace />
+}
+
+function ModeRoute({ children }) {
+  const { user, mode, profileComplete, subscriptionBlocked } = useApp()
+  if (!user) return <Navigate to="/welcome" replace />
+  if (subscriptionBlocked) return <Navigate to="/renew" replace />
   if (user.role !== 'admin' && !profileComplete) return <Navigate to="/profile" replace />
   if (!mode) return <Navigate to="/mode" replace />
   return children
@@ -125,7 +141,8 @@ function AppRoutes() {
             <Route path="/desktop-license" element={<DesktopLicensePage licenseStatus={desktopState.license} onRefresh={refreshDesktopState} />} />
             <Route path="/mode" element={<AuthRoute><ModePage /></AuthRoute>} />
             <Route path="/profile" element={<AuthRoute><ProfilePage /></AuthRoute>} />
-            <Route path="/offline-download" element={<AuthRoute><OfflineDownloadPage /></AuthRoute>} />
+            <Route path="/offline-download" element={<SubscriptionRoute><OfflineDownloadPage /></SubscriptionRoute>} />
+            <Route path="/renew" element={<RenewRoute><RenewPage /></RenewRoute>} />
             <Route path="/age" element={<ModeRoute><AgeSelectPage /></ModeRoute>} />
             <Route path="/subject" element={<ModeRoute><SubjectSelectPage /></ModeRoute>} />
             <Route path="/track" element={<ModeRoute><TrackSelectPage /></ModeRoute>} />

@@ -22,7 +22,7 @@ import {
   setStoredMode,
   clearStoredMode,
 } from '../utils/db'
-import { API_ENABLED, api } from '../utils/api'
+import { API_ENABLED, SUBSCRIPTION_EXPIRED_EVENT, api } from '../utils/api'
 import seedQuestions from '../data/seedQuestions'
 import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
@@ -252,10 +252,31 @@ export function AppProvider({ children }) {
     return () => { cancelled = true }
   }, [])
 
+  // באתר המקוון: תלמיד שהמנוי שלו פג נשאר מחובר, אבל בלי תוכן (השרת חוסם גם בעצמו)
+  const subscriptionBlocked = Boolean(API_ENABLED && user && user.role !== 'admin' && user.subscription && !user.subscription.valid)
+
+  // שליפה מחדש של המשתמש (אחרי חידוש מנוי, או כשהמנוי פג תוך כדי שימוש)
+  async function refreshUser() {
+    if (!API_ENABLED) return user
+    const response = await api.get('/auth/me')
+    if (!response.ok) return user
+    setUser(response.data.user)
+    return response.data.user
+  }
+
+  useEffect(() => {
+    if (!API_ENABLED) return undefined
+    const handleExpired = () => {
+      api.get('/auth/me').then(response => { if (response.ok) setUser(response.data.user) })
+    }
+    window.addEventListener(SUBSCRIPTION_EXPIRED_EVENT, handleExpired)
+    return () => window.removeEventListener(SUBSCRIPTION_EXPIRED_EVENT, handleExpired)
+  }, [])
+
   // מצב שרת: אחרי התחברות טוענים שאלות והתקדמות; כשמתנתקים מנקים את הנתונים מהזיכרון
   useEffect(() => {
     if (!API_ENABLED || !authReady) return
-    if (!user) {
+    if (!user || subscriptionBlocked) {
       setQuestions([])
       setQuizProgressState({})
       setRemoteResults([])
@@ -277,17 +298,17 @@ export function AppProvider({ children }) {
       setQuestionsReady(true)
     })
     return () => { cancelled = true }
-  }, [user?.id, authReady, reloadToken])
+  }, [user?.id, subscriptionBlocked, authReady, reloadToken])
 
   // מצב שרת: תוצאות המשתמש המחובר
   useEffect(() => {
-    if (!API_ENABLED || !user) return
+    if (!API_ENABLED || !user || subscriptionBlocked) return
     let cancelled = false
     api.get('/results/me').then(response => {
       if (!cancelled && response.ok) setRemoteResults(response.data.results)
     })
     return () => { cancelled = true }
-  }, [user?.id, resultsVersion])
+  }, [user?.id, subscriptionBlocked, resultsVersion])
 
   useEffect(() => {
     if (API_ENABLED) return
@@ -1057,6 +1078,8 @@ export function AppProvider({ children }) {
         clearStorageError,
         appReady: authReady && questionsReady,
         loadError,
+        subscriptionBlocked,
+        refreshUser,
         retryLoad: () => setReloadToken(previous => previous + 1),
       }}
     >

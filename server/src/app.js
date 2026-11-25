@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js'
 import questionRoutes from './routes/questions.js'
 import resultRoutes from './routes/results.js'
 import adminRoutes from './routes/admin.js'
+import { adminBillingRoutes, userBillingRoutes } from './routes/billing.js'
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
@@ -65,6 +66,8 @@ export async function buildApp({
   await app.register(questionRoutes, { prefix: '/api' })
   await app.register(resultRoutes, { prefix: '/api' })
   await app.register(adminRoutes, { prefix: '/api/admin' })
+  await app.register(userBillingRoutes, { prefix: '/api' })
+  await app.register(adminBillingRoutes, { prefix: '/api/admin' })
 
   app.setErrorHandler((error, request, reply) => {
     if (error.statusCode && error.statusCode < 500) {

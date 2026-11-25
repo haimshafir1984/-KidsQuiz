@@ -33,10 +33,8 @@ export async function findSessionUser(pool, token) {
      WHERE s.token_hash = $1 AND s.expires_at > now() AND NOT u.disabled`,
     [hashToken(token)],
   )
-  const user = rows[0] || null
-  // מנוי שפג תוקפו מנתק גם התחברות קיימת (ולא רק כניסה חדשה)
-  if (user && !getSubscription(user).valid) return null
-  return user
+  // מנוי שפג לא מנתק: המשתמש נשאר מחובר לצורך חידוש, והגישה לתוכן נחסמת ב-requireUser
+  return rows[0] || null
 }
 
 export async function purgeExpiredSessions(pool) {

@@ -7,6 +7,8 @@ export const API_ENABLED = import.meta.env.VITE_USE_API === 'true'
   && !window.desktopAPI
 
 const BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '')
+export const SUBSCRIPTION_EXPIRED_EVENT = 'kq:subscription-expired'
+
 const NETWORK_ERROR = 'אין חיבור לשרת. בדקו את החיבור לאינטרנט ונסו שוב.'
 
 // מחזיר תמיד { ok, status, data, error } ולעולם לא זורק, כדי שהמסכים יטפלו בשגיאה בצורה אחידה
@@ -20,6 +22,8 @@ async function request(method, path, body) {
     })
     let data = null
     try { data = await response.json() } catch { /* תגובה בלי גוף */ }
+    // המנוי פג תוך כדי שימוש: מודיעים לאפליקציה כדי שתעבור למסך החידוש
+    if (response.status === 403 && data?.expired) window.dispatchEvent(new Event(SUBSCRIPTION_EXPIRED_EVENT))
     return {
       ok: response.ok,
       status: response.status,
