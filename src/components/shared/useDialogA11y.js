@@ -5,6 +5,10 @@ const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:
 // נגישות בסיסית למודאלים: סגירה ב-Escape, מיקוד ראשוני, ולכידת Tab בתוך המודאל
 export function useDialogA11y(open, onClose) {
   const containerRef = useRef(null)
+  // onClose נשמר ב-ref: אחרת פונקציה חדשה בכל רינדור (למשל בכל הקלדה בשדה) מפעילה מחדש את האפקט
+  // ומחזירה את המיקוד לכפתור הראשון, ולכן אי אפשר היה להקליד בשדות בתוך המודאל
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose })
 
   useEffect(() => {
     if (!open) return undefined
@@ -15,7 +19,7 @@ export function useDialogA11y(open, onClose) {
 
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
-        onClose?.()
+        onCloseRef.current?.()
         return
       }
 
@@ -42,7 +46,7 @@ export function useDialogA11y(open, onClose) {
       document.removeEventListener('keydown', handleKeyDown)
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   return containerRef
 }

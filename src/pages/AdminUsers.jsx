@@ -143,21 +143,23 @@ export default function AdminUsers({ stats }) {
     return updateUser(user.id, { subscriptionStatus: 'active', subscriptionUntil: until }, `המנוי הוארך ב-${days} ימים.`)
   }
 
+  // הורדת נתוני תלמיד כקובץ Excel (גיליונות: פרטים, מנוי, התקדמות, תוצאות)
   async function exportStudent(user) {
     setActionMessage(null)
-    const response = await api.get(`/admin/users/${user.id}/export`)
+    const response = await api.download(`/admin/users/${user.id}/export?format=xlsx`)
     if (!response.ok) {
       setActionMessage({ ok: false, text: response.error })
       return
     }
-    const url = URL.createObjectURL(new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' }))
+    const url = URL.createObjectURL(response.blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${user.fullName}.json`
+    link.download = response.fileName
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+    setActionMessage({ ok: true, text: 'קובץ Excel הורד.' })
   }
 
   async function deleteStudent(user) {
@@ -461,7 +463,7 @@ export default function AdminUsers({ stats }) {
                     {selectedUser.disabled ? 'שחרור חשבון' : 'חסימת חשבון'}
                   </button>
                   <button type="button" onClick={() => exportStudent(selectedUser)} className="btn-secondary px-3 py-2 text-sm">
-                    הורדת נתוני התלמיד
+                    הורדת נתוני התלמיד (Excel)
                   </button>
                   <button type="button" onClick={() => setConfirmDelete(true)} className="btn-danger px-3 py-2 text-sm">
                     מחיקת תלמיד

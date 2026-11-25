@@ -83,10 +83,12 @@ export default async function authRoutes(app) {
     const user = rows[0]
     // גם כשהמשתמש לא קיים מריצים אימות מול hash דמה, כדי שזמן התגובה לא יחשוף אם המשתמש קיים
     const ok = await verifyPassword(password, user?.password_hash || 'scrypt$16384$8$1$AAAAAAAAAAAAAAAAAAAAAA==$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==')
-    if (!user || !ok || user.disabled) {
+    if (!user || !ok) {
       app.loginLimiter.recordFailure(ip, identifier)
       return reply.code(401).send(BAD_LOGIN)
     }
+    // הודעה ייעודית לחשבון חסום רק אחרי שהסיסמה נכונה, כדי לא לחשוף מי קיים במערכת
+    if (user.disabled) return reply.code(403).send({ error: 'חשבונך חסום. יש לפנות למנהל המערכת', blocked: true })
     app.loginLimiter.recordSuccess(ip, identifier)
 
     if (!getSubscription(user).valid) return reply.code(403).send({ error: 'פג תוקף המנוי שלך', expired: true })

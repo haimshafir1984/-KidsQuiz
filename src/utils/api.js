@@ -31,7 +31,27 @@ async function request(method, path, body) {
   }
 }
 
+// הורדת קובץ (למשל Excel): מחזיר { ok, blob, fileName, error }
+async function download(path) {
+  try {
+    const response = await fetch(`${BASE}${path}`, { credentials: 'include' })
+    if (!response.ok) {
+      let data = null
+      try { data = await response.json() } catch { /* תגובה בלי גוף */ }
+      return { ok: false, error: data?.error || 'שגיאה בשרת, נסו שוב' }
+    }
+    const disposition = response.headers.get('Content-Disposition') || ''
+    const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1]
+    let fileName = 'export.xlsx'
+    try { if (encoded) fileName = decodeURIComponent(encoded) } catch { /* שם קובץ לא תקין */ }
+    return { ok: true, blob: await response.blob(), fileName }
+  } catch {
+    return { ok: false, error: NETWORK_ERROR }
+  }
+}
+
 export const api = {
+  download,
   get: path => request('GET', path),
   post: (path, body = {}) => request('POST', path, body),
   put: (path, body = {}) => request('PUT', path, body),

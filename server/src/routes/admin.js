@@ -4,6 +4,7 @@ import { rowToQuestion } from './questions.js'
 import { getSubscription } from '../auth.js'
 import { hashPassword } from '../password.js'
 import { clientIp, isCloudflareAddress } from '../limiter.js'
+import { buildStudentWorkbook, exportFileName } from '../exportXlsx.js'
 import { deleteUserAccount, exportUserData } from '../userData.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
@@ -194,6 +195,17 @@ export default async function adminRoutes(app) {
     const data = await exportUserData(pool, request.params.id)
     if (!data) return reply.code(404).send({ error: 'המשתמש לא נמצא' })
     await audit(pool, request.user.id, 'export', 'user', request.params.id, null, null)
+    // ?format=xlsx: קובץ Excel (גיליונות בעברית); ברירת המחדל נשארת JSON
+    if (request.query?.format === 'xlsx') {
+      const state = await pool.query('SELECT disabled FROM users WHERE id = $1', [request.params.id])
+      const workbook = await buildStudentWorkbook(data, { disabled: state.rows[0]?.disabled })
+      const buffer = await workbook.xlsx.writeBuffer()
+      const fileName = exportFileName(data.profile)
+      return reply
+        .header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        .header('Content-Disposition', `attachment; filename="student.xlsx"; filename*=UTF-8''${encodeURIComponent(fileName)}`)
+        .send(Buffer.from(buffer))
+    }
     return data
   })
 

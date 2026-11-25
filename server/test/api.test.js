@@ -6,6 +6,9 @@ import { migrate } from '../src/migrate.js'
 import { buildApp } from '../src/app.js'
 import { hashPassword, verifyPassword } from '../src/password.js'
 import { clientIp, isCloudflareAddress } from '../src/limiter.js'
+import { config } from '../src/config.js'
+import { verifyTurnstileToken } from '../src/turnstile.js'
+import ExcelJS from 'exceljs'
 
 const TEST_DB = process.env.TEST_DATABASE_URL || 'postgres://postgres@localhost:5432/kidsquiz_test'
 const ORIGIN = { origin: 'http://localhost:5180', host: 'localhost:5180' }
@@ -121,7 +124,7 @@ describe('הרשמה והתחברות', () => {
     const c = client()
     await c.call('POST', '/api/auth/register', student({ email: 'blocked@example.com', firstName: 'חסום' }))
     await pool.query(`UPDATE users SET disabled = true WHERE email = 'blocked@example.com'`)
-    assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'blocked@example.com', password: 'secret123' })).status, 401)
+    assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'blocked@example.com', password: 'secret123' })).status, 403)
 
     await c.call('POST', '/api/auth/register', student({ email: 'old@example.com', firstName: 'ישן' }))
     await pool.query(`UPDATE users SET subscription_date = now() - interval '400 days' WHERE email = 'old@example.com'`)
@@ -501,6 +504,208 @@ describe('כתובת לקוח, שינוי סיסמה ואימות קלט', () =>
     await stu.call('POST', '/api/auth/register', student({ email: 'dater@example.com', firstName: 'תאריך' }))
     const saved = await stu.call('POST', '/api/results', { subject: 'x', score: 1, total: 2, percent: 50, date: 'לא תאריך' })
     assert.equal(saved.status, 200)
+  })
+})
+
+// מחזיר אסימון התחברות של המנהל (לבדיקות שצריכות כותרות גולמיות)
+async function adminToken() {
+  const res = await app.inject({ method: 'POST', url: '/api/auth/login', headers: ORIGIN, payload: { identifier: 'admin@example.com', password: 'admin-pass-123' } })
+  return String(res.headers['set-cookie']).split('=')[1].split(';')[0]
+}
+
+describe('בדיקות קבלה: חשבון חסום, ייצוא Excel והרשאות', () => {
+  async function adminClient() {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    return admin
+  }
+
+  test('חשבון חסום: הודעה ייעודית רק אחרי סיסמה נכונה, ובסיסמה שגויה ההודעה הרגילה', async () => {
+    const c = client()
+    await c.call('POST', '/api/auth/register', student({ email: 'blocked2@example.com', firstName: 'חסומה' }))
+    await pool.query(`UPDATE users SET disabled = true WHERE email = 'blocked2@example.com'`)
+    const wrong = await client().call('POST', '/api/auth/login', { identifier: 'blocked2@example.com', password: 'wrong-pass' })
+    assert.equal(wrong.status, 401)
+    assert.equal(wrong.body.error, 'שם משתמש או סיסמה שגויים')
+    const right = await client().call('POST', '/api/auth/login', { identifier: 'blocked2@example.com', password: 'secret123' })
+    assert.equal(right.status, 403)
+    assert.equal(right.body.error, 'חשבונך חסום. יש לפנות למנהל המערכת')
+    assert.equal(right.body.blocked, true)
+    assert.equal(right.headers['set-cookie'], undefined)
+  })
+
+  test('ייצוא Excel: קובץ אמיתי, גיליונות בעברית, מימין לשמאל, בלי מידע רגיש', async () => {
+    const stu = client()
+    const reg = await stu.call('POST', '/api/auth/register', student({ email: 'xl@example.com', firstName: 'אקסל', lastName: 'לוי' }))
+    assert.equal(reg.status, 200)
+    await stu.call('POST', '/api/results', { subject: 'תנך', age: 'grade-8', level: 'ספר בראשית', activityType: 'practice', score: 7, total: 10, percent: 70, date: '2026-11-20T10:00:00.000Z' })
+    await stu.call('PUT', `/api/progress/${encodeURIComponent('k1')}`, { grade: 'grade-8', subject: 'תנך', level: 'שמות', activityType: 'practice', questionCount: 12, results: [{ correct: true }, { correct: false }], updatedAt: '2026-11-21T09:00:00.000Z' })
+    const id = (await (await adminClient()).call('GET', '/api/admin/users')).body.users.find(u => u.email === 'xl@example.com').id
+
+    const response = await app.inject({
+      method: 'GET', url: `/api/admin/users/${id}/export?format=xlsx`,
+      headers: { ...ORIGIN, cookie: `${config.cookieName}=${await adminToken()}` },
+    })
+    assert.equal(response.statusCode, 200)
+    assert.match(response.headers['content-type'], /spreadsheetml\.sheet/)
+    const disposition = decodeURIComponent(response.headers['content-disposition'])
+    assert.match(disposition, /אקסל_לוי_\d{4}-\d{2}-\d{2}\.xlsx/)
+
+    const workbook = new ExcelJS.Workbook()
+    await workbook.xlsx.load(response.rawPayload)
+    assert.deepEqual(workbook.worksheets.map(sheet => sheet.name), ['פרטים אישיים', 'מנוי וחשבון', 'התקדמות בלמידה', 'תוצאות חידונים'])
+    for (const sheet of workbook.worksheets) assert.equal(sheet.views[0].rightToLeft, true)
+    assert.equal(workbook.getWorksheet('פרטים אישיים').getRow(1).getCell(1).value, 'שם פרטי')
+    assert.equal(workbook.getWorksheet('פרטים אישיים').getRow(2).getCell(1).value, 'אקסל')
+    const results = workbook.getWorksheet('תוצאות חידונים').getRow(2)
+    assert.equal(results.getCell(3).value, 'תנך')
+    assert.equal(results.getCell(8).value, 70)
+    const progress = workbook.getWorksheet('התקדמות בלמידה').getRow(2)
+    assert.equal(progress.getCell(5).value, 2)
+    assert.equal(progress.getCell(6).value, 1)
+
+    const text = workbook.worksheets.map(sheet => JSON.stringify(sheet.getSheetValues())).join('')
+    assert.ok(!/scrypt\$|password|token|session/i.test(text))
+  })
+
+  test('ייצוא Excel: תלמיד ואורח נדחים, ומזהה לא קיים הוא 404', async () => {
+    const stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'xl2@example.com', firstName: 'אחר' }))
+    const other = (await (await adminClient()).call('GET', '/api/admin/users')).body.users.find(u => u.email === 'xl@example.com')
+    assert.equal((await stu.call('GET', `/api/admin/users/${other.id}/export?format=xlsx`)).status, 403)
+    assert.equal((await client().call('GET', `/api/admin/users/${other.id}/export?format=xlsx`)).status, 401)
+    assert.equal((await (await adminClient()).call('GET', '/api/admin/users/00000000-0000-0000-0000-000000000000/export?format=xlsx')).status, 404)
+  })
+
+  test('תלמיד לא רואה נתונים של תלמיד אחר (תוצאות, התקדמות, ייצוא עצמי)', async () => {
+    const a = client()
+    const b = client()
+    await a.call('POST', '/api/auth/register', student({ email: 'iso-a@example.com', firstName: 'אלף' }))
+    await b.call('POST', '/api/auth/register', student({ email: 'iso-b@example.com', firstName: 'בית' }))
+    await a.call('POST', '/api/results', { subject: 'סודי-א', score: 1, total: 1, percent: 100 })
+    await a.call('PUT', '/api/progress/secret-a', { subject: 'סודי-א' })
+    assert.ok(!JSON.stringify((await b.call('GET', '/api/results/me')).body).includes('סודי-א'))
+    assert.ok(!JSON.stringify((await b.call('GET', '/api/progress')).body).includes('סודי-א'))
+    assert.ok(!JSON.stringify((await b.call('GET', '/api/auth/me/export')).body).includes('סודי-א'))
+    // userId שנשלח בגוף הבקשה מתעלמים ממנו
+    const aId = (await a.call('GET', '/api/auth/me')).body.user.id
+    await b.call('POST', '/api/results', { subject: 'מתחזה', userId: aId, score: 1, total: 1, percent: 100 })
+    assert.ok(!JSON.stringify((await a.call('GET', '/api/results/me')).body).includes('מתחזה'))
+    // תלמיד לא יכול לגשת לנתיבי הניהול
+    for (const url of ['/api/admin/users', '/api/admin/results', '/api/admin/audit', '/api/admin/questions/deleted', '/api/admin/diagnostics/client-ip']) {
+      assert.equal((await b.call('GET', url)).status, 403, url)
+    }
+  })
+
+  test('Turnstile מול Cloudflare: אסימון חסר, נדחה, שירות לא זמין וקבלה תקינה', async () => {
+    const originalFetch = globalThis.fetch
+    const originalSecret = config.turnstileSecret
+    const calls = []
+    try {
+      config.turnstileSecret = 'test-secret'
+      globalThis.fetch = async (url, options) => {
+        calls.push({ url, body: String(options.body) })
+        return { json: async () => ({ success: String(options.body).includes('response=good') }) }
+      }
+      assert.equal(await verifyTurnstileToken('', '1.1.1.1'), false)
+      assert.equal(await verifyTurnstileToken(undefined, '1.1.1.1'), false)
+      assert.equal(await verifyTurnstileToken('x'.repeat(3000), '1.1.1.1'), false)
+      assert.equal(calls.length, 0)
+      assert.equal(await verifyTurnstileToken('bad', '1.1.1.1'), false)
+      assert.equal(await verifyTurnstileToken('good', '1.1.1.1'), true)
+      assert.match(calls.at(-1).body, /secret=test-secret/)
+      assert.match(calls.at(-1).body, /remoteip=1\.1\.1\.1/)
+      globalThis.fetch = async () => { throw new Error('network') }
+      assert.equal(await verifyTurnstileToken('good', '1.1.1.1'), false)
+      config.turnstileSecret = ''
+      assert.equal(await verifyTurnstileToken('', '1.1.1.1'), true)
+    } finally {
+      globalThis.fetch = originalFetch
+      config.turnstileSecret = originalSecret
+    }
+  })
+
+  test('Turnstile: אסימון חד-פעמי (שימוש חוזר נדחה), ובלי אסימון אין חשבון', async () => {
+    const used = new Set()
+    const strictApp = await buildApp({
+      pool,
+      verifyTurnstile: async token => {
+        if (token !== 'one-time' || used.has(token)) return false
+        used.add(token)
+        return true
+      },
+    })
+    const register = (email, token) => strictApp.inject({
+      method: 'POST', url: '/api/auth/register', headers: ORIGIN,
+      payload: student({ email, firstName: 'טורנסטייל', turnstileToken: token }),
+    })
+    assert.equal((await register('ts1@example.com', undefined)).statusCode, 400)
+    assert.equal((await register('ts1@example.com', 'one-time')).statusCode, 200)
+    assert.equal((await register('ts2@example.com', 'one-time')).statusCode, 400)
+    const created = await pool.query(`SELECT email FROM users WHERE email IN ('ts1@example.com', 'ts2@example.com')`)
+    assert.deepEqual(created.rows.map(row => row.email), ['ts1@example.com'])
+    await strictApp.close()
+  })
+
+  test('עוגיית ההתחברות: HttpOnly, SameSite, Path, Secure בפרודקשן, ובבסיס נשמר רק hash', async () => {
+    const original = config.isProd
+    config.isProd = true
+    try {
+      const res = await app.inject({
+        method: 'POST', url: '/api/auth/register', headers: ORIGIN,
+        payload: student({ email: 'cookie@example.com', firstName: 'עוגייה' }),
+      })
+      assert.equal(res.statusCode, 200)
+      const cookie = String(res.headers['set-cookie'])
+      assert.match(cookie, /HttpOnly/i)
+      assert.match(cookie, /SameSite=Lax/i)
+      assert.match(cookie, /Path=\//i)
+      assert.match(cookie, /Secure/i)
+      const token = cookie.split('=')[1].split(';')[0]
+      assert.ok(!JSON.stringify(res.json()).includes(token))
+      const stored = await pool.query('SELECT token_hash FROM sessions')
+      assert.ok(stored.rows.every(row => row.token_hash !== token))
+    } finally {
+      config.isProd = original
+    }
+  })
+
+  test('יציאה מוחקת את ההתחברות בשרת, ואסימון שנגנב כבר לא עובד', async () => {
+    const res = await app.inject({ method: 'POST', url: '/api/auth/register', headers: ORIGIN, payload: student({ email: 'logout@example.com', firstName: 'יציאה' }) })
+    const token = String(res.headers['set-cookie']).split('=')[1].split(';')[0]
+    const cookieHeader = { ...ORIGIN, cookie: `${config.cookieName}=${token}` }
+    assert.ok((await app.inject({ method: 'GET', url: '/api/auth/me', headers: cookieHeader })).json().user)
+    await app.inject({ method: 'POST', url: '/api/auth/logout', headers: cookieHeader })
+    assert.equal((await app.inject({ method: 'GET', url: '/api/auth/me', headers: cookieHeader })).json().user, null)
+  })
+
+  test('איפוס סיסמה ע"י מנהל מקצה לקצה: ישנה לא תקפה, חדשה עובדת, סשנים בוטלו, ביומן בלי הסיסמה', async () => {
+    const stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'reset2@example.com', firstName: 'איפוס' }))
+    const second = client()
+    await second.call('POST', '/api/auth/login', { identifier: 'reset2@example.com', password: 'secret123' })
+    const admin = await adminClient()
+    const id = (await admin.call('GET', '/api/admin/users')).body.users.find(u => u.email === 'reset2@example.com').id
+    assert.equal((await admin.call('PATCH', `/api/admin/users/${id}`, { newPassword: 'Brand-New-77' })).status, 200)
+    assert.equal((await stu.call('GET', '/api/auth/me')).body.user, null)
+    assert.equal((await second.call('GET', '/api/auth/me')).body.user, null)
+    assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'reset2@example.com', password: 'secret123' })).status, 401)
+    assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'reset2@example.com', password: 'Brand-New-77' })).status, 200)
+    const log = JSON.stringify((await admin.call('GET', `/api/admin/audit?entity=user&id=${id}`)).body)
+    assert.ok(log.includes('reset_password'))
+    assert.ok(!log.includes('Brand-New-77'))
+  })
+
+  test('מנוי שהסתיים מנתק סשן קיים, וחסימה מחזירה הודעה ייעודית בכניסה', async () => {
+    const stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'revoke@example.com', firstName: 'ביטול' }))
+    const admin = await adminClient()
+    const id = (await admin.call('GET', '/api/admin/users')).body.users.find(u => u.email === 'revoke@example.com').id
+    assert.ok((await stu.call('GET', '/api/auth/me')).body.user)
+    await admin.call('PATCH', `/api/admin/users/${id}`, { subscriptionStatus: 'expired' })
+    assert.equal((await stu.call('GET', '/api/auth/me')).body.user, null)
+    await admin.call('PATCH', `/api/admin/users/${id}`, { subscriptionStatus: 'active', subscriptionUntil: '2031-01-01', disabled: true })
+    assert.equal((await client().call('POST', '/api/auth/login', { identifier: 'revoke@example.com', password: 'secret123' })).status, 403)
   })
 })
 
