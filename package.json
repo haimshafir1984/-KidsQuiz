@@ -13,7 +13,10 @@
         "dist:win": "npm run build && electron-builder --win nsis portable",
         "license:generate": "node scripts/generate-license.mjs",
         "test:fuzzy": "node scripts/test-fuzzy.mjs",
-        "test:questions": "node scripts/test-questions.mjs"
+        "test:questions": "node scripts/test-questions.mjs",
+        "lint": "eslint .",
+        "test:ui": "vitest run",
+        "test": "npm run test:fuzzy && npm run test:questions && npm run test:ui"
     },
     "dependencies": {
         "@fontsource/assistant": "^5.2.9",
@@ -24,15 +27,25 @@
         "react-router-dom": "^6.26.2"
     },
     "devDependencies": {
+        "@eslint/js": "^9.39.5",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.3",
+        "@testing-library/user-event": "^14.6.13",
         "@types/react": "^18.3.5",
         "@types/react-dom": "^18.3.0",
         "@vitejs/plugin-react": "^4.3.1",
         "autoprefixer": "^10.4.20",
         "electron": "^41.0.0",
         "electron-builder": "^26.8.1",
+        "eslint": "^9.39.5",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "globals": "^17.14.0",
+        "jsdom": "^25.0.1",
         "postcss": "^8.4.45",
         "tailwindcss": "^3.4.11",
-        "vite": "^5.4.6"
+        "vite": "^5.4.6",
+        "vitest": "^2.1.9"
     },
     "build": {
         "appId": "com.kidsquiz.offline",

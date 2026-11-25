@@ -8,4 +8,11 @@ export default defineConfig({
   server: {
     proxy: { '/api': 'http://localhost:3000' },
   },
+  // בדיקות רכיבים (Vitest + jsdom): npm run test:ui
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.{js,jsx}'],
+    setupFiles: ['src/test/setup.js'],
+    css: false,
+  },
 })

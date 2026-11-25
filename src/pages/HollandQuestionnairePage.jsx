@@ -1,8 +1,14 @@
-﻿import { useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { HOLLAND_QUESTIONS, HOLLAND_SCALE, analyzeHollandAnswers } from '../data/hollandQuestionnaire'
 import { getGradeConfig } from '../data/learningTracks'
+
+// השאלות מקובצות לפי סוג (נבנה פעם אחת, לא תלוי בקומפוננטה)
+const GROUPED_QUESTIONS = HOLLAND_QUESTIONS.reduce((groups, question) => {
+  if (!groups[question.typeCode]) groups[question.typeCode] = []
+  groups[question.typeCode].push(question)
+  return groups
+}, {})
 
 export default function HollandQuestionnairePage() {
   const navigate = useNavigate()
@@ -22,14 +28,6 @@ export default function HollandQuestionnairePage() {
   const progress = Math.round((answeredCount / HOLLAND_QUESTIONS.length) * 100)
   const gradeLabel = getGradeConfig(selectedGrade)?.label
   const allAnswered = answeredCount === HOLLAND_QUESTIONS.length
-
-  const groupedQuestions = useMemo(() => {
-    return HOLLAND_QUESTIONS.reduce((groups, question) => {
-      if (!groups[question.typeCode]) groups[question.typeCode] = []
-      groups[question.typeCode].push(question)
-      return groups
-    }, {})
-  }, [])
 
   function handleSubmit() {
     if (!allAnswered) {
@@ -71,7 +69,7 @@ export default function HollandQuestionnairePage() {
       </section>
 
       <section className="space-y-6">
-        {Object.entries(groupedQuestions).map(([typeCode, questions]) => (
+        {Object.entries(GROUPED_QUESTIONS).map(([typeCode, questions]) => (
           <div key={typeCode} className="edu-card p-6">
             <div className="mb-4 text-right">
               <div className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">

@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { GENERAL_EXAM_SUBJECT, getActivityLabel, SUBJECT_TONES } from '../data/learningTracks'
@@ -41,7 +40,8 @@ export default function TrackSelectPage() {
   const activeLevel = selectedLevel || levelOptions[0]
   const normalizedLevel = activeLevel === 'ללא רמה' ? null : activeLevel
 
-  const helperText = useMemo(() => {
+  // טקסט עזר: חישוב זול, ולכן בלי useMemo (כדי שלא ייקרא Hook אחרי return מוקדם)
+  const helperText = (() => {
     if (isHolland) {
       return 'השאלון בנוי כסדרת היגדים בדירוג 0 עד 3, ובסיומו יופיע ניתוח של הטיפוס המוביל והשילוב הדומיננטי.'
     }
@@ -63,7 +63,7 @@ export default function TrackSelectPage() {
     }
 
     return 'לחצו על "תרגול" כדי להתחיל.'
-  }, [hasLevels, isGeneralExam, isHolland, levelsStartDirectly, track.activities.length, track.levelsKind])
+  })()
 
   const currentPracticeProgress = !isHolland && !isGeneralExam
     ? getSavedQuizProgress({

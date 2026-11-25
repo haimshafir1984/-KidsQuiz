@@ -1233,10 +1233,6 @@ export default function AdminPage() {
     setDrawerQuestion(question)
   }
 
-  function handleFullEdit(question) {
-    setDrawerQuestion(question)
-  }
-
   function handleOpenNewQuestion(grade, subject) {
     setDrawerQuestion(createQuestionDraft(trackCatalog, grade, subject))
   }
