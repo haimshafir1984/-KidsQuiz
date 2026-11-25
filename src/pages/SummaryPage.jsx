@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { ArrowLeft, RotateCcw } from 'lucide-react'
 import { formatCorrectAnswer, formatUserAnswer } from '../utils/questionAnswers'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
@@ -11,6 +12,15 @@ function getGradeEmoji(percent) {
   if (percent >= 80) return '🌟'
   if (percent >= 60) return '👏'
   return '💪'
+}
+
+// משפט סיום חם לפי הציון (בלשון רבים, כמו בשאר האתר)
+function getClosingMessage(percent, isReview) {
+  if (isReview) return percent === 100 ? 'חזרתם על כל הטעויות ועכשיו הכול נכון. כל הכבוד על ההתמדה!' : 'חזרה על טעויות היא הדרך הכי טובה ללמוד. אפשר לנסות שוב.'
+  if (percent === 100) return 'מושלם! כל התשובות נכונות.'
+  if (percent >= 80) return 'כל הכבוד! שליטה מצוינת בחומר.'
+  if (percent >= 60) return 'יפה מאוד. עוד קצת תרגול ותגיעו למצוין.'
+  return 'התחלה טובה. כל תרגול מקרב להצלחה, ואפשר לחזור על הטעויות עכשיו.'
 }
 
 function Confetti() {
@@ -87,6 +97,10 @@ export default function SummaryPage() {
     selectedLevel,
     selectedActivity,
     prepareQuiz,
+    startMistakesPractice,
+    mistakesPractice,
+    trackCatalog,
+    userResults,
   } = useApp()
   const navigate = useNavigate()
 
@@ -106,6 +120,39 @@ export default function SummaryPage() {
   const gradeEmoji = getGradeEmoji(percent)
   const gradeConfig = getGradeConfig(selectedGrade)
 
+  // השוואה לפעם הקודמת בנושא/רמה/סוג פעילות זהים
+  const completedAtMs = new Date(quizResults.completedAt).getTime()
+  const previousPercent = (() => {
+    if (mistakesPractice) return null
+    const sameSelection = (userResults || []).filter(result => {
+      const resultGrade = result.age || result.grade
+      return result.subject === quizResults.subject
+        && (result.level || null) === (quizResults.level || null)
+        && result.activityType === quizResults.activityType
+        && (!resultGrade || resultGrade === quizResults.grade)
+        && new Date(result.date).getTime() < completedAtMs - 2000
+    })
+    if (sameSelection.length === 0) return null
+    const latest = sameSelection.reduce((best, item) => (new Date(item.date) > new Date(best.date) ? item : best))
+    return Number.isFinite(Number(latest.percent)) ? Number(latest.percent) : null
+  })()
+  const percentDelta = previousPercent === null ? null : percent - previousPercent
+
+  // התקדמות בנושא: כמה תתי-נושאים/רמות כבר תורגלו
+  const track = (trackCatalog?.[selectedGrade] || []).find(item => item.subject === quizResults.subject)
+  const trackLevels = track?.levels || []
+  const levelUnit = track?.levelsKind === 'subtopic' ? 'תתי-נושאים' : 'רמות'
+  const doneLevels = new Set(
+    (userResults || [])
+      .filter(result => result.subject === quizResults.subject && result.level && result.activityType !== 'exam')
+      .map(result => result.level),
+  )
+  if (quizResults.level && !mistakesPractice) doneLevels.add(quizResults.level)
+  const doneCount = trackLevels.filter(level => doneLevels.has(level)).length
+  const currentLevelIndex = trackLevels.indexOf(quizResults.level)
+  const nextLevel = !isGeneralExam && currentLevelIndex >= 0 ? trackLevels[currentLevelIndex + 1] || null : null
+  const mistakeQuestions = mistakes.map(item => item.question)
+
   const subjectBreakdown = isGeneralExam
     ? Object.values(
         quizResults.items.reduce((accumulator, item) => {
@@ -119,6 +166,21 @@ export default function SummaryPage() {
         .map(entry => ({ ...entry, percent: Math.round((entry.correct / entry.total) * 100) }))
         .sort((first, second) => first.subject.localeCompare(second.subject, 'he'))
     : []
+
+  function handleMistakesPractice() {
+    const list = startMistakesPractice(mistakeQuestions)
+    if (list.length > 0) navigate('/quiz')
+  }
+
+  function handleNextLevel() {
+    const quiz = prepareQuiz({
+      grade: selectedGrade,
+      subject: selectedSubject,
+      level: nextLevel,
+      activityType: 'practice',
+    })
+    navigate(quiz.length > 0 ? '/quiz' : '/track')
+  }
 
   function handleRetry() {
     const quiz = prepareQuiz({
@@ -151,28 +213,63 @@ export default function SummaryPage() {
 
   return (
     <div className="page-shell">
-      <section className="edu-card relative overflow-hidden p-6 sm:p-8">
+      <section className="study-page text-center">
         {percent === 100 && <Confetti />}
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="text-right">
-            <div className="mb-3 inline-flex rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-700 ring-1 ring-slate-100">
-              סיכום {getActivityLabel(quizResults.activityType)} {gradeEmoji}
-            </div>
-            <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">
-              {quizResults.timedOut ? 'הזמן הסתיים והפעילות הושלמה' : 'הפעילות הושלמה בהצלחה'}
-            </h1>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              סיימת {getActivityLabel(quizResults.activityType)} בנושא {selectedSubject}
-              {selectedLevel ? ` | ${selectedLevel}` : ''}
-              {gradeConfig ? ` | ${gradeConfig.label}` : ''}. כאן אפשר לראות מה עבד היטב ואיפה כדאי לחזק את הצעד הבא.
-            </p>
-          </div>
+        <div className="study-qnum">
+          סיכום {mistakesPractice ? 'תרגול הטעויות' : getActivityLabel(quizResults.activityType)} {gradeEmoji}
+        </div>
+        <h1 className="mt-1 text-xl font-bold text-slate-700">
+          {quizResults.timedOut ? 'הזמן הסתיים והפעילות הושלמה' : 'סיימתם!'}
+        </h1>
+        <div className="mt-2 font-study text-7xl font-bold leading-none text-blue-700 sm:text-8xl" aria-label={`${correct} מתוך ${total}`}>
+          {correct}<small className="mr-2 text-3xl text-slate-500 sm:text-4xl"> / {total}</small>
+        </div>
+        <div className="mt-2 text-xl font-bold text-violet-700">{percent}% נכון</div>
+        <p className="mx-auto mt-3 max-w-xl text-lg leading-7 text-slate-700">{getClosingMessage(percent, mistakesPractice)}</p>
 
-          <div className="rounded-card border border-slate-100 bg-violet-50 px-8 py-6 text-center shadow-card">
-            <div className="text-5xl">{gradeEmoji}</div>
-            <div className="mt-2 text-sm font-semibold text-slate-600">ציון כולל</div>
-            <div className="mt-1 text-4xl font-bold text-slate-950">{percent}%</div>
+        {percentDelta !== null && (
+          <p className={`mt-3 inline-flex rounded-full px-4 py-1.5 text-base font-bold ${
+            percentDelta > 0 ? 'bg-emerald-50 text-emerald-700' : percentDelta < 0 ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-700'
+          }`}>
+            {percentDelta > 0 ? `↑ שיפור של ${percentDelta}% לעומת הפעם הקודמת (${previousPercent}%)`
+              : percentDelta < 0 ? `בפעם הקודמת היה ${previousPercent}%. בפעם הבאה נשפר`
+                : `אותה תוצאה כמו בפעם הקודמת (${previousPercent}%)`}
+          </p>
+        )}
+
+        <p className="mt-3 text-base text-slate-600">
+          {selectedSubject}{quizResults.level ? ` | ${quizResults.level}` : ''}{gradeConfig ? ` | ${gradeConfig.label}` : ''}
+        </p>
+
+        {trackLevels.length > 1 && !mistakesPractice && (
+          <div className="mx-auto mt-4 max-w-xl text-right">
+            <div className="mb-2 text-base font-bold text-slate-700">
+              השלמתם {doneCount} מתוך {trackLevels.length} {levelUnit} ב{quizResults.subject}
+            </div>
+            <div className="flex flex-wrap gap-1.5" role="img" aria-label={`${doneCount} מתוך ${trackLevels.length} ${levelUnit}`}>
+              {trackLevels.map(level => (
+                <i key={level} title={level} className={`study-dot ${doneLevels.has(level) ? 'study-dot--done' : ''} ${level === quizResults.level ? 'ring-4 ring-violet-100' : ''}`} />
+              ))}
+            </div>
           </div>
+        )}
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {mistakes.length > 0 && (
+            <button onClick={handleMistakesPractice} className="btn-primary px-6 py-3 text-lg">
+              <RotateCcw className="h-5 w-5" aria-hidden="true" />
+              תרגול על הטעויות ({mistakes.length})
+            </button>
+          )}
+          {nextLevel && (
+            <button onClick={handleNextLevel} className={`${mistakes.length > 0 ? 'btn-secondary' : 'btn-primary'} px-6 py-3 text-lg`}>
+              {track?.levelsKind === 'subtopic' ? 'לתת-הנושא הבא' : 'לרמה הבאה'}: {nextLevel}
+              <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
+          {mistakes.length === 0 && !nextLevel && (
+            <button onClick={() => navigate('/subject')} className="btn-primary px-6 py-3 text-lg">בחירת נושא חדש</button>
+          )}
         </div>
       </section>
 

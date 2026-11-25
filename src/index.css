@@ -2,6 +2,8 @@
 @import '@fontsource/assistant/600.css';
 @import '@fontsource/assistant/700.css';
 @import '@fontsource/assistant/800.css';
+@import '@fontsource/frank-ruhl-libre/500.css';
+@import '@fontsource/frank-ruhl-libre/700.css';
 
 @tailwind base;
 @tailwind components;
@@ -80,6 +82,59 @@
   .section-subtitle {
     @apply text-base leading-7 text-slate-700 sm:text-lg;
   }
+
+
+  /* ───── "דף לימוד": מסך השאלות (בהיר וצבעוני) ───── */
+  .study-page {
+    @apply relative overflow-clip rounded-card-lg bg-white px-5 pb-5 pt-9 shadow-[0_10px_28px_rgba(37,99,235,0.12)] ring-1 ring-slate-100 sm:px-8;
+  }
+
+  .study-page::before {
+    content: '';
+    @apply absolute inset-x-0 top-0 h-2 bg-gradient-to-l from-violet-600 to-blue-600;
+  }
+
+  .study-qnum {
+    @apply text-base font-extrabold text-violet-700;
+  }
+
+  .study-question {
+    @apply font-study text-[1.65rem] font-bold leading-snug text-slate-950 sm:text-4xl;
+  }
+
+  .study-opt {
+    @apply flex w-full cursor-pointer items-center gap-4 border-t border-slate-200 px-2 py-4 text-right font-study text-[1.3rem] font-medium text-slate-900 transition-colors duration-150 hover:bg-blue-50 disabled:cursor-default sm:text-2xl;
+  }
+
+  .study-opt--sel { @apply bg-blue-50; }
+  .study-opt--ok { @apply bg-emerald-50 shadow-[inset_-7px_0_0_#059669] hover:bg-emerald-50; }
+  .study-opt--bad { @apply bg-rose-50 shadow-[inset_-7px_0_0_#e11d48] hover:bg-rose-50; }
+  .study-opt--dim { @apply opacity-50 hover:bg-transparent; }
+
+  .study-letter {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-[2.5px] border-blue-600 bg-blue-50 font-study text-xl font-bold text-blue-700;
+  }
+
+  .study-letter--sel { @apply bg-blue-600 text-white; }
+  .study-letter--ok { @apply border-emerald-600 bg-emerald-600 text-white; }
+  .study-letter--bad { @apply border-rose-600 bg-rose-600 text-white; }
+  .study-letter--dim { @apply border-slate-300 bg-white text-slate-400; }
+
+  .study-input {
+    @apply w-full border-0 border-b-[3px] border-blue-600 bg-transparent px-1.5 py-3 text-right font-study text-2xl text-slate-900 outline-none transition-colors placeholder:text-slate-300 focus:border-violet-600 disabled:opacity-70 sm:text-3xl;
+  }
+
+  .study-note {
+    @apply mt-4 rounded-xl border-r-[5px] border-violet-600 bg-violet-50 px-4 py-3 text-lg leading-7 text-violet-950;
+  }
+
+  .study-actions {
+    @apply sticky bottom-0 z-20 -mx-5 mt-5 flex items-center justify-between gap-3 border-t border-slate-100 bg-white/95 px-5 py-3 backdrop-blur sm:-mx-8 sm:px-8;
+  }
+
+  .study-dot { @apply h-3 w-3 rounded-full bg-slate-300; }
+  .study-dot--done { @apply bg-blue-600; }
+  .study-dot--cur { @apply bg-violet-600 ring-4 ring-violet-100; }
 
   .quiz-option {
     @apply rounded-2xl border-2 border-slate-100 p-5 text-right transition-all duration-200 cursor-pointer hover:-translate-x-1 hover:border-slate-300 hover:bg-slate-50;

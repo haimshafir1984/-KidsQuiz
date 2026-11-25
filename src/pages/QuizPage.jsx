@@ -15,22 +15,21 @@ import { isSoundEnabled, playFeedbackSound, setSoundEnabled } from '../utils/sou
 
 const GENERAL_EXAM_PERSIST_DEBOUNCE_MS = 800
 
-const LETTER_BADGES = [
-  'bg-sky-50 text-sky-600',
-  'bg-emerald-50 text-emerald-600',
-  'bg-amber-50 text-amber-600',
-  'bg-indigo-50 text-indigo-600',
-  'bg-rose-50 text-rose-600',
-  'bg-cyan-50 text-cyan-600',
-  'bg-teal-50 text-teal-600',
-  'bg-fuchsia-50 text-fuchsia-600',
-]
+// שמות מחלקות מלאים (ולא מורכבים בזמן ריצה), כדי ש-Tailwind לא יסיר אותם מה-CSS
+const OPT_STATE_CLASS = {
+  sel: 'study-opt--sel',
+  ok: 'study-opt--ok',
+  bad: 'study-opt--bad',
+  dim: 'study-opt--dim',
+}
+const LETTER_STATE_CLASS = {
+  sel: 'study-letter--sel',
+  ok: 'study-letter--ok',
+  bad: 'study-letter--bad',
+  dim: 'study-letter--dim',
+}
 
 const OPTION_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח']
-
-function getOptionBadgeClass(index) {
-  return LETTER_BADGES[index % LETTER_BADGES.length]
-}
 
 function getOptionLetter(index) {
   return OPTION_LETTERS[index] ?? String(index + 1)
@@ -67,34 +66,65 @@ function MultipleChoice({
   const hasOptionImages = Array.isArray(optionImages) && optionImages.length > 0
 
   return (
-    <div className={`grid gap-3 ${hasOptionImages ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+    <div className={hasOptionImages ? 'grid grid-cols-1 gap-3 md:grid-cols-2' : 'grid grid-cols-1'}>
       {options.map((option, index) => {
         const isSelected = selectedAnswer === option
-        const idleClass = 'border-slate-200 bg-white text-slate-900 hover:border-blue-400 hover:bg-blue-50'
-        const idleLetter = 'border-2 border-blue-600 bg-white text-blue-700'
-        let stateClass = idleClass
-        let letterClass = idleLetter
+        // מצב השורה: ברירת מחדל, נבחרה, נכונה, שגויה, או עמומה אחרי מענה
+        let state = ''
         let tag = null
 
         if (reviewMode) {
-          stateClass = isSelected ? 'border-blue-600 bg-blue-50 text-blue-800' : idleClass
-          letterClass = isSelected ? 'border-2 border-blue-600 bg-blue-600 text-white' : idleLetter
+          state = isSelected ? 'sel' : ''
         } else if (answered && isSelected && isCorrect) {
-          stateClass = 'border-emerald-600 bg-emerald-50 text-emerald-900'
-          letterClass = 'border-2 border-emerald-600 bg-emerald-600 text-white'
+          state = 'ok'
           tag = { text: '✔ תשובה נכונה', cls: 'bg-emerald-200 text-emerald-800' }
         } else if (answered && isSelected && !isCorrect) {
-          stateClass = 'border-rose-600 bg-rose-50 text-rose-900'
-          letterClass = 'border-2 border-rose-600 bg-rose-600 text-white'
+          state = 'bad'
           tag = { text: '✖ הבחירה שלך', cls: 'bg-rose-200 text-rose-800' }
         } else if (answered && correctAnswer && option === correctAnswer) {
           // בתשובה שגויה מסמנים בירוק גם את התשובה הנכונה
-          stateClass = 'border-emerald-600 bg-emerald-50 text-emerald-900'
-          letterClass = 'border-2 border-emerald-600 bg-emerald-600 text-white'
+          state = 'ok'
           tag = { text: '✔ תשובה נכונה', cls: 'bg-emerald-200 text-emerald-800' }
         } else if (answered) {
-          stateClass = 'border-slate-100 bg-slate-50 text-slate-400'
-          letterClass = 'border-2 border-slate-300 bg-white text-slate-400'
+          state = 'dim'
+        }
+
+        const letter = (
+          <span className={`study-letter ${LETTER_STATE_CLASS[state] || ''}`}>{getOptionLetter(index)}</span>
+        )
+        const tagNode = tag && (
+          <span className={`whitespace-nowrap rounded-full px-3 py-1 font-sans text-sm font-bold ${tag.cls}`}>{tag.text}</span>
+        )
+
+        if (hasOptionImages) {
+          // אפשרויות עם תמונה: כרטיסים (בלי שורות)
+          const cardState = {
+            sel: 'border-blue-600 bg-blue-50',
+            ok: 'border-emerald-600 bg-emerald-50',
+            bad: 'border-rose-600 bg-rose-50',
+            dim: 'border-slate-100 bg-slate-50 opacity-60',
+          }[state] || 'border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50'
+          return (
+            <button
+              key={option}
+              onClick={() => {
+                if (!answered || reviewMode) onAnswer(option)
+              }}
+              disabled={!reviewMode && answered}
+              className={`flex flex-col items-stretch rounded-2xl border-2 p-3 text-right font-study text-lg font-medium transition-colors ${cardState}`}
+            >
+              <div className="flex w-full items-center justify-between gap-3">
+                {letter}
+                <span className="min-w-0 flex-1">{option}</span>
+                {tagNode}
+              </div>
+              {optionImages[index] && (
+                <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-2">
+                  <VisualImage src={optionImages[index]} alt={`אפשרות ${option}`} className="max-h-44" />
+                </div>
+              )}
+            </button>
+          )
         }
 
         return (
@@ -104,22 +134,11 @@ function MultipleChoice({
               if (!answered || reviewMode) onAnswer(option)
             }}
             disabled={!reviewMode && answered}
-            className={`quiz-option flex ${hasOptionImages ? 'flex-col items-stretch p-3' : 'items-center gap-4'} text-lg font-semibold ${stateClass}`}
+            className={`study-opt ${OPT_STATE_CLASS[state] || ''}`}
           >
-            <div className={`flex flex-wrap ${hasOptionImages ? 'w-full items-center justify-between gap-3' : 'w-full items-center gap-x-4 gap-y-2'}`}>
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${letterClass}`}>
-                {getOptionLetter(index)}
-              </span>
-              <span className={`${hasOptionImages ? 'text-base' : 'min-w-0 flex-1 text-right'}`}>{option}</span>
-              {tag && (
-                <span className={`whitespace-nowrap rounded-full px-3 py-1 text-sm font-bold ${tag.cls}`}>{tag.text}</span>
-              )}
-            </div>
-            {hasOptionImages && optionImages[index] && (
-              <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-2">
-                <VisualImage src={optionImages[index]} alt={`אפשרות ${option}`} className="max-h-44" />
-              </div>
-            )}
+            {letter}
+            <span className="min-w-0 flex-1 text-right">{option}</span>
+            {tagNode}
           </button>
         )
       })}
@@ -147,7 +166,7 @@ function OpenText({ onAnswer, answered, reviewMode = false, value = '', onChange
         value={value}
         onChange={event => onChangeText(event.target.value)}
         placeholder="כתבו את תשובתכם כאן"
-        className="input-field"
+        className="study-input"
       />
     )
   }
@@ -159,7 +178,7 @@ function OpenText({ onAnswer, answered, reviewMode = false, value = '', onChange
         value={text}
         onChange={event => setText(event.target.value)}
         placeholder="כתבו את תשובתכם כאן"
-        className="input-field"
+        className="study-input"
         disabled={answered}
         autoFocus
       />
@@ -192,7 +211,7 @@ function ListAnswer({ question, onAnswer, answered }) {
         onChange={event => setText(event.target.value)}
         rows={5}
         placeholder={'למשל:\nפריט ראשון\nפריט שני'}
-        className="input-field"
+        className="study-input"
         disabled={answered}
         autoFocus
       />
@@ -251,39 +270,43 @@ function SelfCheck({ question, onAnswer, answered }) {
   )
 }
 
-function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion, onNext, questionType }) {
+// משוב אחרי תשובה: הערה בתוך הדף, ופס פעולה דביק בתחתית עם כפתור "לשאלה הבאה"
+function FeedbackMessage({ isCorrect, correctAnswer, explanation, isLastQuestion, onNext, questionType, progressText }) {
   const isSelfCheck = questionType === 'self_check'
-  const tone = isCorrect
-    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-    : 'border-red-200 bg-red-50 text-red-700'
   const motionClass = isCorrect ? 'animate-pop' : 'animate-shake'
+  const headline = isCorrect
+    ? (isSelfCheck ? 'יופי, ממשיכים' : 'נכון! כל הכבוד')
+    : (isSelfCheck ? 'לא נורא, זה עוד יגיע' : 'לא בדיוק')
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={`sticky bottom-3 z-20 mt-5 flex flex-col gap-4 rounded-2xl border-2 p-4 shadow-float sm:flex-row sm:items-center sm:justify-between ${tone} ${motionClass} motion-reduce:animate-none`}
-    >
-      <div className="flex items-start gap-3 text-right">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-2xl">
-          {isCorrect ? '🎉' : '❌'}
+    <>
+      <div
+        role="status"
+        aria-live="polite"
+        className={`mt-5 text-right ${motionClass} motion-reduce:animate-none`}
+      >
+        <div className={`flex items-center gap-2 text-xl font-bold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+          <span aria-hidden="true">{isCorrect ? '🎉' : '✖'}</span>
+          {headline}
         </div>
-        <div>
-          <div className="text-xl font-bold">{isCorrect ? (isSelfCheck ? 'יופי, ממשיכים' : 'נכון! כל הכבוד') : (isSelfCheck ? 'לא נורא, זה עוד יגיע' : 'לא בדיוק')}</div>
-          <div className="mt-1 text-base opacity-90">
-            {isCorrect ? 'אפשר להמשיך לשאלה הבאה.' : (isSelfCheck ? 'אפשר לחזור לשאלה הזאת בהמשך.' : `התשובה הנכונה היא: ${correctAnswer}`)}
+        {!isCorrect && !isSelfCheck && (
+          <div className="mt-1 text-lg text-slate-800">
+            התשובה הנכונה: <b>{correctAnswer}</b>
           </div>
-          {explanation && (
-            <div className="mt-2 rounded-2xl bg-white/70 px-3 py-2 text-base font-medium text-slate-700">
-              הסבר: {explanation}
-            </div>
-          )}
-        </div>
+        )}
+        {explanation && (
+          <div className="study-note">
+            <b>הסבר:</b> {explanation}
+          </div>
+        )}
       </div>
-      <button onClick={onNext} className="btn-primary w-full py-3.5 text-lg sm:w-auto sm:self-auto">
-        {isLastQuestion ? 'לסיכום' : 'לשאלה הבאה'}
-      </button>
-    </div>
+      <div className="study-actions">
+        <span className="text-base font-bold text-slate-600">{progressText}</span>
+        <button onClick={onNext} className="btn-primary px-8 py-3.5 text-lg">
+          {isLastQuestion ? 'לסיכום' : 'לשאלה הבאה'}
+        </button>
+      </div>
+    </>
   )
 }
 
@@ -559,96 +582,94 @@ export default function QuizPage() {
     navigate('/subject')
   }
 
+  const DOTS_LIMIT = 40
+  const showDots = !isGeneralExam && quizQuestions.length <= DOTS_LIMIT
+
   return (
-    <div className="page-shell">
-      <section className="edu-card-quiz p-4 sm:p-6">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-base font-semibold text-slate-700">
-            {selectedSubject}{selectedLevel ? ` | ${selectedLevel}` : ''}
-          </span>
-          <div className="flex items-center gap-3">
-            {selectedActivity === 'exam' && (
-              <span
-                className={`rounded-full px-4 py-2 text-sm font-bold ${
-                  (secondsLeft ?? Infinity) <= 60
-                    ? 'animate-pulse bg-red-50 text-red-700 motion-reduce:animate-none'
-                    : 'bg-amber-50 text-amber-700'
-                }`}
-              >
-                זמן נותר: {formatTime(secondsLeft || 0)}
-              </span>
-            )}
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-700">
-              {isGeneralExam
-                ? `עמוד ${Math.floor(currentIdx / pageSize) + 1} / ${Math.ceil(quizQuestions.length / pageSize)}`
-                : `${currentIdx + 1} / ${quizQuestions.length}`}
+    <div className="page-shell gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-3">
+        <span className="rounded-full bg-white px-4 py-2 text-base font-extrabold text-blue-700 shadow-[0_2px_8px_rgba(37,99,235,0.12)]">
+          {selectedSubject}{selectedLevel ? ` | ${selectedLevel}` : ''}
+        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {selectedActivity === 'exam' && (
+            <span
+              className={`rounded-full px-4 py-2 text-sm font-bold ${
+                (secondsLeft ?? Infinity) <= 60
+                  ? 'animate-pulse bg-red-50 text-red-700 motion-reduce:animate-none'
+                  : 'bg-amber-50 text-amber-700'
+              }`}
+            >
+              זמן נותר: {formatTime(secondsLeft || 0)}
             </span>
-          </div>
+          )}
+          {!isGeneralExam && (
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-pressed={soundOn}
+              className="btn-muted px-3 py-2 text-base"
+              title={soundOn ? 'כיבוי צלילים' : 'הפעלת צלילים'}
+            >
+              {soundOn ? '🔊 צליל פעיל' : '🔇 צליל כבוי'}
+            </button>
+          )}
+          <button onClick={handleSaveAndExit} className="btn-muted px-3 py-2 text-base">
+            שמירה ויציאה
+          </button>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+        {showDots ? (
           <div
-            className="h-3 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+            className="flex w-full flex-wrap justify-center gap-1.5"
+            role="img"
+            aria-label={`שאלה ${currentIdx + 1} מתוך ${quizQuestions.length}`}
+          >
+            {quizQuestions.map((item, index) => (
+              <i
+                key={item.id}
+                className={`study-dot ${index < currentIdx ? 'study-dot--done' : index === currentIdx ? 'study-dot--cur' : ''}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </header>
+
+      <section className="study-page">
+        <div className="study-qnum">
+          {isGeneralExam
+            ? `שאלות ${currentIdx + 1}-${Math.min(currentIdx + pageSize, quizQuestions.length)} מתוך ${quizQuestions.length} (עמוד ${Math.floor(currentIdx / pageSize) + 1} מתוך ${Math.ceil(quizQuestions.length / pageSize)})`
+            : `שאלה ${currentIdx + 1} מתוך ${quizQuestions.length}`}
         </div>
         {isGeneralExam && (
-          <p className="mt-3 text-base leading-7 text-slate-700">
+          <p className="mt-2 text-base leading-7 text-slate-700">
             בכל עמוד 5 שאלות. אין משוב במהלך המבחן, ובסיום יופיע ציון מלא עם פירוט התשובות.
           </p>
         )}
-      </section>
-
-      <section className="edu-card-quiz relative overflow-hidden p-4 pt-7 sm:p-8 sm:pt-10">
-        <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-l from-violet-600 to-blue-600" aria-hidden="true" />
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="mb-3 inline-flex rounded-full bg-amber-50 px-3 py-1 text-base font-semibold text-amber-800">
-              {isGeneralExam
-                ? `שאלות ${currentIdx + 1}-${Math.min(currentIdx + pageSize, quizQuestions.length)}`
-                : `שאלה ${currentIdx + 1}`}
-            </div>
-            {!isGeneralExam && question?.groupTitle && (
-              <div className="mb-3 text-sm font-bold tracking-wide text-slate-500">
-                {question.groupTitle}
-              </div>
-            )}
-            {!isGeneralExam && (
-              <p className="text-right text-2xl font-extrabold leading-relaxed text-slate-950 sm:text-3xl">
-                {question.text}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-1 self-start">
-            {!isGeneralExam && (
-              <button
-                type="button"
-                onClick={toggleSound}
-                aria-pressed={soundOn}
-                className="btn-muted"
-                title={soundOn ? 'כיבוי צלילים' : 'הפעלת צלילים'}
-              >
-                {soundOn ? '🔊 צליל פעיל' : '🔇 צליל כבוי'}
-              </button>
-            )}
-            <button onClick={handleSaveAndExit} className="btn-muted">
-              שמירה ויציאה
-            </button>
-          </div>
-        </div>
+        {!isGeneralExam && question?.groupTitle && (
+          <div className="mt-2 text-sm font-bold tracking-wide text-slate-500">{question.groupTitle}</div>
+        )}
+        {!isGeneralExam && (
+          <h1 className="study-question mb-5 mt-2 text-right">{question.text}</h1>
+        )}
 
         {isGeneralExam ? (
-          <div className="space-y-5">
+          <div className="mt-4 space-y-8">
             {pageQuestions.map((pageQuestion, index) => {
               const currentAnswer = answerMap[pageQuestion.id] || ''
               const isOptionQuestion = pageQuestion.type === 'multiple' || pageQuestion.type === 'sentence_completion'
               const isAnswered = currentAnswer.toString().trim().length > 0
 
               return (
-                <article key={pageQuestion.id} className="rounded-card border border-slate-200 bg-slate-50/70 p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <div className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm">
-                      שאלה {currentIdx + index + 1}
-                    </div>
+                <article key={pageQuestion.id} className="border-t-2 border-blue-100 pt-5">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-base font-extrabold text-violet-700">שאלה {currentIdx + index + 1}</span>
                     {isAnswered && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                         <CheckCircle2 className="h-3.5 w-3.5" />
@@ -661,7 +682,7 @@ export default function QuizPage() {
                       {pageQuestion.groupTitle}
                     </div>
                   )}
-                  <p className="mb-5 text-right text-xl font-extrabold leading-relaxed text-slate-950">
+                  <p className="mb-4 text-right font-study text-2xl font-bold leading-snug text-slate-950">
                     {pageQuestion.text}
                   </p>
 
@@ -694,13 +715,13 @@ export default function QuizPage() {
               )
             })}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm font-semibold text-slate-500">
+            <div className="study-actions">
+              <div className="text-sm font-semibold text-slate-600">
                 {isLastPage
                   ? `נענו ${answeredExamCount} מתוך ${quizQuestions.length} שאלות.`
                   : 'ניתן להשאיר שאלה ריקה ולחזור אליה בהמשך המבחן, כל עוד לא סיימתם.'}
               </div>
-              <button onClick={handleNextExamPage} className="btn-primary">
+              <button onClick={handleNextExamPage} className="btn-primary px-8 py-3.5 text-lg">
                 {isLastPage ? 'סיום מבחן' : 'לעמוד הבא'}
               </button>
             </div>
@@ -740,6 +761,7 @@ export default function QuizPage() {
                 isLastQuestion={isLastQuestion}
                 onNext={handleNext}
                 questionType={question.type}
+                progressText={`${currentIdx + 1} מתוך ${quizQuestions.length}`}
               />
             )}
           </div>

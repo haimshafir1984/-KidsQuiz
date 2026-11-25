@@ -6,6 +6,8 @@ export default {
       fontFamily: {
         sans: ['"Assistant"', 'sans-serif'],
         kids: ['"Assistant"', 'sans-serif'],
+        // גופן "דף לימוד" לנוסח השאלה והתשובות (נטען מקומית, עובד גם באופליין)
+        study: ['"Frank Ruhl Libre"', 'David', 'Georgia', 'serif'],
       },
       borderRadius: {
         card: '20px',

@@ -275,6 +275,7 @@ export function AppProvider({ children }) {
   const [selectedActivity, setSelectedActivity] = useState('practice')
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizResults, setQuizResults] = useState(null)
+  const [mistakesPractice, setMistakesPractice] = useState(false)
   const [activeQuizProgress, setActiveQuizProgress] = useState(null)
   const [resultsVersion, setResultsVersion] = useState(0)
   const [quizSession, setQuizSession] = useState({
@@ -911,7 +912,7 @@ export function AppProvider({ children }) {
   }
 
   function saveQuizProgress(selection, progressData) {
-    if (!user) return null
+    if (!user || mistakesPractice) return null
 
     const key = getQuizProgressKey({ userId: user.id, ...selection })
     const entry = {
@@ -977,6 +978,7 @@ export function AppProvider({ children }) {
     setSelectedActivity(activityType)
     setHollandAnswers({})
     setHollandResults(null)
+    setMistakesPractice(false)
 
     const selection = { grade, subject, level, activityType }
     const savedProgress = restart ? null : getSavedQuizProgress(selection)
@@ -1029,6 +1031,19 @@ export function AppProvider({ children }) {
     )
 
     return filteredQuestions
+  }
+
+  // תרגול חוזר רק על שאלות שנענו לא נכון: ללא טיימר, ללא שמירת התקדמות וללא תוצאה חדשה
+  function startMistakesPractice(wrongQuestions) {
+    const list = (wrongQuestions || []).filter(Boolean)
+    if (list.length === 0) return []
+    setMistakesPractice(true)
+    setSelectedActivity('practice')
+    setQuizQuestions(list)
+    setQuizResults(null)
+    setActiveQuizProgress(null)
+    setQuizSession({ timeLimitSeconds: null, startedAt: null, deadlineAt: null })
+    return list
   }
 
   function beginHollandQuestionnaire(grade) {
@@ -1146,14 +1161,14 @@ export function AppProvider({ children }) {
     }
 
     setQuizResults(summary)
-    clearQuizProgress({
+    if (!mistakesPractice) clearQuizProgress({
       grade: selectedGrade,
       subject: selectedSubject,
       level: selectedLevel,
       activityType: selectedActivity,
     })
 
-    if (user) {
+    if (user && !mistakesPractice) {
       recordResult({
         id: crypto.randomUUID(),
         userId: user.id,
@@ -1213,6 +1228,8 @@ export function AppProvider({ children }) {
         setSelectedLevel,
         setSelectedActivity,
         prepareQuiz,
+        startMistakesPractice,
+        mistakesPractice,
         getSavedQuizProgress,
         saveQuizProgress,
         clearQuizProgress,
