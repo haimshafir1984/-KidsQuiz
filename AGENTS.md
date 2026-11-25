@@ -32,7 +32,8 @@ KidsQuiz/
     ├── index.css                 # ייבוא פונט מקומי + Tailwind + סגנונות גלובליים
     │
     ├── context/
-    │   └── AppContext.jsx        # ניהול מצב גלובלי (Auth, שאלות, מסלולים, חידון, הולנד)
+    │   ├── AppContext.jsx        # ניהול מצב גלובלי (Auth, שאלות, מסלולים, חידון, הולנד)
+    │   └── appHelpers.js         # עזרים טהורים של AppContext (נרמול שאלות, מיון, זמני מבחן). נבדקים ב-Vitest
     │
     ├── utils/
     │   ├── api.js                # לקוח ה-API (מצב שרת, VITE_USE_API)
@@ -73,7 +74,7 @@ KidsQuiz/
         ├── QuizPage.jsx          # מסך חידון (שאלה בודדת / מבחן כללי מרובה-עמודים)
         ├── SummaryPage.jsx       # סיכום תוצאות, פילוח לפי נושא, טעויות
         ├── HollandQuestionnairePage.jsx / HollandResultPage.jsx  # שאלון אישיותי
-        ├── AdminPage.jsx         # פאנל ניהול: שאלות / נושאים / משתמשים
+        ├── AdminPage.jsx         # פאנל ניהול: שאלות / נושאים / משתמשים (הרכיבים ב-pages/admin/: TopicsTab, QuestionForm, QuestionsTable, AdminDrawer, AdminTabs, adminShared)
         ├── AdminUsers.jsx        # טבלת משתמשים ותוצאות (מוצג בתוך AdminPage)
         ├── OfflineDownloadPage.jsx / DesktopLicensePage.jsx  # הורדת גרסת אופליין ורישיון
 ```
@@ -186,6 +187,16 @@ const {
 
 ---
 
+## בדיקות, lint ו-CI
+
+- `npm test`: התאמת תשובות (`test:fuzzy`), שאלות (`test:questions`) ובדיקות רכיבים (`test:ui`, Vitest + jsdom, קבצי `*.test.js(x)` ליד הקוד).
+- `npm run lint`: ESLint (שגיאות חוסמות, אזהרות `exhaustive-deps` מכוונות ומתועדות).
+- שרת: `cd server && npm test` (נדרש PostgreSQL מקומי, ר' `server/README.md`).
+- CI ב-GitHub Actions רץ על כל דחיפה ל-`main` ו-Pull Request. הוא בודק בלבד ואינו מפרוס; הפריסה ל-Dokploy ידנית.
+- Tailwind מסיר מחלקות שמורכבות בזמן ריצה (`study-opt--${state}`). לכן מחלקות `study-*` נכתבות בשמן המלא (מפה בקוד), ו-`src/styles.test.js` שומר על זה.
+
+---
+
 ## הרצת הפרויקט
 
 ```bash
@@ -259,6 +270,8 @@ npm run license:generate -- --customerName="שם הלקוח"
 - ספריית עיצוב: Tailwind CSS v3, אייקונים מ-`lucide-react`
 - פונט: Assistant, טעון מקומית דרך `@fontsource/assistant` (ללא תלות באינטרנט - נדרש לגרסת האופליין)
 - טיפוגרפיה: `font-bold` לכל הכותרות; `font-extrabold` שמור רק ל-hero של מסך החידון ולנוסח השאלה עצמו
+- מסך השאלות בסגנון "דף לימוד בהיר": כרטיס עם פס צבע עליון, גופן Frank Ruhl Libre (`font-study`, נטען מקומית) לנוסח השאלה והתשובות, אותיות א-ב-ג-ד במעגלים, נקודות התקדמות, ופס פעולה דביק בתחתית. מחלקות `study-*` ב-`index.css`.
+- מסך הסיכום ("סיימתי"): ציון גדול, משפט עידוד, השוואה לפעם הקודמת, התקדמות בנושא (כמה תתי-נושאים הושלמו), "תרגול על הטעויות" (`startMistakesPractice` ב-AppContext: בלי טיימר, בלי שמירת התקדמות ובלי תוצאה חדשה) ו"לתת-הנושא הבא".
 - טוקנים ב-`tailwind.config.js`: `rounded-card`/`rounded-card-lg` לפינות, `shadow-card`/`shadow-float`/`shadow-modal` לצללים, ואנימציות `pop`/`shake`/`fade-slide-in`/`confetti-fall` (מכבדות `prefers-reduced-motion`)
 - כיתות עזר ב-`index.css`: `.btn-primary` (פעולה ראשית), `.btn-secondary` (משנית עם גבול), `.btn-muted` (שקופה, טקסט בלבד), `.btn-danger`, `.edu-card`, `.edu-card-quiz`, `.input-field`
 - מודאלים (Drawer, ConfirmDialog, פאנל משתמש) נגישים דרך ה-hook המשותף `useDialogA11y`: `role="dialog"`, סגירה ב-Escape, focus-trap ושחזור פוקוס
@@ -282,7 +295,7 @@ npm run license:generate -- --customerName="שם הלקוח"
 
 - [ ] backend אמיתי לאימות, מנויים ותוצאות (כרגע הכול מדומה ב-localStorage)
 - [ ] הגבלת גישה למסך הניהול לפי תפקיד (מתוכנן לאחר שלב הדמו)
-- [ ] פיצול `AppContext.jsx` ו-`AdminPage.jsx` הגדולים למודולים נפרדים
-- [ ] בדיקות אוטומטיות (Vitest) ו-lint ב-CI
+- [x] פיצול `AdminPage.jsx` (1,548 ל-504 שורות) והוצאת העזרים של `AppContext.jsx` ל-`appHelpers.js`. נשאר: פיצול גוף ה-`AppProvider` (כ-880 שורות, מצב משותף) להוקים לפי תחום (Auth / שאלות / חידון / הולנד)
+- [x] בדיקות אוטומטיות (Vitest, `npm run test:ui`), lint (`npm run lint`) ו-CI (`.github/workflows/ci.yml`: אתר ושרת, בלי פריסה)
 - [ ] מערכת ניקוד ולוח מובילים
 - [ ] סטטיסטיקות למידה לאורך זמן
