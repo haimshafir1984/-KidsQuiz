@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { isDesktopRuntime } from '../utils/runtime'
 
 // טיוטת טקסטים משפטיים. יש להעביר לאישור גורם משפטי של הלקוחה ולהחליף את הפרטים בסוגריים.
 // כשהטקסטים מאושרים, משנים את LEGAL_DRAFT ל-false והבאנר "טיוטה" נעלם.
@@ -81,6 +82,24 @@ export function AccessibilityPage() {
   )
 }
 
+const CREDIT_URL = 'https://flowsbiz.com/'
+
+// קרדיט לבונה האתר. בגרסת הדסקטופ קישורים חיצוניים חסומים (ואין בהכרח אינטרנט), ולכן שם מוצג טקסט בלבד
+function SiteCredit() {
+  const name = <bdi dir="ltr">flowsbiz</bdi>
+  return (
+    <p className="mt-3 text-sm text-slate-500">
+      אתר זה נבנה ע״י{' '}
+      {isDesktopRuntime() ? name : (
+        <a href={CREDIT_URL} target="_blank" rel="noopener" className="font-semibold underline hover:text-slate-900">
+          {name}
+          <span className="sr-only"> (נפתח בלשונית חדשה)</span>
+        </a>
+      )}
+    </p>
+  )
+}
+
 export function LegalFooter() {
   return (
     <footer className="mx-auto mt-6 w-full max-w-5xl px-4 pb-8 text-center text-base text-slate-600 sm:px-6 lg:px-8">
@@ -89,6 +108,7 @@ export function LegalFooter() {
         <Link to="/privacy" className="underline hover:text-slate-900">מדיניות פרטיות</Link>
         <Link to="/accessibility" className="underline hover:text-slate-900">הצהרת נגישות</Link>
       </nav>
+      <SiteCredit />
     </footer>
   )
 }
