@@ -196,6 +196,8 @@ const {
 - `npm test`: התאמת תשובות (`test:fuzzy`), שאלות (`test:questions`) ובדיקות רכיבים (`test:ui`, Vitest + jsdom, קבצי `*.test.js(x)` ליד הקוד).
 - `npm run lint`: ESLint (שגיאות חוסמות, אזהרות `exhaustive-deps` מכוונות ומתועדות).
 - שרת: `cd server && npm test` (נדרש PostgreSQL מקומי, ר' `server/README.md`).
+- תלויות: נדרש Node 22.12 ומעלה (Electron 44). `server/package.json` כופה `uuid` 11 (`overrides`) בגלל אזהרת אבטחה בתלות של `exceljs`. ה-Router ב-`main.jsx` מוגדר `useTransitions={false}` כדי לשמור על התנהגות הניווט של גרסה 6.
+- דחיפה ל-`main` שמשנה את קוד האתר או את התלויות בונה קובץ התקנה חדש ל-Offline ומחליפה את `offline-latest`.
 - CI ב-GitHub Actions רץ על כל דחיפה ל-`main` ו-Pull Request. הוא בודק בלבד ואינו מפרוס; הפריסה ל-Dokploy ידנית.
 - Tailwind מסיר מחלקות שמורכבות בזמן ריצה (`study-opt--${state}`). לכן מחלקות `study-*` נכתבות בשמן המלא (מפה בקוד), ו-`src/styles.test.js` שומר על זה.
 

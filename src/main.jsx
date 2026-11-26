@@ -10,7 +10,8 @@ const Router = window?.desktopAPI ? HashRouter : BrowserRouter
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <Router>
+      {/* כמו ב-React Router 6: ניווט בלי startTransition, כדי שהפניות אוטומטיות יתנהגו כמו קודם */}
+      <Router useTransitions={false}>
         <App />
       </Router>
     </ErrorBoundary>
