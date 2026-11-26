@@ -23,6 +23,7 @@ import {
   clearStoredMode,
 } from '../utils/db'
 import { API_ENABLED, SUBSCRIPTION_EXPIRED_EVENT, api } from '../utils/api'
+import { diffTracks, findLocalOnlyTracks } from '../utils/tracksSync'
 import seedQuestions from '../data/seedQuestions'
 import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
@@ -49,6 +50,8 @@ import {
 } from './appHelpers'
 
 const AppContext = createContext(null)
+const LOCAL_TRACKS_DISMISSED_KEY = 'kq_local_tracks_dismissed'
+
 export function AppProvider({ children }) {
   const gradeValues = useMemo(() => GRADES.map(grade => grade.value), [])
 
@@ -81,7 +84,12 @@ export function AppProvider({ children }) {
   })
 
   const [questions, setQuestions] = useState([])
-  const [customTracks, setCustomTracks] = useState(() => getCustomTracks())
+  // באתר המקוון הנושאים נטענים מהשרת. מה ששמור בדפדפן מלפני כן לא נמחק, ומוצע למנהל להעלאה
+  const [customTracks, setCustomTracks] = useState(() => (API_ENABLED ? {} : getCustomTracks()))
+  const [localTracksDismissed, setLocalTracksDismissed] = useState(() => {
+    try { return localStorage.getItem(LOCAL_TRACKS_DISMISSED_KEY) === '1' } catch { return false }
+  })
+  const [tracksLoaded, setTracksLoaded] = useState(false)
   const [quizProgressMap, setQuizProgressState] = useState(() => (API_ENABLED ? {} : getQuizProgressMap()))
   const [selectedGrade, setSelectedGrade] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState(null)
@@ -100,6 +108,9 @@ export function AppProvider({ children }) {
   const [hollandAnswers, setHollandAnswers] = useState({})
   const [hollandResults, setHollandResults] = useState(null)
   const [storageError, setStorageError] = useState(null)
+
+  // תלמיד באתר המקוון לא רואה תתי-נושאים ריקים; מנהל (וגם מצב הדמו) רואה הכול
+  const showEmptyLevels = !API_ENABLED || user?.role === 'admin'
 
   const trackCatalog = useMemo(() => {
     const groupedTracks = Object.fromEntries(gradeValues.map(grade => [grade, new Map()]))
@@ -145,13 +156,14 @@ export function AppProvider({ children }) {
         return [
           grade,
           mergeTrackCollections(
-            [...(BASE_VISIBLE_TRACKS[grade] || []), ...(customTracks[grade] || []), ...extraTracks],
+            [...(BASE_VISIBLE_TRACKS[grade] || []), ...(customTracks[grade] || []).map(track => ({ ...track, defined: true })), ...extraTracks],
             questionTracks[grade],
+            { showEmptyLevels },
           ),
         ]
       }),
     )
-  }, [customTracks, gradeValues, questions])
+  }, [customTracks, gradeValues, questions, showEmptyLevels])
 
   const userResults = useMemo(() => {
     if (!user) return []
@@ -194,16 +206,27 @@ export function AppProvider({ children }) {
       else if (JSON.stringify(before) !== JSON.stringify(question)) tasks.push(() => api.put(`/admin/questions/${encodeURIComponent(question.id)}`, question))
     })
     if (removedIds.length > 0) tasks.push(() => api.post('/admin/questions/delete', { ids: removedIds }))
-    if (tasks.length === 0) return
+    enqueueSave(tasks)
+  }
 
-    // פעולות נשמרות לפי הסדר, גם אם המנהל לוחץ מהר
+  // פעולות נשמרות לפי הסדר, גם אם המנהל לוחץ מהר. התוצאה: האם כל מה שבתור הזה נשמר
+  function enqueueSave(tasks) {
+    if (tasks.length === 0) return
     syncQueue.current = syncQueue.current.then(async () => {
       const allOk = await runInBatches(tasks)
-      if (allOk) { setStorageError(null); return }
+      if (allOk) { setStorageError(null); return true }
       setStorageError(SYNC_FAILED_MESSAGE)
-      const fresh = await api.get('/questions')
+      const [fresh, freshTracks] = await Promise.all([api.get('/questions'), api.get('/tracks')])
       if (fresh.ok) setQuestions(fresh.data.questions)
+      if (freshTracks.ok) setCustomTracks(freshTracks.data.tracks)
+      return false
     })
+  }
+
+  // להמתנה לאישור השרת לפני הודעת הצלחה. במצב מקומי השמירה מיידית
+  async function whenSaved() {
+    if (!API_ENABLED) return true
+    return (await syncQueue.current) !== false
   }
 
   function persistQuestionsList(list) {
@@ -217,8 +240,39 @@ export function AppProvider({ children }) {
   }
 
   function persistTracks(tracks) {
+    if (API_ENABLED) {
+      const { upserts, removals } = diffTracks(customTracks, tracks)
+      setCustomTracks(tracks)
+      enqueueSave([
+        ...removals.map(item => () => api.post('/admin/tracks/delete', item)),
+        ...upserts.map(item => () => api.put('/admin/tracks', item)),
+      ])
+      return
+    }
     setCustomTracks(tracks)
     reportPersistResult(saveCustomTracks(tracks))
+  }
+
+  const localOnlyTracks = useMemo(() => {
+    if (!API_ENABLED || !tracksLoaded || localTracksDismissed || user?.role !== 'admin') return []
+    return findLocalOnlyTracks(getCustomTracks(), customTracks)
+  }, [customTracks, localTracksDismissed, tracksLoaded, user?.role])
+
+  async function uploadLocalTracks() {
+    let allOk = true
+    for (const track of localOnlyTracks) {
+      const response = await api.put('/admin/tracks', { ...track, createOnly: true })
+      if (!response.ok) allOk = false
+    }
+    const fresh = await api.get('/tracks')
+    if (fresh.ok) setCustomTracks(fresh.data.tracks)
+    if (!allOk) setStorageError(SYNC_FAILED_MESSAGE)
+    return allOk
+  }
+
+  function dismissLocalTracks() {
+    try { localStorage.setItem(LOCAL_TRACKS_DISMISSED_KEY, '1') } catch { /* אחסון חסום: ההודעה תופיע שוב */ }
+    setLocalTracksDismissed(true)
   }
 
   function persistQuizProgress(nextMap) {
@@ -278,6 +332,8 @@ export function AppProvider({ children }) {
     if (!API_ENABLED || !authReady) return
     if (!user || subscriptionBlocked) {
       setQuestions([])
+      setCustomTracks({})
+      setTracksLoaded(false)
       setQuizProgressState({})
       setRemoteResults([])
       setQuestionsReady(true)
@@ -286,7 +342,7 @@ export function AppProvider({ children }) {
     let cancelled = false
     setQuestionsReady(false)
     setLoadError(null)
-    Promise.all([api.get('/questions'), api.get('/progress')]).then(([questionsResponse, progressResponse]) => {
+    Promise.all([api.get('/questions'), api.get('/progress'), api.get('/tracks')]).then(([questionsResponse, progressResponse, tracksResponse]) => {
       if (cancelled) return
       if (!questionsResponse.ok) {
         setLoadError(questionsResponse.error)
@@ -295,6 +351,8 @@ export function AppProvider({ children }) {
       }
       setQuestions(ensureQuestionPositions(questionsResponse.data.questions).normalized)
       setQuizProgressState(progressResponse.ok ? progressResponse.data.progress : {})
+      setCustomTracks(tracksResponse.ok ? tracksResponse.data.tracks : {})
+      setTracksLoaded(tracksResponse.ok)
       setQuestionsReady(true)
     })
     return () => { cancelled = true }
@@ -521,7 +579,9 @@ export function AppProvider({ children }) {
     const currentQuestion = questions.find(question => question.id === id)
     if (!currentQuestion) return
 
-    let updatedQuestion = { ...currentQuestion, ...data }
+    const changes = { ...data }
+    if (!changes.position) delete changes.position
+    let updatedQuestion = { ...currentQuestion, ...changes }
 
     const groupChanged = ['grade', 'subject', 'level', 'activityType'].some(field => {
       return (currentQuestion[field] || null) !== (updatedQuestion[field] || null)
@@ -1043,6 +1103,10 @@ export function AppProvider({ children }) {
         moveQuestion,
         trackCatalog,
         addTrack,
+        whenSaved,
+        localOnlyTracks,
+        uploadLocalTracks,
+        dismissLocalTracks,
         assignTrackToGrade,
         renameTrack,
         deleteTrack,

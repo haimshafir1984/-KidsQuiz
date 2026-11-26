@@ -864,6 +864,51 @@ describe('תשלומים: גישה מוגבלת, אישור תשלום וריש�
   })
 })
 
+describe('נושאים שנוצרו בניהול', () => {
+  let admin
+  let stu
+  before(async () => {
+    admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'tracks@example.com', firstName: 'נושאים' }))
+  })
+  const topic = { grade: 'grade-8', subject: 'נושא בדיקה', levels: ['ב', 'א', 'א', '  '], activities: ['practice', 'exam', 'x'], questionTypes: '' }
+  const find = body => (body.tracks['grade-8'] || []).find(item => item.subject === topic.subject)
+
+  test('נושא נשמר בשרת, בסדר תתי-הנושאים שנקבע, ומנהל אחר רואה אותו', async () => {
+    assert.equal((await admin.call('PUT', '/api/admin/tracks', topic)).status, 200)
+    const saved = find((await admin.call('GET', '/api/tracks')).body)
+    assert.deepEqual(saved.levels, ['ב', 'א'])
+    assert.deepEqual(saved.activities, ['practice', 'exam'])
+    assert.equal(saved.questionTypes, 'מותאם אישית')
+  })
+
+  test('תלמיד לא רואה נושא ריק, ורואה אותו אחרי שיש בו שאלה', async () => {
+    assert.equal(find((await stu.call('GET', '/api/tracks')).body), undefined)
+    await admin.call('POST', '/api/admin/questions', { id: 'track-q-1', text: 'ש', type: 'open', grade: 'grade-8', subject: topic.subject, level: 'ב', correct_answer: ['ת'] })
+    assert.ok(find((await stu.call('GET', '/api/tracks')).body))
+  })
+
+  test('createOnly לא דורס, עדכון רגיל כן, ומחיקה מסירה', async () => {
+    const skipped = await admin.call('PUT', '/api/admin/tracks', { ...topic, levels: ['ישן'], createOnly: true })
+    assert.equal(skipped.body.skipped, true)
+    assert.deepEqual(find((await admin.call('GET', '/api/tracks')).body).levels, ['ב', 'א'])
+    await admin.call('PUT', '/api/admin/tracks', { ...topic, levels: ['ג'] })
+    assert.deepEqual(find((await admin.call('GET', '/api/tracks')).body).levels, ['ג'])
+    assert.equal((await admin.call('POST', '/api/admin/tracks/delete', { grade: topic.grade, subject: topic.subject })).body.deleted, 1)
+    assert.equal(find((await admin.call('GET', '/api/tracks')).body), undefined)
+  })
+
+  test('תלמיד ואורח לא משנים נושאים, וקלט חסר נדחה', async () => {
+    assert.equal((await stu.call('PUT', '/api/admin/tracks', topic)).status, 403)
+    assert.equal((await stu.call('POST', '/api/admin/tracks/delete', { grade: 'grade-8', subject: 'שבת' })).status, 403)
+    assert.equal((await client().call('GET', '/api/tracks')).status, 401)
+    assert.equal((await admin.call('PUT', '/api/admin/tracks', { grade: 'grade-8', subject: '  ' })).status, 400)
+    assert.equal((await admin.call('PUT', '/api/admin/tracks', { ...topic, levels: Array.from({ length: 201 }, (_, i) => String(i)) })).status, 400)
+  })
+})
+
 describe('הגבלת ניסיונות', () => {
   test('אחרי כמה ניסיונות כניסה שגויים מתקבלת חסימה זמנית', async () => {
     const limited = await buildApp({ pool, authRateLimitMax: 3 })

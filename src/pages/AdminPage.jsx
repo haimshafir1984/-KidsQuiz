@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { ChevronLeft, ChevronRight, Plus, Search, Users, BookCopy, FileQuestion, History } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import AdminUsers from './AdminUsers'
@@ -14,6 +14,7 @@ import { TopicsTab, TopicForm } from './admin/TopicsTab'
 import { QuestionForm } from './admin/QuestionForm'
 import { Drawer } from './admin/AdminDrawer'
 import { BulkActionsBar, InlineQuestionsTable } from './admin/QuestionsTable'
+import LocalTracksNotice from './admin/LocalTracksNotice'
 
 export default function AdminPage() {
   const {
@@ -31,7 +32,12 @@ export default function AdminPage() {
     deleteTrack,
     storageError,
     clearStorageError,
+    whenSaved,
+    localOnlyTracks,
+    uploadLocalTracks,
+    dismissLocalTracks,
   } = useApp()
+  const savingRef = useRef(false)
 
   const [activeTab, setActiveTab] = useState('questions')
   const [showTopicForm, setShowTopicForm] = useState(false)
@@ -172,16 +178,29 @@ export default function AdminPage() {
     })
   }
 
-  function handleSave(questionData) {
-    if (drawerQuestion?.id) {
-      updateQuestion(drawerQuestion.id, questionData)
-      pushToast('השאלה עודכנה בהצלחה.', 'success', 'שמירה בוצעה')
-    } else {
-      addQuestion(questionData)
-      pushToast('השאלה נוספה למאגר המקומי.', 'success', 'שאלה חדשה')
-    }
+  // הודעת הצלחה רק אחרי שהשרת אישר. כשהשמירה נכשלת מוצגת הודעת השגיאה (storageError)
+  async function toastWhenSaved(message, type = 'success', title = 'שמירה בוצעה') {
+    const saved = await whenSaved()
+    if (saved) pushToast(message, type, title)
+    return saved
+  }
 
-    setDrawerQuestion(null)
+  async function handleSave(questionData) {
+    // הטופס נשאר פתוח עד לאישור, ולכן מונעים שמירה כפולה
+    if (savingRef.current) return
+    savingRef.current = true
+    const isEdit = Boolean(drawerQuestion?.id)
+    if (isEdit) updateQuestion(drawerQuestion.id, questionData)
+    else addQuestion(questionData)
+
+    const saved = await toastWhenSaved(
+      isEdit ? 'השאלה עודכנה.' : (API_ENABLED ? 'השאלה נשמרה.' : 'השאלה נוספה למאגר המקומי.'),
+      'success',
+      isEdit ? 'שמירה בוצעה' : 'שאלה חדשה',
+    )
+    savingRef.current = false
+    // כשלא נשמר, הטופס נשאר פתוח עם מה שהוקלד כדי לנסות שוב
+    if (saved) setDrawerQuestion(null)
   }
 
   function handleQuickEdit(question) {
@@ -195,7 +214,9 @@ export default function AdminPage() {
   function handleDeleteQuestion(id) {
     requestConfirmation({
       title: 'מחיקת שאלה',
-      message: 'השאלה תימחק מהמאגר המקומי ותיעלם גם מהשימוש באופליין. להמשיך?',
+      message: API_ENABLED
+        ? 'השאלה תוסר מהאתר. אפשר לשחזר אותה בלשונית "שחזור ויומן". להמשיך?'
+        : 'השאלה תימחק מהמאגר המקומי ותיעלם גם מהשימוש באופליין. להמשיך?',
       onConfirm: () => {
         deleteQuestion(id)
         setSelectedIds(previous => {
@@ -203,7 +224,7 @@ export default function AdminPage() {
           next.delete(id)
           return next
         })
-        pushToast('השאלה נמחקה.', 'warning', 'מחיקה הושלמה')
+        toastWhenSaved('השאלה נמחקה.', 'warning', 'מחיקה הושלמה')
         closeConfirmation()
       },
     })
@@ -212,11 +233,13 @@ export default function AdminPage() {
   function handleDeleteSelected() {
     requestConfirmation({
       title: 'מחיקת שאלות נבחרות',
-      message: `יימחקו ${selectedIds.size} שאלות מהמאגר המקומי. להמשיך?`,
+      message: API_ENABLED
+        ? `יוסרו ${selectedIds.size} שאלות מהאתר. אפשר לשחזר אותן בלשונית "שחזור ויומן". להמשיך?`
+        : `יימחקו ${selectedIds.size} שאלות מהמאגר המקומי. להמשיך?`,
       onConfirm: () => {
         deleteQuestions([...selectedIds])
         setSelectedIds(new Set())
-        pushToast('השאלות שנבחרו נמחקו.', 'warning', 'מחיקה קבוצתית')
+        toastWhenSaved('השאלות שנבחרו נמחקו.', 'warning', 'מחיקה קבוצתית')
         closeConfirmation()
       },
     })
@@ -231,13 +254,13 @@ export default function AdminPage() {
       return
     }
 
-    pushToast('נוסף שיוך חדש לשאלה.', 'success', 'שיוך הושלם')
+    toastWhenSaved('נוסף שיוך חדש לשאלה.', 'success', 'שיוך הושלם')
   }
 
   function handleAddTopic(trackData) {
     addTrack(trackData)
     setShowTopicForm(false)
-    pushToast('הנושא נוסף והמערכת שמרה אותו מקומית.', 'success', 'נושא חדש')
+    toastWhenSaved(API_ENABLED ? 'הנושא נשמר. תלמידים יראו אותו אחרי שתהיה בו שאלה.' : 'הנושא נוסף והמערכת שמרה אותו מקומית.', 'success', 'נושא חדש')
   }
 
   function handleRenameTopic(grade, currentSubject, nextSubject) {
@@ -247,16 +270,18 @@ export default function AdminPage() {
     }
 
     renameTrack(grade, currentSubject, nextSubject)
-    pushToast('שם הנושא עודכן.', 'success', 'שמירה בוצעה')
+    toastWhenSaved('שם הנושא עודכן.')
   }
 
   function handleDeleteTopic(grade, subject) {
     requestConfirmation({
       title: 'מחיקת נושא',
-      message: `הנושא "${subject}" וכל השאלות שבו יימחקו מהמאגר המקומי. להמשיך?`,
+      message: API_ENABLED
+        ? `הנושא "${subject}" וכל השאלות שבו יוסרו מהאתר. את השאלות אפשר לשחזר אחת-אחת בלשונית "שחזור ויומן". להמשיך?`
+        : `הנושא "${subject}" וכל השאלות שבו יימחקו מהמאגר המקומי. להמשיך?`,
       onConfirm: () => {
         deleteTrack(grade, subject)
-        pushToast('הנושא נמחק.', 'warning', 'מחיקה הושלמה')
+        toastWhenSaved('הנושא נמחק.', 'warning', 'מחיקה הושלמה')
         closeConfirmation()
       },
     })
@@ -271,11 +296,11 @@ export default function AdminPage() {
     }
 
     if (payload.includeQuestions) {
-      pushToast(`הנושא שויך ונוספו ${copiedQuestions} שאלות לקטגוריה החדשה.`, 'success', 'שיוך הושלם')
+      toastWhenSaved(`הנושא שויך ונוספו ${copiedQuestions} שאלות לקטגוריה החדשה.`, 'success', 'שיוך הושלם')
       return
     }
 
-    pushToast('הנושא שויך לקטגוריה החדשה ללא שכפול שאלות.', 'success', 'שיוך הושלם')
+    toastWhenSaved('הנושא שויך לקטגוריה החדשה ללא שכפול שאלות.', 'success', 'שיוך הושלם')
   }
 
   function handleExport() {
@@ -357,6 +382,14 @@ export default function AdminPage() {
               onError={message => pushToast(message, 'warning', 'שדה חסר')}
             />
           )}
+
+          <LocalTracksNotice
+            tracks={localOnlyTracks}
+            onUpload={async () => {
+              if (await uploadLocalTracks()) pushToast('הנושאים הועלו לשרת.', 'success', 'שמירה בוצעה')
+            }}
+            onDismiss={dismissLocalTracks}
+          />
 
           <TopicsTab
             trackCatalog={trackCatalog}
@@ -484,7 +517,7 @@ export default function AdminPage() {
         title={drawerQuestion?.id ? 'עריכה מלאה של שאלה' : 'הוספת שאלה חדשה'}
         subtitle={drawerQuestion?.id
           ? 'כאן אפשר לעדכן ניסוח, מיקום, רמה, שיוכים נוספים והסבר משוב.'
-          : 'הטופס שומר את כל הנתונים במאגר המקומי כדי שיעבדו גם באופליין.'}
+          : (API_ENABLED ? 'השאלה נשמרת בשרת ומופיעה לכל המשתמשים.' : 'הטופס שומר את כל הנתונים במאגר המקומי כדי שיעבדו גם באופליין.')}
         onClose={() => setDrawerQuestion(null)}
       >
         {drawerQuestion && (

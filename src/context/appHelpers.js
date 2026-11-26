@@ -75,11 +75,13 @@ export function getQuestionTypesLabel(types, hasVisuals = false) {
   return 'מותאם אישית'
 }
 
-export function mergeTrackCollections(baseTracks = [], questionTracks = []) {
+export function mergeTrackCollections(baseTracks = [], questionTracks = [], { showEmptyLevels = true } = {}) {
   const merged = new Map()
 
   baseTracks.forEach(track => {
+    const previous = merged.get(track.subject)
     merged.set(track.subject, {
+      ...(previous?.levelsKind ? { levelsKind: previous.levelsKind } : {}),
       ...track,
       levels: [...(track.levels || [])],
       activities: [...(track.activities || ['practice'])],
@@ -91,18 +93,27 @@ export function mergeTrackCollections(baseTracks = [], questionTracks = []) {
     const questionLevels = [...(track.levels || [])]
     // נושא עם תתי-נושאים: שומרים על סדר ההגדרה ועל סוג החלוקה, ולא על מיון אלפביתי
     const keepsBaseOrder = baseTrack?.levelsKind === 'subtopic'
-    const levels = keepsBaseOrder
-      ? [
-          ...baseTrack.levels.filter(level => questionLevels.includes(level)),
-          ...questionLevels.filter(level => !baseTrack.levels.includes(level)),
-        ]
-      : questionLevels
+    let levels = questionLevels
+    let activities = [...(track.activities || ['practice'])]
+    if (baseTrack?.defined) {
+      // נושא שהוגדר בניהול: הסדר שנקבע נשמר, ותתי-נושאים ריקים לא נעלמים אחרי השאלה הראשונה
+      levels = [
+        ...baseTrack.levels.filter(level => showEmptyLevels || questionLevels.includes(level)),
+        ...questionLevels.filter(level => !baseTrack.levels.includes(level)),
+      ]
+      activities = [...new Set([...baseTrack.activities, ...activities])].sort()
+    } else if (keepsBaseOrder) {
+      levels = [
+        ...baseTrack.levels.filter(level => questionLevels.includes(level)),
+        ...questionLevels.filter(level => !baseTrack.levels.includes(level)),
+      ]
+    }
 
     merged.set(track.subject, {
       ...track,
-      ...(keepsBaseOrder ? { levelsKind: baseTrack.levelsKind } : {}),
+      ...(baseTrack?.levelsKind ? { levelsKind: baseTrack.levelsKind } : {}),
       levels,
-      activities: [...(track.activities || ['practice'])],
+      activities,
     })
   })
 

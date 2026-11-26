@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { SELF_CHECK_ENABLED } from '../../utils/questionAnswers'
 import { Plus, Save, Trash2 } from 'lucide-react'
 import { GRADES } from '../../data/learningTracks'
+import { defaultActivity } from './adminShared'
 
 export function LinkQuestionForm({ trackCatalog, question, onLink }) {
   const [targetGrade, setTargetGrade] = useState(GRADES[0]?.value || 'grade-8')
@@ -18,7 +19,7 @@ export function LinkQuestionForm({ trackCatalog, question, onLink }) {
     if (!activeTrack) return
     setTargetSubject(activeTrack.subject)
     setTargetLevel(activeTrack.levels?.[0] || null)
-    setTargetActivity(activeTrack.activities?.[0] || 'practice')
+    setTargetActivity(defaultActivity(activeTrack))
   }, [targetGrade])
 
   if (!question?.id) return null
@@ -131,7 +132,7 @@ export function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, 
       grade,
       subject: firstTrack?.subject || '',
       level: firstTrack?.levels?.[0] || null,
-      activityType: firstTrack?.activities?.[0] || 'practice',
+      activityType: defaultActivity(firstTrack),
     }))
   }
 
@@ -141,7 +142,7 @@ export function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, 
       ...previous,
       subject,
       level: nextTrack?.levels?.[0] || null,
-      activityType: nextTrack?.activities?.[0] || 'practice',
+      activityType: defaultActivity(nextTrack),
     }))
   }
 
@@ -172,7 +173,7 @@ export function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, 
     const cleaned = {
       ...form,
       level: form.level || null,
-      position: Number(form.position) || 1,
+      position: Number(form.position) > 0 ? Number(form.position) : undefined,
       explanation: form.explanation?.trim() || '',
       options: (form.type === 'multiple' || form.type === 'sentence_completion') ? form.options.filter(option => option.trim()) : [],
       ...(form.type === 'list'
@@ -364,8 +365,9 @@ export function QuestionForm({ initialQuestion, trackCatalog, onSave, onCancel, 
             <input
               type="number"
               min="1"
-              value={form.position}
+              value={form.position ?? ''}
               onChange={event => updateField('position', event.target.value)}
+              placeholder="בסוף"
               className="input-field"
             />
           </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, Save, Trash2, BookCopy } from 'lucide-react'
 import { GRADES } from '../../data/learningTracks'
+import { API_ENABLED } from '../../utils/api'
 
 export function TopicsTab({ trackCatalog, onRename, onDelete, onAddQuestion, onAssign }) {
   const [grade, setGrade] = useState(GRADES[0]?.value || 'grade-8')
@@ -203,7 +204,9 @@ export function TopicForm({ onSave, onCancel, onError }) {
     <form onSubmit={handleSubmit} className="edu-card flex flex-col gap-4">
       <div className="text-right">
         <h3 className="text-xl font-bold text-slate-950">הוספת נושא חדש</h3>
-        <p className="mt-1 text-sm text-slate-600">מוגדר פעם אחת ומופיע מיד גם באופליין דרך האחסון המקומי.</p>
+        <p className="mt-1 text-sm text-slate-600">
+          {API_ENABLED ? 'הנושא נשמר בשרת. תלמידים יראו אותו אחרי שתהיה בו לפחות שאלה אחת.' : 'מוגדר פעם אחת ומופיע מיד גם באופליין דרך האחסון המקומי.'}
+        </p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
