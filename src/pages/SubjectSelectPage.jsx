@@ -23,7 +23,7 @@ function getGroupKey(subject) {
 
 export default function SubjectSelectPage() {
   const navigate = useNavigate()
-  const { selectedGrade, chooseSubject, questions, trackCatalog, prepareQuiz, getSavedQuizProgress } = useApp()
+  const { selectedGrade, chooseSubject, placedQuestions, trackCatalog, prepareQuiz, getSavedQuizProgress } = useApp()
 
   if (!selectedGrade) {
     return <Navigate to="/age" replace />
@@ -84,7 +84,8 @@ export default function SubjectSelectPage() {
       return HOLLAND_QUESTIONS.length
     }
 
-    return questions.filter(question => question.grade === selectedGrade && question.subject === subject).length
+    // שאלה שמופיעה בכמה תתי-נושאים של אותו נושא נספרת פעם אחת
+    return new Set(placedQuestions.filter(question => question.grade === selectedGrade && question.subject === subject).map(question => question.id)).size
   }
 
   const groupedTracks = GROUPS

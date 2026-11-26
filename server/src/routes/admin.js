@@ -9,6 +9,35 @@ import { UUID_PATTERN } from '../validators.js'
 import { deleteUserAccount, exportUserData } from '../userData.js'
 
 const QUESTION_TYPES = new Set(['multiple', 'open', 'sentence_completion', 'list', 'self_check'])
+const ACTIVITY_TYPES = new Set(['practice', 'exam'])
+const MAX_PLACEMENTS = 100
+
+// שאלה שמופיעה בכמה מקומות. המקום הראשון משוכפל לשדות הרגילים (ומשם לעמודות); מקום יחיד נשמר בלי placements
+function applyPlacements(question) {
+  const { placements, ...rest } = question
+  if (placements === undefined || placements === null) return { question: rest }
+  if (!Array.isArray(placements) || placements.length === 0 || placements.length > MAX_PLACEMENTS) return { error: 'רשימת המקומות לא תקינה' }
+  const unique = new Map()
+  for (const place of placements) {
+    const valid = place && typeof place.grade === 'string' && place.grade && typeof place.subject === 'string' && place.subject
+      && (place.level === null || place.level === undefined || typeof place.level === 'string')
+      && ACTIVITY_TYPES.has(place.activityType || 'practice')
+    if (!valid) return { error: 'רשימת המקומות לא תקינה' }
+    const clean = {
+      grade: place.grade,
+      subject: place.subject,
+      level: place.level || null,
+      activityType: place.activityType || 'practice',
+      position: Number.isFinite(place.position) ? place.position : null,
+    }
+    const key = JSON.stringify([clean.grade, clean.subject, clean.level])
+    if (!unique.has(key)) unique.set(key, clean)
+  }
+  const list = [...unique.values()]
+  const primary = { ...list[0] }
+  if (primary.position === null) delete primary.position
+  return { question: { ...rest, ...primary, ...(list.length > 1 ? { placements: list } : {}) } }
+}
 
 // מאמתים את מבנה השאלה ומחזירים אובייקט נקי (או הודעת שגיאה)
 function validateQuestion(input) {
@@ -16,10 +45,12 @@ function validateQuestion(input) {
   const text = typeof input.text === 'string' ? input.text.trim() : ''
   if (!text) return { error: 'חסר נוסח שאלה' }
   if (!QUESTION_TYPES.has(input.type)) return { error: 'סוג שאלה לא תקין' }
-  if (!input.grade || !input.subject) return { error: 'חסרים קטגוריה או נושא' }
+  const placed = applyPlacements(input)
+  if (placed.error) return placed
+  if (!placed.question.grade || !placed.question.subject) return { error: 'חסרים קטגוריה או נושא' }
   const answers = Array.isArray(input.correct_answer) ? input.correct_answer.filter(a => typeof a === 'string' && a.trim()) : []
   if (answers.length === 0) return { error: 'חסרה תשובה נכונה' }
-  const { id: _ignored, ...rest } = input
+  const { id: _ignored, ...rest } = placed.question
   return { question: { ...rest, text, correct_answer: answers } }
 }
 

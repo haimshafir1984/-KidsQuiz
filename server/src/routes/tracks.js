@@ -23,6 +23,9 @@ function validateTrack(body) {
       questionTypes: text(body.questionTypes, 100) || 'מותאם אישית',
       levels,
       activities: activities.length > 0 ? activities : ['practice'],
+      ...(body.levelsKind === 'subtopic' ? { levelsKind: 'subtopic' } : {}),
+      // נושא שמגיע מהקוד ונמחק בניהול: נשמר כמוסתר כדי שלא יחזור להופיע ריק
+      ...(body.hidden === true ? { hidden: true } : {}),
     },
   }
 }
@@ -30,12 +33,16 @@ function validateTrack(body) {
 export async function userTrackRoutes(app) {
   const { pool } = app
 
-  // תלמיד לא רואה נושא ריק: רק נושאים שיש בהם לפחות שאלה פעילה אחת. מנהל רואה הכול
+  // תלמיד לא רואה נושא ריק: רק נושאים שיש בהם לפחות שאלה פעילה אחת (כולל שאלה שמשויכת אליהם כמקום נוסף).
+  // סימון "מוסתר" נשלח לכולם, כי הוא זה שמעלים נושא מובנה. מנהל רואה הכול
   app.get('/tracks', { preHandler: requireUser }, async request => {
     const { rows } = await pool.query(
       `SELECT t.grade, t.subject, t.data FROM tracks t
-       WHERE $1::boolean OR EXISTS (
-         SELECT 1 FROM questions q WHERE q.grade = t.grade AND q.subject = t.subject AND NOT q.deleted
+       WHERE $1::boolean OR t.data->>'hidden' = 'true' OR EXISTS (
+         SELECT 1 FROM questions q WHERE NOT q.deleted AND (
+           (q.grade = t.grade AND q.subject = t.subject)
+           OR q.data->'placements' @> jsonb_build_array(jsonb_build_object('grade', t.grade, 'subject', t.subject))
+         )
        )
        ORDER BY t.grade, t.subject`,
       [request.user.role === 'admin'],

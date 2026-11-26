@@ -36,7 +36,7 @@ export function SummaryHeader({ activeTab, onNewQuestion, onExport }) {
           </p>
         </div>
 
-        {activeTab === 'questions' && (
+        {activeTab === 'content' && (
           <div className="flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={onExport} className="btn-secondary">
               <Download className="h-4 w-4" />

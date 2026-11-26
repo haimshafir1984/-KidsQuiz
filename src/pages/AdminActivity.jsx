@@ -11,7 +11,7 @@ const ACTION_LABELS = {
   export: 'ייצוא נתונים',
   reset_password: 'איפוס סיסמה',
 }
-const ENTITY_LABELS = { question: 'שאלה', user: 'משתמש' }
+const ENTITY_LABELS = { question: 'שאלה', user: 'משתמש', track: 'נושא' }
 
 function formatDateTime(value) {
   return new Date(value).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' })
@@ -106,7 +106,7 @@ export default function AdminActivity() {
                     <td className="px-3 py-2 text-slate-700">
                       {ENTITY_LABELS[entry.entity] || entry.entity}
                       {' '}
-                      <span className="text-slate-500">{entry.after?.text || entry.before?.text || entry.before?.username || ''}</span>
+                      <span className="text-slate-500">{entry.after?.text || entry.before?.text || entry.before?.username || (entry.entity === 'track' ? entry.entity_id.split('::')[1] : '')}</span>
                     </td>
                   </tr>
                 ))}

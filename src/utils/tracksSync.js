@@ -11,6 +11,8 @@ function flatten(map) {
         questionTypes: track.questionTypes || '',
         levels: track.levels || [],
         activities: track.activities || ['practice'],
+        ...(track.levelsKind ? { levelsKind: track.levelsKind } : {}),
+        ...(track.hidden ? { hidden: true } : {}),
       })
     }
   }
@@ -29,5 +31,6 @@ export function diffTracks(previous, next) {
 // נושאים ששמורים רק בדפדפן ואינם בשרת (נוצרו לפני שהנושאים נשמרו בשרת)
 export function findLocalOnlyTracks(localTracks, serverTracks) {
   const onServer = flatten(serverTracks)
-  return [...flatten(localTracks)].filter(([key]) => !onServer.has(key)).map(([, track]) => track)
+  // סימון "מוסתר" אינו נושא, ולכן לא מוצע להעלאה
+  return [...flatten(localTracks)].filter(([key, track]) => !onServer.has(key) && !track.hidden).map(([, track]) => track)
 }

@@ -88,6 +88,12 @@ export function mergeTrackCollections(baseTracks = [], questionTracks = [], { sh
     })
   })
 
+  // נושא שנמחק בניהול מוסתר, אלא אם יש בו שוב שאלות (למשל אחרי שחזור)
+  const withQuestions = new Set(questionTracks.map(track => track.subject))
+  merged.forEach((track, subject) => {
+    if (track.hidden && !withQuestions.has(subject)) merged.delete(subject)
+  })
+
   questionTracks.forEach(track => {
     const baseTrack = merged.get(track.subject)
     const questionLevels = [...(track.levels || [])]
@@ -145,29 +151,6 @@ export function normalizeQuestionGroupTitles(items) {
     })
 
   return { normalized, changed }
-}
-
-export function cloneQuestionForTarget(question, target, existingQuestions) {
-  const relatedQuestions = existingQuestions.filter(existing => {
-    return existing.grade === target.grade
-      && existing.subject === target.subject
-      && (existing.level || null) === (target.level || null)
-      && existing.activityType === target.activityType
-  })
-
-  const nextPosition = relatedQuestions.length > 0
-    ? Math.max(...relatedQuestions.map(item => item.position || 0)) + 1
-    : 1
-
-  return {
-    ...question,
-    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    grade: target.grade,
-    subject: target.subject,
-    level: target.level || null,
-    activityType: target.activityType,
-    position: nextPosition,
-  }
 }
 
 export function getQuizProgressKey({ userId, grade, subject, level = null, activityType = 'practice' }) {

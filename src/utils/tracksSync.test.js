@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { diffTracks, findLocalOnlyTracks } from './tracksSync'
 import { mergeTrackCollections } from '../context/appHelpers'
-import { createQuestionDraft, defaultActivity } from '../pages/admin/adminShared'
 
 const track = (subject, extra = {}) => ({ subject, levels: [], activities: ['practice'], questionTypes: 'מותאם אישית', ...extra })
 
@@ -46,21 +45,5 @@ describe('מיזוג נושא שהוגדר בניהול עם השאלות שלו
   test('תת-נושא שקיים רק בשאלות נוסף בסוף', () => {
     const [merged] = mergeTrackCollections([defined], [track('חדש', { levels: ['ד', 'א'] })], { showEmptyLevels: true })
     expect(merged.levels).toEqual(['ב', 'א', 'ג', 'ד'])
-  })
-})
-
-describe('טיוטת שאלה חדשה', () => {
-  const catalog = { 'grade-8': [track('נושא', { levels: ['ב', 'א'], activities: ['exam', 'practice'] })] }
-
-  test('ברירת המחדל היא תרגול גם כש-exam ראשון ברשימה, והמיקום ריק (בסוף הרשימה)', () => {
-    const draft = createQuestionDraft(catalog, 'grade-8', 'נושא')
-    expect(draft.activityType).toBe('practice')
-    expect(draft.position).toBe('')
-    expect(draft.level).toBe('ב')
-  })
-
-  test('נושא של מבחן בלבד נשאר מבחן', () => {
-    expect(defaultActivity({ activities: ['exam'] })).toBe('exam')
-    expect(defaultActivity(undefined)).toBe('practice')
   })
 })

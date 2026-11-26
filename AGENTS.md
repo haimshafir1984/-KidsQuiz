@@ -37,6 +37,8 @@ KidsQuiz/
     │
     ├── utils/
     │   ├── api.js                # לקוח ה-API (מצב שרת, VITE_USE_API)
+    │   ├── placements.js         # שאלה בכמה מקומות: פעולות טהורות (שיוך, העברה, סדר, פריסה לצד התלמיד)
+    │   ├── contentOps.js         # פעולות על נושאים ותתי-נושאים במסך העץ (טהורות)
     │   ├── adminData.js          # נתוני משתמשים/תוצאות למסך הניהול (שרת או מקומי)
     │   ├── storage.js            # גישה ל-localStorage (שאלות, מסלולים, התקדמות) + safeParse
     │   ├── db.js                 # שכבת "ServerDB/LocalDB" מדומה: משתמשים, תוצאות, מנוי
@@ -74,7 +76,7 @@ KidsQuiz/
         ├── QuizPage.jsx          # מסך חידון (שאלה בודדת / מבחן כללי מרובה-עמודים)
         ├── SummaryPage.jsx       # סיכום תוצאות, פילוח לפי נושא, טעויות
         ├── HollandQuestionnairePage.jsx / HollandResultPage.jsx  # שאלון אישיותי
-        ├── AdminPage.jsx         # פאנל ניהול: שאלות / נושאים / משתמשים (הרכיבים ב-pages/admin/: TopicsTab, QuestionForm, QuestionsTable, AdminDrawer, AdminTabs, adminShared)
+        ├── AdminPage.jsx         # פאנל ניהול: נושאים ושאלות / משתמשים / שחזור. מסך העץ ב-pages/admin/content/ (ContentTab, ContentTree, QuestionList, QuestionEditor, PlacePicker, ContentDialogs, treeModel, questionDraft)
         ├── AdminUsers.jsx        # טבלת משתמשים ותוצאות (מוצג בתוך AdminPage)
         ├── OfflineDownloadPage.jsx / DesktopLicensePage.jsx  # הורדת גרסת אופליין ורישיון
 ```
@@ -128,8 +130,11 @@ KidsQuiz/
   level: 'string | null',            // רמת קושי בתוך הנושא, אם קיימת
   activityType: 'practice | exam',
   position: 'number',                // סדר הצגה בתוך קבוצת (grade, subject, level, activityType)
+  placements: [{ grade, subject, level, activityType, position }], // רק לשאלה שמופיעה בכמה מקומות
 }
 ```
+
+**שאלה בכמה מקומות:** `placements` הוא הרשימה המלאה והמקום הראשון משוכפל לשדות הרגילים. שאלה במקום אחד נשמרת בלי `placements` (כמו תמיד, בלי המרת נתונים). שאלה מופיעה בכל מקום פעם אחת. קוד שמציג שאלות לתלמיד חייב להשתמש ב-`placedQuestions`; קוד שסופר או מגריל על פני כמה נושאים משתמש גם ב-`uniqueById`. השרת מאמת ומשכפל את המקום הראשון (`applyPlacements` ב-`server/src/routes/admin.js`). `import-questions --overwrite` מוחק שיוכים נוספים. טבלת ההשוואה למסך הניהול הישן: `docs/ADMIN_TREE_PARITY.md`.
 
 ---
 
@@ -170,10 +175,9 @@ const {
   user, userDisplayName, profileComplete,
   login(identifier, password), register(profileData), updateUserProfile(profileData), logout(),
   mode, setMode(mode),
-  // שאלות ומסלולים (CRUD לניהול)
-  questions, addQuestion(q), updateQuestion(id, data), duplicateQuestionToTargets(id, targets),
-  deleteQuestion(id), deleteQuestions(ids), moveQuestion(id, direction),
-  trackCatalog, addTrack(track), assignTrackToGrade(...), renameTrack(...), deleteTrack(...),
+  // שאלות ונושאים. שינויי ניהול נבנים ב-utils/placements ו-utils/contentOps ונשמרים ב-applyContent
+  questions /* רשומה אחת לשאלה (לניהול) */, placedQuestions /* עותק תצוגה לכל מקום (לתלמיד) */,
+  trackCatalog, customTracks, applyContent({ questions, tracks }), whenSaved(),
   storageError, clearStorageError,   // התראה כשנכשלה שמירה (למשל נפח אחסון מלא)
   // חידון
   selectedGrade, selectedSubject, selectedLevel, selectedActivity,
@@ -256,7 +260,7 @@ npm run license:generate -- --customerName="שם הלקוח"
 
 **דרך ממשק הניהול (מומלץ):**
 1. לחץ על "ניהול" בכותרת
-2. בטאב "שאלות" לחץ "שאלה חדשה", או "שאלה" ליד נושא ספציפי בטאב "נושאים"
+2. בלשונית "נושאים ושאלות" בוחרים תת-נושא בעץ ולוחצים "שאלה כאן", או "שאלה חדשה" בראש המסך
 3. מלא את הפרטים ושמור
 
 **דרך הקוד:**
@@ -283,7 +287,7 @@ npm run license:generate -- --customerName="שם הלקוח"
 - `server/` הוא שרת Fastify + PostgreSQL (ר' `server/README.md`). האתר עובד מולו רק כשנבנה עם `VITE_USE_API=true`; בלי הדגל (או בגרסת דסקטופ) הכול נשאר localStorage כמו בדמו.
 - `src/utils/api.js` הוא לקוח ה-API (`API_ENABLED`, `api.get/post/put/patch/delete`, לא זורק שגיאות). `AppContext` במצב שרת: משחזר התחברות מ-`/auth/me`, טוען שאלות והתקדמות אחרי כניסה, שומר תוצאות ב-`/results`, ושינויי שאלות במסך הניהול נשלחים לשרת כהפרש בין הרשימה הקודמת לחדשה (`syncQuestionsToServer`). `login/register/updateUserProfile` אסינכרוניות.
 - `/admin` נפתח רק למשתמש עם `role === 'admin'` במצב שרת (`AdminRoute` ב-`App.jsx`); השרת בודק הרשאה בכל פעולה. מנהלים נוצרים רק בסקריפט `seed:admins`. אין עדיין שחזור סיסמה במייל: מנהל מאפס סיסמה במסך המשתמשים.
-- נושאים שנוצרו בניהול נשמרים בשרת (טבלת `tracks`, מיגרציה 004, `server/src/routes/tracks.js`; סנכרון הפרש ב-`utils/tracksSync.js`). תלמיד לא מקבל נושא ריק ולא רואה תתי-נושאים ריקים. נושאים ישנים ששמורים רק בדפדפן מוצעים למנהל להעלאה (`LocalTracksNotice.jsx`). `whenSaved()` ב-AppContext: הודעת הצלחה בניהול רק אחרי אישור השרת. שאלה חדשה בלי מיקום נוספת בסוף, וברירת המחדל היא תרגול (`defaultActivity`).
+- נושאים שנוצרו בניהול נשמרים בשרת (טבלת `tracks`, מיגרציה 004, `server/src/routes/tracks.js`; סנכרון הפרש ב-`utils/tracksSync.js`). תלמיד לא מקבל נושא ריק ולא רואה תתי-נושאים ריקים. נושאים ישנים ששמורים רק בדפדפן מוצעים למנהל להעלאה (`LocalTracksNotice.jsx`). `whenSaved()` ב-AppContext: הודעת הצלחה בניהול רק אחרי אישור השרת. שאלה חדשה בלי מיקום נוספת בסוף, וברירת המחדל היא תרגול. נושא מובנה שנמחק או ששמו שונה נשמר כ-`hidden` (נשלח גם לתלמידים).
 - נתוני משתמשים ותוצאות למסך הניהול דרך `useAdminStats` (`src/utils/adminData.js`).
 - אבטחה ופרטיות (שרת): שם משתמש נוצר בשרת בלבד; הגבלת קצב לפי `CF-Connecting-IP` + נעילה זמנית אחרי כניסות כושלות (`server/src/limiter.js`); מנוי שפג מנתק גם התחברות קיימת; Turnstile אופציונלי (`TURNSTILE_SECRET` / `VITE_TURNSTILE_SITE_KEY`); זכות עיון ומחיקה (`PrivacyControls.jsx`, `userData.js`); הסכמה לתנאים נשמרת (מיגרציה 002).
 - ניהול במצב שרת: ניהול מנויים, חסימה, מחיקה וייצוא תלמיד ב-`AdminUsers.jsx` (הייצוא הוא קובץ Excel מהשרת: `GET /admin/users/:id/export?format=xlsx`, `server/src/exportXlsx.js`; חשבון חסום מקבל הודעה ייעודית רק אחרי סיסמה נכונה; שינוי סיסמה עצמי ב-`ChangePassword.jsx`; `useDialogA11y` שומר `onClose` ב-ref כדי שהקלדה בשדה בתוך מודאל לא תחזיר את המיקוד); שחזור שאלות ויומן ב-`AdminActivity.jsx`. דפי `/terms` `/privacy` `/accessibility` ב-`LegalPages.jsx` (טיוטה עד אישור הלקוחה, `LEGAL_DRAFT`).

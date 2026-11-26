@@ -24,6 +24,7 @@ import {
 } from '../utils/db'
 import { API_ENABLED, SUBSCRIPTION_EXPIRED_EVENT, api } from '../utils/api'
 import { diffTracks, findLocalOnlyTracks } from '../utils/tracksSync'
+import { expandPlacements, uniqueById } from '../utils/placements'
 import seedQuestions from '../data/seedQuestions'
 import { SELF_CHECK_ENABLED } from '../utils/questionAnswers'
 import { BASE_VISIBLE_TRACKS, GENERAL_EXAM_SUBJECT, GRADES } from '../data/learningTracks'
@@ -32,14 +33,12 @@ import {
   GENERAL_EXAM_QUESTION_COUNT,
   HOLLAND_SUBJECT,
   LEGACY_SUBJECTS,
-  getQuestionGroupKey,
   ensureQuestionPositions,
   sortQuestionsByPosition,
   getQuestionTypesLabel,
   mergeTrackCollections,
   normalizeQuestionSubjects,
   normalizeQuestionGroupTitles,
-  cloneQuestionForTarget,
   getQuizProgressKey,
   getQuestionCountForSelection,
   shuffleItems,
@@ -112,10 +111,13 @@ export function AppProvider({ children }) {
   // תלמיד באתר המקוון לא רואה תתי-נושאים ריקים; מנהל (וגם מצב הדמו) רואה הכול
   const showEmptyLevels = !API_ENABLED || user?.role === 'admin'
 
+  // צד התלמיד: שאלה שמשויכת לכמה מקומות מופיעה בכל אחד מהם. questions עצמו נשאר רשומה אחת לשאלה (לניהול)
+  const placedQuestions = useMemo(() => expandPlacements(questions), [questions])
+
   const trackCatalog = useMemo(() => {
     const groupedTracks = Object.fromEntries(gradeValues.map(grade => [grade, new Map()]))
 
-    questions.forEach(question => {
+    placedQuestions.forEach(question => {
       if (!question.grade || !question.subject || !groupedTracks[question.grade]) return
 
       const existing = groupedTracks[question.grade].get(question.subject) || {
@@ -163,7 +165,7 @@ export function AppProvider({ children }) {
         ]
       }),
     )
-  }, [customTracks, gradeValues, questions, showEmptyLevels])
+  }, [customTracks, gradeValues, placedQuestions, showEmptyLevels])
 
   const userResults = useMemo(() => {
     if (!user) return []
@@ -178,10 +180,10 @@ export function AppProvider({ children }) {
       .filter(item => item.userId === user.id)
       .map(item => ({
         ...item,
-        questionCount: item.questionCount || getQuestionCountForSelection(questions, item),
+        questionCount: item.questionCount || getQuestionCountForSelection(placedQuestions, item),
       }))
       .sort((first, second) => new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime())
-  }, [questions, quizProgressMap, user])
+  }, [placedQuestions, quizProgressMap, user])
 
   const STORAGE_FULL_MESSAGE = 'לא ניתן היה לשמור את השינוי - נפח האחסון המקומי מלא. מומלץ למחוק תוכן ישן או תמונות כבדות.'
 
@@ -194,7 +196,7 @@ export function AppProvider({ children }) {
   }
 
   // מצב שרת: משווים את הרשימה הקודמת לחדשה ושולחים לשרת רק מה שנוסף, השתנה או נמחק
-  function syncQuestionsToServer(previousList, nextList) {
+  function questionSyncTasks(previousList, nextList) {
     const previousById = new Map(previousList.map(question => [question.id, question]))
     const nextById = new Map(nextList.map(question => [question.id, question]))
     const tasks = []
@@ -203,10 +205,10 @@ export function AppProvider({ children }) {
     nextList.forEach(question => {
       const before = previousById.get(question.id)
       if (!before) tasks.push(() => api.post('/admin/questions', question))
-      else if (JSON.stringify(before) !== JSON.stringify(question)) tasks.push(() => api.put(`/admin/questions/${encodeURIComponent(question.id)}`, question))
+      else if (before !== question && JSON.stringify(before) !== JSON.stringify(question)) tasks.push(() => api.put(`/admin/questions/${encodeURIComponent(question.id)}`, question))
     })
     if (removedIds.length > 0) tasks.push(() => api.post('/admin/questions/delete', { ids: removedIds }))
-    enqueueSave(tasks)
+    return tasks
   }
 
   // פעולות נשמרות לפי הסדר, גם אם המנהל לוחץ מהר. התוצאה: האם כל מה שבתור הזה נשמר
@@ -229,28 +231,37 @@ export function AppProvider({ children }) {
     return (await syncQueue.current) !== false
   }
 
-  function persistQuestionsList(list) {
-    if (API_ENABLED) {
-      syncQuestionsToServer(questions, list)
-      setQuestions(list)
-      return
-    }
-    setQuestions(list)
-    reportPersistResult(saveQuestions(list))
-  }
+  // שינוי תוכן מהניהול: רשימת שאלות ו/או נושאים. נשמר כפעולה אחת, כדי שהודעת ההצלחה תשקף את כל הבקשות
+  function applyContent({ questions: nextQuestions, tracks: nextTracks }) {
+    const questionsChanged = Boolean(nextQuestions) && nextQuestions !== questions
+    const tracksChanged = Boolean(nextTracks) && nextTracks !== customTracks
 
-  function persistTracks(tracks) {
     if (API_ENABLED) {
-      const { upserts, removals } = diffTracks(customTracks, tracks)
-      setCustomTracks(tracks)
-      enqueueSave([
-        ...removals.map(item => () => api.post('/admin/tracks/delete', item)),
-        ...upserts.map(item => () => api.put('/admin/tracks', item)),
-      ])
+      const tasks = []
+      if (tracksChanged) {
+        const { upserts, removals } = diffTracks(customTracks, nextTracks)
+        tasks.push(...removals.map(item => () => api.post('/admin/tracks/delete', item)))
+        tasks.push(...upserts.map(item => () => api.put('/admin/tracks', item)))
+        setCustomTracks(nextTracks)
+      }
+      if (questionsChanged) {
+        tasks.push(...questionSyncTasks(questions, nextQuestions))
+        setQuestions(nextQuestions)
+      }
+      enqueueSave(tasks)
       return
     }
-    setCustomTracks(tracks)
-    reportPersistResult(saveCustomTracks(tracks))
+
+    let saved = true
+    if (questionsChanged) {
+      setQuestions(nextQuestions)
+      saved = saveQuestions(nextQuestions) && saved
+    }
+    if (tracksChanged) {
+      setCustomTracks(nextTracks)
+      saved = saveCustomTracks(nextTracks) && saved
+    }
+    reportPersistResult(saved)
   }
 
   const localOnlyTracks = useMemo(() => {
@@ -566,234 +577,6 @@ export function AppProvider({ children }) {
     setModeState(modeValue)
   }
 
-  function addQuestion(question) {
-    const relatedQuestions = questions.filter(existing => getQuestionGroupKey(existing) === getQuestionGroupKey(question))
-    const nextPosition = question.position || (relatedQuestions.length > 0 ? Math.max(...relatedQuestions.map(item => item.position || 0)) + 1 : 1)
-    const newQuestion = { ...question, id: `custom-${crypto.randomUUID()}`, position: nextPosition }
-    const updatedQuestions = [...questions, newQuestion]
-    persistQuestionsList(updatedQuestions)
-    return newQuestion
-  }
-
-  function updateQuestion(id, data) {
-    const currentQuestion = questions.find(question => question.id === id)
-    if (!currentQuestion) return
-
-    const changes = { ...data }
-    if (!changes.position) delete changes.position
-    let updatedQuestion = { ...currentQuestion, ...changes }
-
-    const groupChanged = ['grade', 'subject', 'level', 'activityType'].some(field => {
-      return (currentQuestion[field] || null) !== (updatedQuestion[field] || null)
-    })
-
-    if (groupChanged) {
-      const targetGroupQuestions = questions.filter(question => {
-        return question.id !== id
-          && question.grade === updatedQuestion.grade
-          && question.subject === updatedQuestion.subject
-          && (question.level || null) === (updatedQuestion.level || null)
-          && question.activityType === updatedQuestion.activityType
-      })
-
-      updatedQuestion = {
-        ...updatedQuestion,
-        position: targetGroupQuestions.length > 0
-          ? Math.max(...targetGroupQuestions.map(question => question.position || 0)) + 1
-          : 1,
-      }
-    }
-
-    const updatedQuestions = questions.map(question => (question.id === id ? updatedQuestion : question))
-    const { normalized } = ensureQuestionPositions(updatedQuestions)
-    persistQuestionsList(normalized)
-  }
-
-  function duplicateQuestionToTargets(id, targets) {
-    const sourceQuestion = questions.find(question => question.id === id)
-    if (!sourceQuestion || !targets?.length) return []
-
-    let workingQuestions = [...questions]
-    const createdQuestions = []
-
-    targets.forEach(target => {
-      const alreadyExists = workingQuestions.some(question => {
-        return question.grade === target.grade
-          && question.subject === target.subject
-          && (question.level || null) === (target.level || null)
-          && question.activityType === target.activityType
-          && question.text.trim() === sourceQuestion.text.trim()
-      })
-
-      if (alreadyExists) return
-
-      const clonedQuestion = cloneQuestionForTarget(sourceQuestion, target, workingQuestions)
-      workingQuestions.push(clonedQuestion)
-      createdQuestions.push(clonedQuestion)
-    })
-
-    if (createdQuestions.length === 0) return []
-
-    persistQuestionsList(workingQuestions)
-    return createdQuestions
-  }
-
-  function deleteQuestion(id) {
-    const updatedQuestions = questions.filter(question => question.id !== id)
-    persistQuestionsList(updatedQuestions)
-  }
-
-  function deleteQuestions(ids) {
-    const idSet = new Set(ids)
-    const updatedQuestions = questions.filter(question => !idSet.has(question.id))
-    persistQuestionsList(updatedQuestions)
-  }
-
-  function moveQuestion(id, direction) {
-    const targetQuestion = questions.find(question => question.id === id)
-    if (!targetQuestion) return
-
-    const relatedQuestions = sortQuestionsByPosition(
-      questions.filter(question => getQuestionGroupKey(question) === getQuestionGroupKey(targetQuestion)),
-    )
-    const currentIndex = relatedQuestions.findIndex(question => question.id === id)
-    const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-
-    if (nextIndex < 0 || nextIndex >= relatedQuestions.length) return
-
-    const swappedQuestion = relatedQuestions[nextIndex]
-    const updatedQuestions = questions.map(question => {
-      if (question.id === targetQuestion.id) return { ...question, position: swappedQuestion.position }
-      if (question.id === swappedQuestion.id) return { ...question, position: targetQuestion.position }
-      return question
-    })
-
-    persistQuestionsList(updatedQuestions)
-  }
-
-  function addTrack(track) {
-    const normalizedTrack = {
-      id: `track-${crypto.randomUUID()}`,
-      subject: track.subject.trim(),
-      questionTypes: track.questionTypes.trim() || 'מותאם אישית',
-      levels: track.levels || [],
-      activities: track.activities?.length ? track.activities : ['practice'],
-    }
-
-    const nextTracks = {
-      ...customTracks,
-      [track.grade]: [...(customTracks[track.grade] || []), normalizedTrack],
-    }
-
-    persistTracks(nextTracks)
-    return normalizedTrack
-  }
-
-  function assignTrackToGrade({ sourceGrade, sourceSubject, targetGrade, includeQuestions = false }) {
-    const sourceTrack = (trackCatalog[sourceGrade] || []).find(track => track.subject === sourceSubject)
-    if (!sourceTrack || sourceGrade === targetGrade) return { createdTrack: false, copiedQuestions: 0 }
-
-    const targetHasTrack = (trackCatalog[targetGrade] || []).some(track => track.subject === sourceSubject)
-    let nextTracks = customTracks
-    let createdTrack = false
-
-    if (!targetHasTrack) {
-      const normalizedTrack = {
-        id: `track-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        subject: sourceTrack.subject,
-        questionTypes: sourceTrack.questionTypes,
-        levels: [...(sourceTrack.levels || [])],
-        activities: [...(sourceTrack.activities || ['practice'])],
-      }
-
-      nextTracks = {
-        ...customTracks,
-        [targetGrade]: [...(customTracks[targetGrade] || []), normalizedTrack],
-      }
-
-      persistTracks(nextTracks)
-      createdTrack = true
-    }
-
-    if (!includeQuestions) {
-      return { createdTrack, copiedQuestions: 0 }
-    }
-
-    const sourceQuestions = questions.filter(question => question.grade === sourceGrade && question.subject === sourceSubject)
-    if (sourceQuestions.length === 0) {
-      return { createdTrack, copiedQuestions: 0 }
-    }
-
-    const targetQuestions = questions.filter(question => question.grade === targetGrade && question.subject === sourceSubject)
-    let workingQuestions = [...questions]
-    let copiedQuestions = 0
-
-    sourceQuestions.forEach(question => {
-      const alreadyExists = targetQuestions.some(existing => {
-        return existing.text.trim() === question.text.trim()
-          && (existing.level || null) === (question.level || null)
-          && existing.activityType === question.activityType
-      })
-
-      if (alreadyExists) return
-
-      const clonedQuestion = cloneQuestionForTarget(question, {
-        grade: targetGrade,
-        subject: sourceSubject,
-        level: question.level || null,
-        activityType: question.activityType,
-      }, workingQuestions)
-
-      workingQuestions.push(clonedQuestion)
-      copiedQuestions += 1
-    })
-
-    if (copiedQuestions > 0) {
-      persistQuestionsList(workingQuestions)
-    }
-
-    return { createdTrack, copiedQuestions }
-  }
-
-  function renameTrack(grade, currentSubject, nextSubject) {
-    const trimmedSubject = nextSubject.trim()
-    if (!trimmedSubject || trimmedSubject === currentSubject) return
-
-    const updatedQuestions = questions.map(question => (
-      question.grade === grade && question.subject === currentSubject
-        ? { ...question, subject: trimmedSubject }
-        : question
-    ))
-
-    const nextTracks = {
-      ...customTracks,
-      [grade]: (customTracks[grade] || []).map(track => (
-        track.subject === currentSubject ? { ...track, subject: trimmedSubject } : track
-      )),
-    }
-
-    persistQuestionsList(updatedQuestions)
-    persistTracks(nextTracks)
-  }
-
-  function deleteTrack(grade, subject) {
-    const updatedQuestions = questions.filter(question => !(question.grade === grade && question.subject === subject))
-    const nextTracks = {
-      ...customTracks,
-      [grade]: (customTracks[grade] || []).filter(track => track.subject !== subject),
-    }
-
-    persistQuestionsList(updatedQuestions)
-    persistTracks(nextTracks)
-
-    if (selectedGrade === grade && selectedSubject === subject) {
-      setSelectedSubject(null)
-      setSelectedLevel(null)
-      setQuizQuestions([])
-      setQuizResults(null)
-    }
-  }
-
   function getSavedQuizProgress(selection) {
     if (!user) return null
     const key = getQuizProgressKey({ userId: user.id, ...selection })
@@ -802,7 +585,7 @@ export function AppProvider({ children }) {
 
     return {
       ...progress,
-      questionCount: progress.questionCount || getQuestionCountForSelection(questions, selection),
+      questionCount: progress.questionCount || getQuestionCountForSelection(placedQuestions, selection),
     }
   }
 
@@ -816,7 +599,7 @@ export function AppProvider({ children }) {
       ...selection,
       ...progressData,
       updatedAt: new Date().toISOString(),
-      questionCount: progressData.questionCount || getQuestionCountForSelection(questions, selection),
+      questionCount: progressData.questionCount || getQuestionCountForSelection(placedQuestions, selection),
     }
 
     const nextMap = {
@@ -880,7 +663,8 @@ export function AppProvider({ children }) {
 
     const filteredQuestions = subject === GENERAL_EXAM_SUBJECT
       ? (() => {
-          const allGradeQuestions = sortQuestionsByPosition(questions.filter(question => {
+          // שאלה שמשויכת לכמה נושאים באותה קטגוריה נכנסת למאגר המבחן פעם אחת
+          const allGradeQuestions = sortQuestionsByPosition(uniqueById(placedQuestions.filter(question => {
             return question.grade === grade
               && question.subject !== HOLLAND_SUBJECT
               && question.subject !== GENERAL_EXAM_SUBJECT
@@ -888,7 +672,7 @@ export function AppProvider({ children }) {
               // שאלות רשימה והסבר מתאימות לתרגול בלבד, לא למבחן על זמן
               && question.type !== 'list'
               && question.type !== 'self_check'
-          }))
+          })))
 
           if (savedProgress?.questionIds?.length) {
             const questionMap = new Map(allGradeQuestions.map(question => [question.id, question]))
@@ -899,7 +683,7 @@ export function AppProvider({ children }) {
 
           return shuffleItems(allGradeQuestions).slice(0, GENERAL_EXAM_QUESTION_COUNT)
         })()
-      : sortQuestionsByPosition(questions.filter(question => {
+      : sortQuestionsByPosition(placedQuestions.filter(question => {
           const sameGrade = question.grade === grade
           const sameSubject = question.subject === subject
           const sameActivity = question.activityType === activityType
@@ -1095,21 +879,14 @@ export function AppProvider({ children }) {
         mode,
         setMode,
         questions,
-        addQuestion,
-        updateQuestion,
-        duplicateQuestionToTargets,
-        deleteQuestion,
-        deleteQuestions,
-        moveQuestion,
+        placedQuestions,
+        customTracks,
+        applyContent,
         trackCatalog,
-        addTrack,
         whenSaved,
         localOnlyTracks,
         uploadLocalTracks,
         dismissLocalTracks,
-        assignTrackToGrade,
-        renameTrack,
-        deleteTrack,
         selectedGrade,
         selectedSubject,
         selectedLevel,

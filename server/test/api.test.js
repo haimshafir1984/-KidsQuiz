@@ -909,6 +909,60 @@ describe('נושאים שנוצרו בניהול', () => {
   })
 })
 
+describe('שאלה בכמה מקומות', () => {
+  let admin
+  let stu
+  before(async () => {
+    admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    stu = client()
+    await stu.call('POST', '/api/auth/register', student({ email: 'places@example.com', firstName: 'מקומות' }))
+  })
+  const places = [
+    { grade: 'grade-8', subject: 'מקום ראשון', level: 'א', activityType: 'practice', position: 3 },
+    { grade: 'grade-12', subject: 'מקום שני', level: null, activityType: 'exam', position: 1 },
+  ]
+  const base = { id: 'multi-1', text: 'משותפת', type: 'open', correct_answer: ['ת'], grade: 'שגוי', subject: 'שגוי', placements: places }
+  const read = async who => (await who.call('GET', '/api/questions')).body.questions.find(q => q.id === 'multi-1')
+
+  test('המקומות נשמרים, והמקום הראשון משוכפל לשדות הרגילים ולעמודות', async () => {
+    assert.equal((await admin.call('POST', '/api/admin/questions', base)).status, 200)
+    const saved = await read(stu)
+    assert.deepEqual(saved.placements, places)
+    assert.deepEqual([saved.grade, saved.subject, saved.level, saved.position], ['grade-8', 'מקום ראשון', 'א', 3])
+    const { rows } = await pool.query("SELECT grade, subject, level, activity_type, position FROM questions WHERE id = 'multi-1'")
+    assert.deepEqual(Object.values(rows[0]), ['grade-8', 'מקום ראשון', 'א', 'practice', 3])
+  })
+
+  test('תלמיד רואה נושא שהשאלה משויכת אליו כמקום נוסף; נושא מוסתר נשלח לכולם', async () => {
+    await admin.call('PUT', '/api/admin/tracks', { grade: 'grade-12', subject: 'מקום שני', levels: [], activities: ['exam'] })
+    await admin.call('PUT', '/api/admin/tracks', { grade: 'grade-8', subject: 'תנ"ך', levels: [], hidden: true, levelsKind: 'subtopic' })
+    const { tracks } = (await stu.call('GET', '/api/tracks')).body
+    assert.ok(tracks['grade-12'].find(item => item.subject === 'מקום שני'))
+    const hidden = tracks['grade-8'].find(item => item.subject === 'תנ"ך')
+    assert.equal(hidden.hidden, true)
+    assert.equal(hidden.levelsKind, 'subtopic')
+  })
+
+  test('מקום יחיד נשמר בלי placements, ורשימה לא תקינה נדחית', async () => {
+    await admin.call('PUT', '/api/admin/questions/multi-1', { ...base, placements: [places[1]] })
+    const saved = await read(admin)
+    assert.equal(saved.placements, undefined)
+    assert.equal(saved.subject, 'מקום שני')
+    for (const bad of [[], 'x', [{ grade: 'grade-8' }], [{ ...places[0], activityType: 'other' }], Array.from({ length: 101 }, (_, i) => ({ ...places[0], level: String(i) }))]) {
+      assert.equal((await admin.call('PUT', '/api/admin/questions/multi-1', { ...base, placements: bad })).status, 400)
+    }
+  })
+
+  test('מקום כפול מאוחד, ושחזור אחרי מחיקה מחזיר את כל המקומות', async () => {
+    await admin.call('PUT', '/api/admin/questions/multi-1', { ...base, placements: [...places, { ...places[0], activityType: 'exam' }] })
+    assert.equal((await read(admin)).placements.length, 2)
+    await admin.call('POST', '/api/admin/questions/delete', { ids: ['multi-1'] })
+    await admin.call('POST', '/api/admin/questions/multi-1/restore')
+    assert.deepEqual((await read(admin)).placements, places)
+  })
+})
+
 describe('הגבלת ניסיונות', () => {
   test('אחרי כמה ניסיונות כניסה שגויים מתקבלת חסימה זמנית', async () => {
     const limited = await buildApp({ pool, authRateLimitMax: 3 })
