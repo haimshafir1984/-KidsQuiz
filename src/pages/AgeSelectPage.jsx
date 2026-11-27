@@ -1,15 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { getActivityLabel, GRADES } from '../data/learningTracks'
+import { getActivityLabel } from '../data/learningTracks'
 import { isDesktopRuntime } from '../utils/runtime'
 
 export default function AgeSelectPage() {
   const navigate = useNavigate()
-  const { chooseGrade, savedQuizProgress, prepareQuiz } = useApp()
+  const { chooseGrade, savedQuizProgress, prepareQuiz, visibleGrades } = useApp()
   const desktop = isDesktopRuntime()
 
   // התרגול האחרון שנשמר ועדיין לא הסתיים - מוצג בראש המסך כדי להמשיך בלחיצה אחת
-  const lastProgress = [...(savedQuizProgress || [])]
+  // תרגול פתוח בקטגוריה שהוסתרה לא מוצע להמשך
+  const visibleValues = new Set(visibleGrades.map(grade => grade.value))
+  const openProgress = (savedQuizProgress || []).filter(progress => visibleValues.has(progress.grade))
+  const lastProgress = [...openProgress]
     .sort((first, second) => new Date(second.updatedAt || 0) - new Date(first.updatedAt || 0))[0] || null
 
   function handleResume(progress) {
@@ -58,17 +61,17 @@ export default function AgeSelectPage() {
             <button onClick={() => handleResume(lastProgress)} className="btn-primary w-full py-3.5 text-lg sm:w-auto">
               להמשיך מאיפה שעצרתי
             </button>
-            {savedQuizProgress.length > 1 && (
+            {openProgress.length > 1 && (
               <button onClick={() => navigate('/profile')} className="btn-secondary w-full py-3.5 text-lg sm:w-auto">
-                כל התרגולים הפתוחים ({savedQuizProgress.length})
+                כל התרגולים הפתוחים ({openProgress.length})
               </button>
             )}
           </div>
         </section>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2">
-        {GRADES.map(grade => (
+      <section className={`grid gap-4 ${visibleGrades.length > 1 ? 'md:grid-cols-2' : ''}`}>
+        {visibleGrades.map(grade => (
           <button
             key={grade.value}
             onClick={() => handleGradeSelect(grade.value)}

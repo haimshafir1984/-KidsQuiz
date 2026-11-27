@@ -10,6 +10,8 @@ import pirkeiAvotNewQuestions from './pirkeiAvotNewQuestions.js'
 import lawsNewQuestions from './lawsNewQuestions.js'
 import jewishIntelligenceNewQuestions from './jewishIntelligenceNewQuestions.js'
 import { normalizeSubjectName } from './subjectCatalog.js'
+import contentFixes from './contentFixes.js'
+import { applyContentFixes } from '../utils/contentFixes.js'
 
 const THINKING_CHALLENGE_SUBJECT_MAP = {
   'מילולי: אוצר מילים': 'אתגר מחשבתי: מילולי: אוצר מילים',
@@ -407,7 +409,7 @@ const thinkingChallengeQuestions = buildThinkingChallengeQuestions([
   ...sharedOutlierQuestions,
 ])
 
-export default [
+const allQuestions = [
   ...normalizedDemoQuestions,
   ...sharedOutlierQuestions,
   ...importedChallengeQuestions,
@@ -422,3 +424,6 @@ export default [
   ...lawsNewQuestions,
   ...jewishIntelligenceNewQuestions,
 ]
+
+// תיקוני ההגהה של הלקוחה מוחלים על המאגר שבקוד
+export default applyContentFixes(allQuestions, contentFixes).questions

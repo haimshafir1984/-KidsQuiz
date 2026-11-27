@@ -148,6 +148,8 @@ KidsQuiz/
 | `kq_quiz_progress`  | מפת התקדמות שמורה לפי משתמש/מסלול              | storage.js |
 | `kq_server_db`      | משתמשים + תוצאות במצב "מקוון" (שרת מדומה)      | db.js      |
 | `kq_local_db`       | תוצאות במצב "מקומי/אופליין"                   | db.js      |
+| `kq_site_settings`  | קטגוריות מוסתרות ושאלות ההתנסות (מצב מקומי)    | storage.js |
+| `kq_content_version`| גרסת תיקוני התוכן שהוחלה על הנתונים המקומיים  | storage.js |
 | `kq_mode`           | מצב עבודה שנבחר (online/offline)              | db.js      |
 
 > בטעינה ראשונה: אם `kq_questions` ריק, נטענות שאלות מ-`seedQuestions.js` (שמאחד את כל קובצי `data/imported*` ו-`seriesCompletionQuestions`).
@@ -296,6 +298,14 @@ npm run license:generate -- --customerName="שם הלקוח"
 - תשלומים ומנויים (ר' `docs/BILLING.md`): מנוי שפג לא מנתק; `requireUser` דורש מנוי בתוקף ו-`requireAccount` מיועד לפעולות חשבון בלבד; באתר המשתמש מועבר ל-`/renew` (`RenewPage.jsx`). תשלומים מאושרים רק דרך `server/src/billing.js` (`confirmPayment`); מסלולים ורישום ידני בניהול (`PlansManager.jsx`, `PaymentsPanel.jsx`). תשלום מקוון כבוי.
 - כותרות אבטחה של האתר ב-`security-headers.inc` (נכללות בכל `location` ב-`nginx.conf`, כי `add_header` ב-location מבטל כותרות שהוגדרו ב-server).
 - פריסה והגדרות Dokploy: `docs/DOKPLOY_API_SETUP.md`, תשתית כללית: `docs/PRODUCTION_INFRA.md`.
+
+---
+
+## הגדרות האתר, התנסות ותיקוני תוכן
+
+- לשונית "הגדרות האתר" בניהול (`pages/admin/SiteSettingsTab.jsx`): הצגה והסתרה של קטגוריות, ובחירת שאלות ההתנסות בעמוד הפתיחה (`DemoTryout.jsx`, מקובצות לפי נושא ותת-נושא). ברירות המחדל ב-`src/data/siteDefaults.js` (רק `grade-8` גלויה). הסתרה לא מוחקת תוכן. מסכי תלמיד משתמשים ב-`visibleGrades` מ-AppContext ולא ב-`GRADES`.
+- שמירה: במצב שרת בטבלת `site_settings` (מיגרציה 005, `server/src/routes/site.js`); `GET /api/site` ציבורי ומחזיר רק את שאלות ההתנסות. אחרת ב-localStorage (`kq_site_settings`).
+- תיקוני הגהה: `src/data/contentFixes.js` (לכל תיקון נוסח מקורי `from`), מוחלים על המאגר שבקוד, פעם אחת על נתוני דפדפן (`kq_content_version`) ופעם אחת בשרת בעלייה (`server/src/contentPatch.js`). שאלה שנערכה בניהול לא נדרסת; הסרות בשרת הן מחיקה רכה ונרשמות ביומן. לסבב תיקונים נוסף: קובץ חדש וגרסה חדשה ב-`CONTENT_FIXES_VERSION`, בלי לאבד את הסבב הקודם.
 
 ---
 

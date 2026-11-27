@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Users, BookCopy, History } from 'lucide-react'
+import { Users, BookCopy, History, Settings } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import AdminUsers from './AdminUsers'
 import AdminActivity from './AdminActivity'
@@ -10,6 +10,7 @@ import { createToast } from './admin/adminShared'
 import { TabButton, SummaryHeader } from './admin/AdminTabs'
 import ContentTab from './admin/content/ContentTab'
 import LocalTracksNotice from './admin/LocalTracksNotice'
+import SiteSettingsTab from './admin/SiteSettingsTab'
 
 export default function AdminPage() {
   const { questions, storageError, clearStorageError, localOnlyTracks, uploadLocalTracks, dismissLocalTracks } = useApp()
@@ -71,6 +72,12 @@ export default function AdminPage() {
           icon={Users}
           onClick={() => setActiveTab('users')}
         />
+        <TabButton
+          active={activeTab === 'settings'}
+          label="הגדרות האתר"
+          icon={Settings}
+          onClick={() => setActiveTab('settings')}
+        />
         {API_ENABLED && (
           <TabButton
             active={activeTab === 'activity'}
@@ -83,6 +90,7 @@ export default function AdminPage() {
 
       {activeTab === 'users' && <AdminUsers stats={adminStats} />}
       {activeTab === 'activity' && <AdminActivity />}
+      {activeTab === 'settings' && <SiteSettingsTab pushToast={pushToast} />}
 
       {/* לשונית התוכן נשארת טעונה, כדי שהמקום בעץ לא יאבד במעבר בין לשוניות */}
       <div className={activeTab === 'content' ? 'flex flex-col gap-4' : 'hidden'}>

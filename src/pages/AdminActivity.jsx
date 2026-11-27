@@ -11,7 +11,7 @@ const ACTION_LABELS = {
   export: 'ייצוא נתונים',
   reset_password: 'איפוס סיסמה',
 }
-const ENTITY_LABELS = { question: 'שאלה', user: 'משתמש', track: 'נושא' }
+const ENTITY_LABELS = { question: 'שאלה', user: 'משתמש', track: 'נושא', settings: 'הגדרות האתר' }
 
 function formatDateTime(value) {
   return new Date(value).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' })

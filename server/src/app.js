@@ -12,6 +12,7 @@ import resultRoutes from './routes/results.js'
 import adminRoutes from './routes/admin.js'
 import { adminBillingRoutes, userBillingRoutes } from './routes/billing.js'
 import { adminTrackRoutes, userTrackRoutes } from './routes/tracks.js'
+import { adminSiteRoutes, publicSiteRoutes } from './routes/site.js'
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
@@ -71,6 +72,8 @@ export async function buildApp({
   await app.register(adminBillingRoutes, { prefix: '/api/admin' })
   await app.register(userTrackRoutes, { prefix: '/api' })
   await app.register(adminTrackRoutes, { prefix: '/api/admin' })
+  await app.register(publicSiteRoutes, { prefix: '/api' })
+  await app.register(adminSiteRoutes, { prefix: '/api/admin' })
 
   app.setErrorHandler((error, request, reply) => {
     if (error.statusCode && error.statusCode < 500) {

@@ -1,11 +1,13 @@
 import { config } from './config.js'
 import { pool } from './db.js'
 import { migrate } from './migrate.js'
+import { applyContentPatch } from './contentPatch.js'
 import { buildApp } from './app.js'
 import { purgeExpiredSessions } from './auth.js'
 
 // בעלייה מריצים מיגרציות (בטוח להרצה חוזרת), ואז מקשיבים
 await migrate(pool, message => console.log(message))
+await applyContentPatch(pool, message => console.log(message))
 const app = await buildApp({ pool, logger: true })
 
 // ניקוי התחברויות שפג תוקפן: בעלייה ואחת ל-6 שעות

@@ -241,7 +241,7 @@ function SelfCheck({ question, onAnswer, answered }) {
 
       {(revealed || answered) && (
         <>
-          <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-right text-lg leading-8 text-slate-900">
+          <div className="whitespace-pre-line rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-right text-lg leading-8 text-slate-900">
             <div className="mb-1 text-base font-bold text-blue-700">התשובה:</div>
             {question.correct_answer[0]}
           </div>

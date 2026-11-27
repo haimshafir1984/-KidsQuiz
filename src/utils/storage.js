@@ -5,6 +5,8 @@ const KEYS = {
   QUESTIONS: 'kq_questions',
   TRACKS: 'kq_tracks',
   QUIZ_PROGRESS: 'kq_quiz_progress',
+  SITE_SETTINGS: 'kq_site_settings',
+  CONTENT_VERSION: 'kq_content_version',
 }
 
 function getTrackDefaults() {
@@ -46,6 +48,22 @@ export function getCustomTracks() {
 
 export function saveCustomTracks(tracks) {
   return safeSetItem(KEYS.TRACKS, tracks)
+}
+
+export function getSiteSettings() {
+  return safeParse(localStorage.getItem(KEYS.SITE_SETTINGS), null)
+}
+
+export function saveSiteSettings(settings) {
+  return safeSetItem(KEYS.SITE_SETTINGS, settings)
+}
+
+export function getContentVersion() {
+  return safeParse(localStorage.getItem(KEYS.CONTENT_VERSION), null)
+}
+
+export function saveContentVersion(version) {
+  return safeSetItem(KEYS.CONTENT_VERSION, version)
 }
 
 export function getQuizProgressMap() {

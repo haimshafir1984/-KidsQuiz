@@ -3,6 +3,7 @@ import { after, before, describe, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createPool } from '../src/db.js'
 import { migrate } from '../src/migrate.js'
+import { applyContentPatch } from '../src/contentPatch.js'
 import { buildApp } from '../src/app.js'
 import { hashPassword, verifyPassword } from '../src/password.js'
 import { clientIp, isCloudflareAddress } from '../src/limiter.js'
@@ -960,6 +961,78 @@ describe('שאלה בכמה מקומות', () => {
     await admin.call('POST', '/api/admin/questions/delete', { ids: ['multi-1'] })
     await admin.call('POST', '/api/admin/questions/multi-1/restore')
     assert.deepEqual((await read(admin)).placements, places)
+  })
+})
+
+describe('הגדרות האתר ותיקוני תוכן', () => {
+  const adminClient = async () => {
+    const admin = client()
+    await admin.call('POST', '/api/auth/login', { identifier: 'admin@example.com', password: 'admin-pass-123' })
+    return admin
+  }
+
+  test('קריאה ציבורית: ברירת מחדל, ושינוי רק על ידי מנהל', async () => {
+    const guest = client()
+    const initial = await guest.call('GET', '/api/site')
+    assert.equal(initial.status, 200)
+    assert.deepEqual(initial.body.settings.hiddenGrades, ['grade-12', 'thinking-challenge'])
+    const body = { hiddenGrades: [], demoQuestionIds: [] }
+    assert.equal((await guest.call('PUT', '/api/admin/site', body)).status, 401)
+
+    const admin = await adminClient()
+    for (const id of ['demo-b', 'demo-a', 'demo-private']) {
+      const created = await admin.call('POST', '/api/admin/questions', {
+        id, grade: 'grade-8', subject: 'הדגמה', type: 'open', text: `שאלה ${id}`, correct_answer: ['כן'],
+      })
+      assert.equal(created.status, 200)
+    }
+    const saved = await admin.call('PUT', '/api/admin/site', { hiddenGrades: ['grade-12', 'לא-קיים'], demoQuestionIds: ['demo-a', 'demo-b', 'missing'] })
+    assert.equal(saved.status, 200)
+
+    const after = await guest.call('GET', '/api/site')
+    assert.deepEqual(after.body.settings.hiddenGrades, ['grade-12'])
+    // רק מה שנבחר, לפי הסדר שנקבע
+    assert.deepEqual(after.body.demoQuestions.map(question => question.id), ['demo-a', 'demo-b'])
+
+    await admin.call('POST', '/api/admin/questions/delete', { ids: ['demo-a'] })
+    assert.deepEqual((await guest.call('GET', '/api/site')).body.demoQuestions.map(question => question.id), ['demo-b'])
+    assert.equal((await admin.call('PUT', '/api/admin/site', { hiddenGrades: 'x' })).status, 400)
+  })
+
+  test('תיקוני תוכן: מתקנים ומסירים רק שאלות מקוריות, פעם אחת, עם רישום ביומן', async () => {
+    const admin = await adminClient()
+    const make = (id, text) => admin.call('POST', '/api/admin/questions', {
+      id, grade: 'grade-8', subject: 'תיקונים', type: 'open', text, options: [], correct_answer: ['ישן'],
+    })
+    await make('fix-original', 'נוסח מקורי')
+    await make('fix-edited', 'נוסח שנערך בניהול')
+    await make('fix-remove', 'להסרה')
+    const from = text => ({ text, type: 'open', options: [], correct_answer: ['ישן'] })
+    const fixes = {
+      updates: ['fix-original', 'fix-edited'].map(id => ({ id, from: from('נוסח מקורי'), to: { correct_answer: ['ישן', 'חדש'] } })),
+      removals: [{ id: 'fix-remove', from: from('להסרה') }],
+    }
+
+    const summary = await applyContentPatch(pool, () => {}, fixes, 'test-1')
+    assert.deepEqual({ updated: summary.updated, removed: summary.removed }, { updated: 1, removed: 1 })
+    const { rows } = await pool.query('SELECT id, data, deleted FROM questions WHERE id LIKE \'fix-%\' ORDER BY id')
+    const row = Object.fromEntries(rows.map(item => [item.id, item]))
+    assert.deepEqual(row['fix-original'].data.correct_answer, ['ישן', 'חדש'])
+    assert.equal(row['fix-original'].data.id, undefined)
+    assert.deepEqual(row['fix-edited'].data.correct_answer, ['ישן'])
+    assert.equal(row['fix-remove'].deleted, true)
+    const log = await pool.query('SELECT count(*)::int AS n FROM audit_log WHERE actor_id IS NULL AND entity_id LIKE \'fix-%\'')
+    assert.equal(log.rows[0].n, 2)
+
+    // שאלה ששוחזרה לא נמחקת שוב בעלייה הבאה
+    await admin.call('POST', '/api/admin/questions/fix-remove/restore', {})
+    assert.equal(await applyContentPatch(pool, () => {}, fixes, 'test-1'), null)
+    assert.equal((await pool.query('SELECT deleted FROM questions WHERE id = \'fix-remove\'')).rows[0].deleted, false)
+  })
+
+  test('קובץ התיקונים האמיתי רץ בלי שגיאה', async () => {
+    const summary = await applyContentPatch(pool)
+    assert.ok(summary.expected > 300)
   })
 })
 

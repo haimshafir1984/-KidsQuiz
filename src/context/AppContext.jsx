@@ -8,7 +8,14 @@ import {
   saveCustomTracks,
   getQuizProgressMap,
   saveQuizProgressMap,
+  getSiteSettings,
+  saveSiteSettings,
+  getContentVersion,
+  saveContentVersion,
 } from '../utils/storage'
+import contentFixes from '../data/contentFixes'
+import { applyContentFixes, CONTENT_FIXES_VERSION } from '../utils/contentFixes'
+import { normalizeSiteSettings, pickDemoQuestions } from '../utils/siteSettings'
 import {
   seedAdmin,
   serverFindUser,
@@ -403,11 +410,19 @@ export function AppProvider({ children }) {
       const mergedQuestions = missingSeedQuestions.length > 0 ? [...withoutLegacyQuestions, ...missingSeedQuestions] : withoutLegacyQuestions
       const { normalized: subjectNormalizedQuestions, changed: subjectNamesChanged } = normalizeQuestionSubjects(mergedQuestions)
       const { normalized: titleNormalizedQuestions, changed: groupTitlesChanged } = normalizeQuestionGroupTitles(subjectNormalizedQuestions)
-      const { normalized, changed } = ensureQuestionPositions(titleNormalizedQuestions)
+      const { normalized: positioned, changed } = ensureQuestionPositions(titleNormalizedQuestions)
 
-      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || subjectNamesChanged || groupTitlesChanged || changed) {
-        saveQuestions(normalized)
+      // תיקוני תוכן לנתונים שכבר שמורים בדפדפן: פעם אחת, ורק לשאלות שלא נערכו בניהול
+      const needsContentFixes = getContentVersion() !== CONTENT_FIXES_VERSION
+      const fixes = needsContentFixes ? applyContentFixes(positioned, contentFixes) : null
+      const normalized = fixes ? fixes.questions : positioned
+      const contentChanged = Boolean(fixes && (fixes.updated.length > 0 || fixes.removed.length > 0))
+
+      let saved = true
+      if (stored.length !== withoutLegacyQuestions.length || missingSeedQuestions.length > 0 || subjectNamesChanged || groupTitlesChanged || changed || contentChanged) {
+        saved = saveQuestions(normalized)
       }
+      if (needsContentFixes && saved) saveContentVersion(CONTENT_FIXES_VERSION)
 
       setQuestions(normalized)
       return
@@ -416,9 +431,46 @@ export function AppProvider({ children }) {
     const normalizedSeedQuestions = normalizeQuestionSubjects(seedQuestions).normalized
     const titleNormalizedSeedQuestions = normalizeQuestionGroupTitles(normalizedSeedQuestions).normalized
     const { normalized } = ensureQuestionPositions(titleNormalizedSeedQuestions)
-    saveQuestions(normalized)
+    if (saveQuestions(normalized)) saveContentVersion(CONTENT_FIXES_VERSION)
     setQuestions(normalized)
   }, [])
+
+  // הגדרות האתר: באתר המקוון מהשרת (גם לפני התחברות, בשביל ההתנסות), אחרת מהדפדפן
+  const [siteSettings, setSiteSettings] = useState(() => normalizeSiteSettings(API_ENABLED ? null : getSiteSettings()))
+  const [remoteDemoQuestions, setRemoteDemoQuestions] = useState(null)
+
+  useEffect(() => {
+    if (!API_ENABLED) return undefined
+    let cancelled = false
+    api.get('/site').then(response => {
+      if (cancelled || !response.ok || !response.data?.settings) return
+      setSiteSettings(normalizeSiteSettings(response.data.settings))
+      setRemoteDemoQuestions(response.data.demoQuestions || [])
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  // אם השרת לא ענה, ההתנסות מוצגת מהשאלות שבקוד כדי שעמוד הפתיחה לא יישאר ריק
+  const demoQuestions = useMemo(() => (
+    remoteDemoQuestions ?? pickDemoQuestions(API_ENABLED ? seedQuestions : questions, siteSettings.demoQuestionIds)
+  ), [remoteDemoQuestions, questions, siteSettings])
+
+  const visibleGrades = useMemo(() => GRADES.filter(grade => !siteSettings.hiddenGrades.includes(grade.value)), [siteSettings])
+
+  async function updateSiteSettings(next) {
+    const normalized = normalizeSiteSettings(next)
+    if (API_ENABLED) {
+      const response = await api.put('/admin/site', normalized)
+      if (!response.ok) return { error: response.error }
+      setSiteSettings(normalizeSiteSettings(response.data.settings))
+      const fresh = await api.get('/site')
+      if (fresh.ok) setRemoteDemoQuestions(fresh.data.demoQuestions || [])
+      return { success: true }
+    }
+    if (!saveSiteSettings(normalized)) return { error: 'לא ניתן היה לשמור: נפח האחסון המקומי מלא.' }
+    setSiteSettings(normalized)
+    return { success: true }
+  }
 
   // כניסה/הרשמה מול השרת: ההרשאה, הסיסמה והמנוי נבדקים בשרת בלבד
   async function serverAuth(path, body) {
@@ -880,6 +932,10 @@ export function AppProvider({ children }) {
         setMode,
         questions,
         placedQuestions,
+        siteSettings,
+        updateSiteSettings,
+        visibleGrades,
+        demoQuestions,
         customTracks,
         applyContent,
         trackCatalog,

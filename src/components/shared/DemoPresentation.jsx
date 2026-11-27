@@ -1,18 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
   BookOpenCheck,
   CheckCircle2,
-  CircleHelp,
   Clock3,
   LayoutDashboard,
   Sparkles,
   Target,
   Trophy,
-  X,
 } from 'lucide-react'
+import { useApp } from '../../context/AppContext'
+import DemoTryout from './DemoTryout'
 
 const SLIDES = [
   {
@@ -57,17 +57,6 @@ const SLIDES = [
   },
 ]
 
-const TRY_MULTIPLE_QUESTION = {
-  text: 'מי חיבר את הספר "היד החזקה"?',
-  options: ['הרמב"ם', 'רבי יהודה הלוי', 'רבי יוסף קארו', 'הרב קוק'],
-  correctAnswer: 'הרמב"ם',
-}
-
-const TRY_OPEN_QUESTION = {
-  text: 'השלימו את המשפט: "עלינו לשבח ל___ הכל"',
-  correctAnswer: 'אדון',
-}
-
 function IntroSlide() {
   return (
     <div className="demo-device demo-device--soft">
@@ -95,8 +84,8 @@ function IntroSlide() {
           <div className="demo-kpi__icon demo-kpi__icon--amber">
             <Trophy className="h-4 w-4" />
           </div>
-          <strong>3</strong>
-          <span>מסלולים</span>
+          <strong>5</strong>
+          <span>סוגי שאלות</span>
         </article>
       </div>
 
@@ -251,24 +240,11 @@ function ProfileSlide() {
 export default function DemoPresentation() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isTryModalOpen, setIsTryModalOpen] = useState(false)
-  const [selectedOption, setSelectedOption] = useState('')
-  const [openAnswer, setOpenAnswer] = useState('')
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const { demoQuestions } = useApp()
 
   const activeSlide = SLIDES[activeIndex]
   const ActiveSlideComponent = activeSlide.render
   const ActiveIcon = activeSlide.icon
-
-  const isMultipleCorrect = selectedOption === TRY_MULTIPLE_QUESTION.correctAnswer
-  const isOpenCorrect = openAnswer.trim().toLowerCase() === TRY_OPEN_QUESTION.correctAnswer
-  const score = Number(isMultipleCorrect) + Number(isOpenCorrect)
-
-  const resultMessage = useMemo(() => {
-    if (!isSubmitted) return ''
-    if (score === 2) return 'יפה מאוד, שתי התשובות נכונות.'
-    if (score === 1) return 'יפה, תשובה אחת נכונה. כבר מרגישים את חוויית המערכת.'
-    return 'זו רק הדגמה קצרה, ותמיד אפשר לנסות שוב.'
-  }, [isSubmitted, score])
 
   function goToNext() {
     setActiveIndex((previous) => (previous + 1) % SLIDES.length)
@@ -276,21 +252,6 @@ export default function DemoPresentation() {
 
   function goToPrevious() {
     setActiveIndex((previous) => (previous - 1 + SLIDES.length) % SLIDES.length)
-  }
-
-  function openTryModal() {
-    setSelectedOption('')
-    setOpenAnswer('')
-    setIsSubmitted(false)
-    setIsTryModalOpen(true)
-  }
-
-  function closeTryModal() {
-    setIsTryModalOpen(false)
-  }
-
-  function submitTryAnswers() {
-    setIsSubmitted(true)
   }
 
   return (
@@ -338,124 +299,16 @@ export default function DemoPresentation() {
             <span className="demo-presentation__caption">
               שקופית {activeIndex + 1} מתוך {SLIDES.length}
             </span>
-            <button type="button" className="demo-presentation__cta" onClick={openTryModal}>
-              רוצה להתנסות
-            </button>
+            {demoQuestions.length > 0 && (
+              <button type="button" className="demo-presentation__cta" onClick={() => setIsTryModalOpen(true)}>
+                רוצה להתנסות
+              </button>
+            )}
           </div>
         </div>
       </aside>
 
-      {isTryModalOpen ? (
-        <div className="demo-modal__backdrop" role="presentation" onClick={closeTryModal}>
-          <div
-            className="demo-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="demo-tryout-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="demo-modal__header">
-              <div>
-                <div className="demo-modal__eyebrow">התנסות קצרה</div>
-                <h3 id="demo-tryout-title" className="demo-modal__title">
-                  רוצים להרגיש את המערכת מבפנים?
-                </h3>
-                <p className="demo-modal__subtitle">
-                  שתי שאלות קצרות, אחת סגורה ואחת פתוחה, כדי לראות את החוויה בזמן אמת.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                className="demo-modal__close"
-                onClick={closeTryModal}
-                aria-label="סגירת חלון ההתנסות"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="demo-modal__grid">
-              <article className="demo-modal__question">
-                <div className="demo-modal__question-head">
-                  <span className="demo-modal__question-type">שאלה סגורה</span>
-                  <CircleHelp className="h-4 w-4" />
-                </div>
-                <p className="demo-modal__question-text">{TRY_MULTIPLE_QUESTION.text}</p>
-                <div className="demo-modal__options">
-                  {TRY_MULTIPLE_QUESTION.options.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className={`demo-modal__option ${
-                        selectedOption === option ? 'demo-modal__option--active' : ''
-                      }`}
-                      onClick={() => setSelectedOption(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-
-                {isSubmitted ? (
-                  <p
-                    className={`demo-modal__feedback ${
-                      isMultipleCorrect
-                        ? 'demo-modal__feedback--success'
-                        : 'demo-modal__feedback--neutral'
-                    }`}
-                  >
-                    {isMultipleCorrect
-                      ? 'נכון מאוד, זו התשובה המדויקת.'
-                      : `התשובה בדוגמה היא: ${TRY_MULTIPLE_QUESTION.correctAnswer}`}
-                  </p>
-                ) : null}
-              </article>
-
-              <article className="demo-modal__question">
-                <div className="demo-modal__question-head">
-                  <span className="demo-modal__question-type">שאלה פתוחה</span>
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-                <p className="demo-modal__question-text">{TRY_OPEN_QUESTION.text}</p>
-                <input
-                  type="text"
-                  className="demo-modal__input"
-                  placeholder="כתבו כאן את התשובה"
-                  value={openAnswer}
-                  onChange={(event) => setOpenAnswer(event.target.value)}
-                />
-
-                {isSubmitted ? (
-                  <p
-                    className={`demo-modal__feedback ${
-                      isOpenCorrect
-                        ? 'demo-modal__feedback--success'
-                        : 'demo-modal__feedback--neutral'
-                    }`}
-                  >
-                    {isOpenCorrect
-                      ? 'מעולה, זו בדיוק ההשלמה הנכונה.'
-                      : `התשובה בדוגמה היא: ${TRY_OPEN_QUESTION.correctAnswer}`}
-                  </p>
-                ) : null}
-              </article>
-            </div>
-
-            <div className="demo-modal__footer">
-              <p className="demo-modal__result">{isSubmitted ? resultMessage : ' '}</p>
-              <div className="demo-modal__actions">
-                <button type="button" className="demo-modal__secondary" onClick={closeTryModal}>
-                  סגירה
-                </button>
-                <button type="button" className="demo-modal__primary" onClick={submitTryAnswers}>
-                  בדיקת תשובות
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {isTryModalOpen && <DemoTryout questions={demoQuestions} onClose={() => setIsTryModalOpen(false)} />}
     </>
   )
 }
